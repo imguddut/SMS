@@ -123,19 +123,19 @@ export default function OwnerInsightsPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="font-sans text-[11px] font-bold text-secondary uppercase tracking-widest">
-                National Sovereign Neural Strategy
+                Smart AI Planning
               </span>
               <span className="text-outline text-xs">•</span>
               <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#3D5B42]">
                 <span className="w-2 h-2 rounded-full bg-[#3D5B42] animate-pulse"></span>
-                Inference Latency: 12ms (Mumbai Sovereign Enclave)
+                Fast Cloud AI
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
               Executive AI Advisory &amp; Simulation Studio
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
-              Simulate CBSE fee tariff adjustments, hostel capacity expansion, Monte Carlo cash flow forecasting in ₹, and cross-fleet institutional benchmarks.
+              Plan for fee changes, building new rooms, and see how much money the school will make in the future.
             </p>
           </div>
 
@@ -145,7 +145,7 @@ export default function OwnerInsightsPage() {
               className="bg-primary hover:bg-primary-hover text-surface gap-2 text-xs"
             >
               <Sparkles className="w-4 h-4 text-secondary" />
-              Commit Strategic Warrant
+              Save Changes
             </Button>
           </div>
         </div>
@@ -153,9 +153,9 @@ export default function OwnerInsightsPage() {
         {/* View Switcher Tabs */}
         <div className="flex items-center gap-2 border-b border-surface-container-high pb-3">
           {[
-            { id: "STUDIO", label: "Interactive Simulation Studio" },
-            { id: "PROPOSALS", label: "Strategic AI Proposals (4 Active)" },
-            { id: "BENCHMARKS", label: "Cross-Fleet Benchmarks" },
+            { id: "STUDIO", label: "Plan Changes Tool" },
+            { id: "PROPOSALS", label: "Smart AI Advice (4 New)" },
+            { id: "BENCHMARKS", label: "Compare with other schools" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -194,7 +194,7 @@ export default function OwnerInsightsPage() {
                 <div className="flex items-center gap-6 border-t md:border-t-0 md:border-l border-white/15 pt-4 md:pt-0 md:pl-6 text-xs font-sans text-white/90">
                   <div>
                     <div className="text-white/60 text-[10px] uppercase tracking-wider font-bold">
-                      Projected ARR
+                      Expected Yearly Income
                     </div>
                     <div className="font-serif text-2xl font-bold text-secondary mt-0.5">
                       {formatIndianLakhsCrores(simResult.projectedArr)}
@@ -205,7 +205,7 @@ export default function OwnerInsightsPage() {
                   </div>
                   <div>
                     <div className="text-white/60 text-[10px] uppercase tracking-wider font-bold">
-                      EBIT Margin
+                      Profit Margin
                     </div>
                     <div className="font-serif text-2xl font-bold text-white mt-0.5">
                       {simResult.ebitMargin}%
@@ -227,7 +227,7 @@ export default function OwnerInsightsPage() {
                     <div className="flex items-center gap-2">
                       <Sliders className="w-4 h-4 text-secondary" />
                       <h4 className="font-serif text-lg font-medium text-primary">
-                        Scenario Parameters
+                        Change Settings to see Future
                       </h4>
                     </div>
                     <Button
@@ -244,14 +244,14 @@ export default function OwnerInsightsPage() {
                       className="text-xs text-secondary gap-1"
                     >
                       <RefreshCw className="w-3 h-3" />
-                      Reset to Baseline
+                      Reset to Normal
                     </Button>
                   </div>
 
                   {/* Slider 1: Fee Adjustment */}
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs font-sans">
-                      <span className="font-medium text-primary">Tuition Tariff Adjustment</span>
+                      <span className="font-medium text-primary">Change Monthly Fees</span>
                       <span className="font-bold text-secondary font-mono">
                         {params.feeAdjustmentPercent > 0 ? `+${params.feeAdjustmentPercent}%` : `${params.feeAdjustmentPercent}%`}
                       </span>
@@ -299,7 +299,7 @@ export default function OwnerInsightsPage() {
                   {/* Slider 3: Faculty Salary Index */}
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs font-sans">
-                      <span className="font-medium text-primary">Faculty Compensation Index (7th CPC+)</span>
+                      <span className="font-medium text-primary">Increase Teacher Salary</span>
                       <span className="font-bold text-secondary font-mono">
                         {params.facultySalaryIndex}%
                       </span>
@@ -323,7 +323,7 @@ export default function OwnerInsightsPage() {
                   {/* Slider 4: Bursary Allocation */}
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs font-sans">
-                      <span className="font-medium text-primary">Discretionary Merit / RTE Scholarship Fund</span>
+                      <span className="font-medium text-primary">Give More Discounts</span>
                       <span className="font-bold text-secondary font-mono">
                         {formatIndianCurrency(params.bursaryAllocationInr)}
                       </span>
@@ -351,7 +351,7 @@ export default function OwnerInsightsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Card className="p-5 border-l-4 border-l-secondary bg-surface">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant font-sans">
-                      Retention Probability
+                      Student Stay Rate
                     </span>
                     <div className="font-serif text-3xl font-medium text-secondary mt-1">
                       {simResult.scholarRetentionRate}%
@@ -363,7 +363,7 @@ export default function OwnerInsightsPage() {
 
                   <Card className="p-5 border-l-4 border-l-primary bg-surface">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant font-sans">
-                      Endowment Surplus Realization
+                      Extra Savings for School
                     </span>
                     <div className="font-serif text-3xl font-medium text-primary mt-1">
                       {formatIndianCurrency(simResult.endowmentRealizationInr)}
@@ -376,7 +376,7 @@ export default function OwnerInsightsPage() {
                 <Card className="p-6 bg-surface-container-lowest/60 border border-secondary/30">
                   <div className="flex items-center gap-2 mb-2 text-secondary font-semibold text-xs uppercase tracking-wider font-sans">
                     <Sparkles className="w-4 h-4" />
-                    AI Neural Strategy Synthesis
+                    AI Smart Result
                   </div>
                   <p className="font-serif text-lg font-normal text-primary leading-relaxed">
                     {simResult.aiAdvisorySummary}
@@ -384,11 +384,11 @@ export default function OwnerInsightsPage() {
 
                   <div className="mt-4 pt-4 border-t border-surface-container-high/60 grid grid-cols-2 gap-4 text-xs font-sans">
                     <div>
-                      <span className="text-on-surface-variant block">Total Enrolled Cohort:</span>
-                      <strong className="text-primary font-mono">{simResult.newNetScholarsCapacity} Scholars</strong>
+                      <span className="text-on-surface-variant block">Total Students:</span>
+                      <strong className="text-primary font-mono">{simResult.newNetScholarsCapacity} Students</strong>
                     </div>
                     <div>
-                      <span className="text-on-surface-variant block">Expansion Break-Even:</span>
+                      <span className="text-on-surface-variant block">Money Back Time:</span>
                       <strong className="text-secondary font-mono">
                         {simResult.breakEvenMonths > 0 ? `${simResult.breakEvenMonths} Months` : "Immediate"}
                       </strong>
@@ -406,9 +406,9 @@ export default function OwnerInsightsPage() {
                       <thead className="border-b border-surface-container-high text-[10px] uppercase text-on-surface-variant font-bold">
                         <tr>
                           <th className="py-2 text-left">Month</th>
-                          <th className="py-2 text-right">Conservative (95% CI)</th>
-                          <th className="py-2 text-right">Expected Mode</th>
-                          <th className="py-2 text-right">Optimistic Upside</th>
+                          <th className="py-2 text-right">Worst Case</th>
+                          <th className="py-2 text-right">Normal Case</th>
+                          <th className="py-2 text-right">Best Case</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-surface-container-high/40">
@@ -545,7 +545,7 @@ export default function OwnerInsightsPage() {
                       <th className="py-3.5 px-4 font-semibold text-right">Avg Annual Fee</th>
                       <th className="py-3.5 px-4 font-semibold text-right">Realization</th>
                       <th className="py-3.5 px-4 font-semibold text-center">CBSE/Board Avg</th>
-                      <th className="py-3.5 px-4 font-semibold text-right">EBIT Margin</th>
+                      <th className="py-3.5 px-4 font-semibold text-right">Profit Margin</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-surface-container-high/40">
@@ -581,7 +581,7 @@ export default function OwnerInsightsPage() {
           </div>
         )}
 
-        {/* Commit Strategic Warrant Modal */}
+        {/* Save Changes Modal */}
         <Modal
           isOpen={isWarrantModalOpen}
           onClose={() => setIsWarrantModalOpen(false)}
@@ -603,16 +603,16 @@ export default function OwnerInsightsPage() {
             <div className="space-y-4">
               <div className="p-4 bg-surface-container-lowest rounded-lg border border-surface-container-high space-y-2 text-xs font-sans">
                 <div className="flex justify-between">
-                  <span className="text-on-surface-variant">Projected ARR Impact:</span>
+                  <span className="text-on-surface-variant">Expected Yearly Income Impact:</span>
                   <strong className="text-secondary font-mono">{formatIndianLakhsCrores(simResult.projectedArr)} (+{simResult.arrDeltaPercent}%)</strong>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-on-surface-variant">Operating EBIT Margin:</span>
+                  <span className="text-on-surface-variant">Operating Profit Margin:</span>
                   <strong className="text-primary font-mono">{simResult.ebitMargin}%</strong>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-on-surface-variant">Hostel / Seat Expansion:</span>
-                  <strong className="text-primary font-mono">+{params.boardingExpansionBeds} Seats (Net: {simResult.newNetScholarsCapacity} Scholars)</strong>
+                  <strong className="text-primary font-mono">+{params.boardingExpansionBeds} Seats (Net: {simResult.newNetScholarsCapacity} Students)</strong>
                 </div>
               </div>
 

@@ -109,30 +109,30 @@ export function Sidebar({
 
       case "OWNER":
         return {
-          section: "Command Console",
+          section: "Owner Menu",
           items: [
             {
-              title: "Business Overview",
+              title: "School Overview",
               href: "/owner/overview",
               icon: <PieChart className="w-4 h-4" />,
             },
             {
-              title: "Fee Analytics",
+              title: "Fee Details",
               href: "/owner/fee-analytics",
               icon: <CreditCard className="w-4 h-4" />,
             },
             {
-              title: "Staff & Faculty",
+              title: "Staff Details",
               href: "/owner/staff",
               icon: <GraduationCap className="w-4 h-4" />,
             },
             {
-              title: "Growth & Admissions",
+              title: "Admissions Progress",
               href: "/owner/growth",
               icon: <TrendingUp className="w-4 h-4" />,
             },
             {
-              title: "AI Business Insights",
+              title: "AI Planning & Advice",
               href: "/owner/insights",
               icon: <BrainCircuit className="w-4 h-4" />,
             },
@@ -350,13 +350,14 @@ export function Sidebar({
 
   const isFinance = role === "ACCOUNTANT";
   const isPlatformAdmin = role === "SUPER_ADMIN";
+  const isOwner = role === "OWNER";
   const isTeacher = role === "TEACHER";
 
   return (
     <aside
       className={cn(
         "fixed left-0 top-0 h-full w-sidebar-w border-r z-50 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] select-none transition-colors duration-200",
-        isPlatformAdmin
+        isPlatformAdmin || isOwner
           ? "bg-[#080E1E] border-[#131F37] text-slate-100"
           : isFinance
           ? "bg-[#0B1528] border-[#182742] text-slate-100"
@@ -368,14 +369,14 @@ export function Sidebar({
         <div
           className={cn(
             "h-20 px-6 flex flex-col justify-center border-b",
-            isPlatformAdmin
+            isPlatformAdmin || isOwner || isFinance
               ? "border-[#131F37]"
               : isFinance
               ? "border-[#182742]"
               : "border-stone-100 dark:border-stone-800/80"
           )}
         >
-          {isPlatformAdmin ? (
+          {isPlatformAdmin || isOwner ? (
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm shrink-0">
                 <svg
@@ -429,14 +430,14 @@ export function Sidebar({
           <div
             className={cn(
               "px-3 pb-2.5 font-sans text-[10px] font-bold uppercase tracking-widest",
-              isPlatformAdmin
+              (isPlatformAdmin || isOwner)
                 ? "text-slate-400"
                 : isFinance
                 ? "text-[#94A3B8]"
                 : "text-stone-500 dark:text-stone-400"
             )}
           >
-            {isPlatformAdmin ? "PLATFORM CONTROL" : navData.section}
+            {isPlatformAdmin ? "PLATFORM CONTROL" : isOwner ? "COMMAND CONSOLE" : navData.section}
           </div>
           <nav className="flex flex-col gap-1">
             {navData.items.map((item) => {
@@ -449,7 +450,7 @@ export function Sidebar({
                   href={item.href}
                   className={cn(
                     "group flex items-center justify-between px-3.5 py-2.5 rounded-xl font-sans text-xs transition-all duration-150",
-                    isPlatformAdmin
+                    (isPlatformAdmin || isOwner)
                       ? isActive
                         ? "bg-[#2563EB] text-white font-medium shadow-sm"
                         : "text-slate-300 hover:bg-white/5 hover:text-white font-medium"
@@ -470,7 +471,7 @@ export function Sidebar({
                     <span
                       className={cn(
                         "transition-colors",
-                        isPlatformAdmin
+                        (isPlatformAdmin || isOwner)
                           ? isActive
                             ? "text-white"
                             : "text-slate-400 group-hover:text-white"
@@ -512,7 +513,7 @@ export function Sidebar({
 
       {/* Bottom Area: User Profile Pill, Logout & Footer */}
       <div className="relative flex flex-col justify-end pt-8">
-        {!isPlatformAdmin && (
+        {!(isPlatformAdmin || isOwner) && (
           <div className="absolute bottom-24 left-2 right-2 pointer-events-none opacity-[0.22] dark:opacity-[0.14] overflow-hidden flex justify-center">
             <svg
               className={cn(
@@ -568,7 +569,7 @@ export function Sidebar({
         <div
           className={cn(
             "mx-3 mb-2 p-2.5 rounded-xl shadow-xs flex items-center justify-between border",
-            isPlatformAdmin
+            (isPlatformAdmin || isOwner)
               ? "bg-[#0F1A34] border-[#1E2E4A] text-white"
               : isFinance
               ? "bg-[#111F36] border-[#1E2E4A] text-white"
@@ -579,7 +580,7 @@ export function Sidebar({
             <div
               className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-xs",
-                isPlatformAdmin
+                (isPlatformAdmin || isOwner)
                   ? "bg-[#7C3AED] text-white"
                   : isFinance
                   ? "bg-slate-200 text-[#0B1528] border border-slate-300"
@@ -596,7 +597,7 @@ export function Sidebar({
               <span
                 className={cn(
                   "font-sans text-xs font-semibold truncate",
-                  isPlatformAdmin || isFinance ? "text-white" : "text-stone-900 dark:text-stone-100"
+                  (isPlatformAdmin || isOwner) || isFinance ? "text-white" : "text-stone-900 dark:text-stone-100"
                 )}
               >
                 {effectiveUserName}
@@ -604,7 +605,7 @@ export function Sidebar({
               <span
                 className={cn(
                   "font-sans text-[9px] font-medium tracking-tight truncate",
-                  isPlatformAdmin || isFinance ? "text-slate-400" : "text-stone-500 dark:text-stone-400"
+                  (isPlatformAdmin || isOwner) || isFinance ? "text-slate-400" : "text-stone-500 dark:text-stone-400"
                 )}
               >
                 {defaultRoleTitle}
@@ -614,7 +615,7 @@ export function Sidebar({
           <ChevronRight
             className={cn(
               "w-3.5 h-3.5 shrink-0",
-              isPlatformAdmin || isFinance ? "text-slate-400" : "text-stone-400 dark:text-stone-500"
+              (isPlatformAdmin || isOwner) || isFinance ? "text-slate-400" : "text-stone-400 dark:text-stone-500"
             )}
           />
         </div>
@@ -624,7 +625,7 @@ export function Sidebar({
           onClick={handleSignOut}
           className={cn(
             "mx-3 mb-3 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2",
-            isPlatformAdmin || isFinance
+            (isPlatformAdmin || isOwner) || isFinance
               ? "text-slate-400 hover:text-white hover:bg-white/5"
               : "text-stone-600 dark:text-stone-400 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-rose-50/80 dark:hover:bg-rose-950/30"
           )}
@@ -634,7 +635,7 @@ export function Sidebar({
         </button>
 
         {/* Copyright Footer */}
-        {isPlatformAdmin ? (
+        {isPlatformAdmin || isOwner ? (
           <div className="px-4 pb-4 border-t border-[#131F37] pt-3 flex items-center gap-3">
             <div className="w-7 h-7 rounded bg-white/10 flex items-center justify-center shrink-0">
               <svg

@@ -68,7 +68,7 @@ export default function OwnerFeeAnalyticsPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Badge variant="gold" dot>
-                Sovereign Treasury Analytics
+                Fee Analysis
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
                 Base Currency: INR (₹) • BHIM UPI &amp; Net Banking Direct Feeds Active
@@ -78,7 +78,7 @@ export default function OwnerFeeAnalyticsPage() {
               Fee Realization &amp; Fiscal Analytics
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
-              Consolidated term fee realization velocity, aging receivables distribution, automated BHIM UPI / Net Banking reconciliation channels, and high-value student ledgers.
+              Track term-wise fee collection, pending payments, online payment success, and student dues.
             </p>
           </div>
 
@@ -185,10 +185,10 @@ export default function OwnerFeeAnalyticsPage() {
           <Card className="lg:col-span-2 p-6 space-y-6">
             <div className="pb-4 border-b border-border/60">
               <h3 className="font-serif text-xl font-medium text-primary">
-                Term Collection Velocity
+                Term-wise Collection
               </h3>
               <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                Fee realization comparison across individual academic terms.
+                Compare fee collection for each term.
               </p>
             </div>
 
@@ -218,10 +218,10 @@ export default function OwnerFeeAnalyticsPage() {
           <Card className="p-6 space-y-5">
             <div className="pb-4 border-b border-border/60">
               <h3 className="font-serif text-lg font-medium text-primary">
-                Settlement Channels
+                Payment Methods
               </h3>
               <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                BHIM UPI QR vs Net Banking / Direct Challan distribution.
+                See how parents are paying fees.
               </p>
             </div>
 
@@ -270,7 +270,7 @@ export default function OwnerFeeAnalyticsPage() {
                 High-Value Receivables &amp; Overdue Ledger Escalations
               </h3>
               <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                Accounts requiring chancellor-level review or bursary governance notice.
+                List of students who have not paid their fees.
               </p>
             </div>
           </div>

@@ -61,7 +61,7 @@ export default function OwnerSettingsPage() {
         userRoleTitle="Chancellor & Chief Trustee"
       >
         <div className="py-20 text-center text-on-surface-variant font-sans">
-          Loading institutional configuration...
+          Loading settings...
         </div>
       </AppShell>
     );
@@ -72,7 +72,7 @@ export default function OwnerSettingsPage() {
       role="OWNER"
       userName="Dr. Arvind Swaminathan"
       userRoleTitle="Chancellor & Chief Trustee"
-      epochText="Academic Year 2024–2025 • Term 2 (CBSE Board) Financial Epoch"
+      epochText="Academic Year 2024–2025 • Term 2 (CBSE Board) Session"
     >
       <div className="space-y-8 max-w-5xl mx-auto pb-12">
         {/* Header */}
@@ -80,17 +80,17 @@ export default function OwnerSettingsPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Badge variant="gold" dot>
-                Institutional Configuration
+                School Details
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                Node ID: SCH-DPS-DEL-01 • DPDP Sovereign Enclave Active
+                Node ID: SCH-DPS-DEL-01 • Data Safe & Secure
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
-              School Settings &amp; Governance
+              School Settings
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
-              Configure institutional metadata, fiscal currency conventions (INR ₹), CBSE academic terms, and hardware security enclave rules.
+              Update basic school details, fee currency, academic terms, and security settings.
             </p>
           </div>
 
@@ -114,14 +114,14 @@ export default function OwnerSettingsPage() {
           </div>
         </div>
 
-        {/* Institutional Identity Card */}
+        {/* School Identity Card */}
         <Card className="p-6 space-y-6">
           <div className="pb-4 border-b border-border/60">
             <h3 className="font-serif text-xl font-medium text-primary">
               Institutional Profile &amp; Domain
             </h3>
             <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-              Official school branding, subdomains, and sovereign jurisdiction.
+              School name, short name, and region.
             </p>
           </div>
 
@@ -170,7 +170,7 @@ export default function OwnerSettingsPage() {
         <Card className="p-6 space-y-6">
           <div className="pb-4 border-b border-border/60">
             <h3 className="font-serif text-xl font-medium text-primary">
-              Sovereign Security &amp; Edge Hardware Policies
+              School Security Settings
             </h3>
             <p className="font-sans text-xs text-on-surface-variant mt-0.5">
               FIPS hardware cryptographic protection and campus turnstile edge synchronization.
@@ -225,7 +225,7 @@ export default function OwnerSettingsPage() {
           </div>
         </Card>
 
-        {/* HSM Enclave Attestation Card */}
+        {/* HSM Security Attestation Card */}
         <Card className="p-6 bg-gradient-to-b from-surface to-surface-variant/20 border-border/80">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

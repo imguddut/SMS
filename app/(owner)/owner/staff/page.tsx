@@ -76,21 +76,21 @@ export default function OwnerStaffFacultyPage() {
                 Faculty Governance
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                148 Senior PGT/TGT Masters &amp; Chairs • 1:12.4 Faculty-to-Student Ratio
+                148 Senior PGT/TGT Teachers &amp; Chairs • 1:12.4 Faculty-to-Student Ratio
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
               Staff &amp; Faculty Governance
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
-              Institutional academic leadership roster, departmental payroll allocation (7th CPC), teaching load distribution, and senior master tenure records.
+              See all teachers, their subjects, classes they teach, and their joining dates.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <Button variant="primary" size="sm" className="font-sans gap-2">
               <Download className="w-4 h-4 text-secondary-container" />
-              Export Faculty Payroll Ledger
+              Download Staff List
             </Button>
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function OwnerStaffFacultyPage() {
                   {dept.name}
                 </div>
                 <div className="font-serif text-2xl font-medium text-primary mt-1">
-                  {dept.headCount} Masters
+                  {dept.headCount} Teachers
                 </div>
                 <div className="font-sans text-xs text-secondary font-semibold mt-0.5">
                   {formatIndianCurrency(dept.salaryBudget)} / yr
@@ -112,7 +112,7 @@ export default function OwnerStaffFacultyPage() {
               </div>
 
               <div className="pt-3 border-t border-border/60 flex justify-between items-center text-xs font-sans text-on-surface-variant">
-                <span>Scholar Ratio:</span>
+                <span>Student Ratio:</span>
                 <span className="font-bold text-primary">{dept.studentRatio}</span>
               </div>
             </Card>
@@ -137,7 +137,7 @@ export default function OwnerStaffFacultyPage() {
               onChange={(e) => setDepartmentFilter(e.target.value)}
               className="h-10 px-3 rounded-lg border border-border bg-surface text-on-surface font-sans text-xs font-medium focus:outline-none focus:ring-1 focus:ring-secondary w-full md:w-auto"
             >
-              <option value="ALL">All Academic Departments</option>
+              <option value="ALL">All Teachers</option>
               <option value="Languages & Humanities">Languages &amp; Humanities</option>
               <option value="Mathematics & Computer Science">Mathematics &amp; Computer Science</option>
               <option value="Natural Sciences & Laboratories">Natural Sciences &amp; Laboratories</option>
@@ -151,10 +151,10 @@ export default function OwnerStaffFacultyPage() {
           <div className="p-6 border-b border-border/60 flex items-center justify-between">
             <div>
               <h3 className="font-serif text-xl font-medium text-primary">
-                Senior Masters &amp; Departmental Chairs
+                Senior Teachers &amp; Departmental Chairs
               </h3>
               <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                Full credentials, course allocations, and academic chair assignments.
+                Search for teachers by name or department.
               </p>
             </div>
           </div>
@@ -190,7 +190,7 @@ export default function OwnerStaffFacultyPage() {
 
                     <td className="py-4 px-6 text-xs font-sans">
                       <span className="font-bold text-primary">{fac.classesCount} Classes</span>
-                      <div className="text-on-surface-variant">{fac.studentsCount} Scholars</div>
+                      <div className="text-on-surface-variant">{fac.studentsCount} Students</div>
                     </td>
 
                     <td className="py-4 px-6 text-xs font-mono text-primary">
@@ -205,7 +205,7 @@ export default function OwnerStaffFacultyPage() {
 
                     <td className="py-4 px-6 text-right">
                       <Button variant="outline" size="sm" className="text-xs gap-1">
-                        Inspect
+                        View
                       </Button>
                     </td>
                   </tr>

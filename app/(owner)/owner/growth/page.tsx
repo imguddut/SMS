@@ -62,21 +62,21 @@ export default function OwnerGrowthAdmissionsPage() {
                 Institutional Admissions Pipeline
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                Michaelmas 2025 Intake • 98 Matriculated
+                Michaelmas 2025 Intake • 98 Joined
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
               Growth &amp; Admissions Pipeline
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
-              Track global applicant conversion funnels, international boarding house capacity, entrance examination results, and matriculation targets.
+              Track new student applications, see how many beds are free in hostels, and view student forms.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <Button variant="primary" size="sm" className="font-sans gap-2">
               <Download className="w-4 h-4 text-secondary-container" />
-              Export Admissions Report
+              Download Report
             </Button>
           </div>
         </div>
@@ -86,10 +86,10 @@ export default function OwnerGrowthAdmissionsPage() {
           <div className="flex items-center justify-between pb-4 border-b border-border/60">
             <div>
               <h3 className="font-serif text-xl font-medium text-primary">
-                Admissions Conversion Funnel
+                Admissions Flow
               </h3>
               <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                Prospective student journey from initial inquiry to matriculation.
+                See how many students applied and how many paid fees.
               </p>
             </div>
             <Badge variant="gold">Target: 100 Scholars</Badge>
@@ -111,7 +111,7 @@ export default function OwnerGrowthAdmissionsPage() {
                   <div className="font-semibold text-primary mt-0.5">{stage.stage}</div>
                 </div>
                 <div className="pt-2 border-t border-border/60 flex justify-between items-center">
-                  <span className="text-on-surface-variant">Conversion:</span>
+                  <span className="text-on-surface-variant">Passed:</span>
                   <span className="font-bold text-secondary">{stage.conversionRate}</span>
                 </div>
               </div>
@@ -135,13 +135,13 @@ export default function OwnerGrowthAdmissionsPage() {
                     </Badge>
                   </div>
                   <div className="font-sans text-xs text-on-surface-variant mt-1">
-                    Master: <span className="font-medium text-primary">{house.houseMaster}</span>
+                    Warden: <span className="font-medium text-primary">{house.houseMaster}</span>
                   </div>
                 </div>
 
                 <div className="mt-4 space-y-2 font-sans text-xs">
                   <div className="flex justify-between">
-                    <span className="text-on-surface-variant">Occupancy:</span>
+                    <span className="text-on-surface-variant">Filled:</span>
                     <span className="font-bold text-primary">
                       {house.occupied} / {house.capacity} Beds
                     </span>
@@ -163,10 +163,10 @@ export default function OwnerGrowthAdmissionsPage() {
           <div className="p-6 border-b border-border/60 flex items-center justify-between">
             <div>
               <h3 className="font-serif text-xl font-medium text-primary">
-                Current Intake Applicant Dossiers
+                New Student Applications
               </h3>
               <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                Candidates undergoing classical assessment and admissions committee review.
+                List of students who applied for admission.
               </p>
             </div>
           </div>
@@ -177,7 +177,7 @@ export default function OwnerGrowthAdmissionsPage() {
                 <tr>
                   <th className="py-3.5 px-6">Applicant &amp; Origin</th>
                   <th className="py-3.5 px-6">Target Form &amp; Curriculum</th>
-                  <th className="py-3.5 px-6">Bursary Request</th>
+                  <th className="py-3.5 px-6">Discount Request</th>
                   <th className="py-3.5 px-6">Application Date</th>
                   <th className="py-3.5 px-6">Admissions Stage</th>
                   <th className="py-3.5 px-6 text-right">Action</th>
@@ -202,9 +202,9 @@ export default function OwnerGrowthAdmissionsPage() {
 
                     <td className="py-4 px-6">
                       {app.scholarshipRequested ? (
-                        <Badge variant="gold">Bursary Applied</Badge>
+                        <Badge variant="gold">Discount Applied</Badge>
                       ) : (
-                        <span className="font-sans text-xs text-on-surface-variant">Full Fee</span>
+                        <span className="font-sans text-xs text-on-surface-variant">No Discount</span>
                       )}
                     </td>
 
@@ -229,7 +229,7 @@ export default function OwnerGrowthAdmissionsPage() {
 
                     <td className="py-4 px-6 text-right">
                       <Button variant="outline" size="sm" className="text-xs gap-1">
-                        Dossier
+                        View Form
                       </Button>
                     </td>
                   </tr>
