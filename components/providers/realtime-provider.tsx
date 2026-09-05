@@ -27,7 +27,11 @@ export type RealtimeTable =
   | "approvals"
   | "marks_entries"
   | "students"
-  | "enrollments";
+  | "enrollments"
+  | "timetables"
+  | "notifications"
+  | "bank_transactions"
+  | "payment_reconciliations";
 
 export type RealtimeEventType = "INSERT" | "UPDATE" | "DELETE";
 
@@ -43,7 +47,7 @@ type RealtimeListener = (event: RealtimeEvent) => void;
 
 interface RealtimeContextValue {
   /** Subscribe to events on a specific table */
-  subscribe: (table: RealtimeTable, eventType: RealtimeEventType, listener: RealtimeListener) => () => void;
+  subscribe: (table: RealtimeTable, eventType: RealtimeEventType | "*", listener: RealtimeListener) => () => void;
   /** Whether the realtime connection is active */
   isConnected: boolean;
   /** Number of active listeners */
@@ -76,6 +80,10 @@ const WATCHED_TABLES: RealtimeTable[] = [
   "marks_entries",
   "students",
   "enrollments",
+  "timetables",
+  "notifications",
+  "bank_transactions",
+  "payment_reconciliations",
 ];
 
 // ---------------------------------------------------------------------------

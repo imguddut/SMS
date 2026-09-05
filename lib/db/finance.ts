@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { sharedStore, SharedInvoice, SharedLedgerTransaction } from "@/lib/db/shared-store";
+import { logAudit, AuditAction } from "@/lib/services/audit-service";
 
 export interface FinanceDashboardStats {
   totalInvoiced: number;
@@ -458,6 +459,15 @@ export async function createFinanceInvoice(payload: Partial<FinanceInvoiceItem>)
     console.warn("Supabase insert for createFinanceInvoice:", err);
   }
 
+  await logAudit({
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    actorId: "b0000000-0000-0000-0000-000000000006",
+    action: AuditAction.INVOICE_CREATED,
+    entityTable: "invoices",
+    entityId: newId,
+    newValues: { invoiceNumber: invNumber, amount: newItem.amount, studentId: newItem.studentId },
+  });
+
   return { success: true, id: newId, invoiceNumber: invNumber };
 }
 
@@ -688,6 +698,15 @@ export async function postLedgerTransaction(
     console.warn("Supabase insert for postLedgerTransaction:", err);
   }
 
+  await logAudit({
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    actorId: "b0000000-0000-0000-0000-000000000006",
+    action: "LEDGER_TRANSACTION_POSTED",
+    entityTable: "payments",
+    entityId: sharedTx.id,
+    newValues: { studentId, amount: sharedTx.amount, type: sharedTx.type },
+  });
+
   return { success: true, id: sharedTx.id };
 }
 
@@ -785,6 +804,15 @@ export async function reconcileTransaction(
   } catch (err) {
     console.warn("Supabase update for reconcileTransaction:", err);
   }
+
+  await logAudit({
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    actorId: "b0000000-0000-0000-0000-000000000006",
+    action: AuditAction.RECONCILIATION_COMPLETED,
+    entityTable: "bank_transactions",
+    entityId: id,
+    newValues: { transactionId: id, status: "RECONCILED" },
+  });
 
   return { success: true };
 }

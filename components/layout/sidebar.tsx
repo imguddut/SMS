@@ -33,6 +33,7 @@ import {
   LogOut,
   ChevronRight,
   Megaphone,
+  Plus,
 } from "lucide-react";
 
 interface NavItem {
@@ -75,6 +76,7 @@ export function Sidebar({
 
   const getNavItems = (): { section: string; items: NavItem[] } => {
     switch (role) {
+      case "PLATFORM_ADMIN":
       case "SUPER_ADMIN":
         return {
           section: "Platform Control",
@@ -107,12 +109,33 @@ export function Sidebar({
           ],
         };
 
+      case "ORGANIZATION_OWNER":
+      case "ORGANIZATION_ADMIN":
+      case "ORGANIZATION_FINANCE":
+      case "ORGANIZATION_VIEWER":
       case "OWNER":
+      case "TRUST_CHAIRMAN":
+      case "CEO":
         return {
-          section: "Command Console",
+          section: "Organization Fleet",
           items: [
             {
-              title: "Business Overview",
+              title: "Organization Fleet",
+              href: "/organization",
+              icon: <Building2 className="w-4 h-4" />,
+            },
+            {
+              title: "Managed Campuses",
+              href: "/organization/schools",
+              icon: <Layers className="w-4 h-4" />,
+            },
+            {
+              title: "+ Add School",
+              href: "/organization/add-school",
+              icon: <Plus className="w-4 h-4" />,
+            },
+            {
+              title: "Consolidated KPIs",
               href: "/owner/overview",
               icon: <PieChart className="w-4 h-4" />,
             },
@@ -137,7 +160,7 @@ export function Sidebar({
               icon: <BrainCircuit className="w-4 h-4" />,
             },
             {
-              title: "School Settings",
+              title: "Organization Settings",
               href: "/owner/settings",
               icon: <Settings className="w-4 h-4" />,
             },

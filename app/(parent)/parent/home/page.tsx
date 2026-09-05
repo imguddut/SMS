@@ -45,6 +45,7 @@ import {
   Eye,
 } from "lucide-react";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
+import { useRealtimeEvent } from "@/components/providers/realtime-provider";
 
 export default function ParentHomePage() {
   const [wards, setWards] = React.useState<ParentWardProfile[]>([]);
@@ -101,6 +102,27 @@ export default function ParentHomePage() {
     }
     loadData();
   }, [selectedWardId]);
+
+  const refreshWardData = React.useCallback(async () => {
+    if (!selectedWardId) return;
+    try {
+      const [digestData, hwData, bullData] = await Promise.all([
+        fetchParentDigest(selectedWardId),
+        fetchWardHomework(selectedWardId),
+        fetchParentBulletins(),
+      ]);
+      setDigest(digestData);
+      setHomework(hwData);
+      setBulletins(bullData);
+    } catch (err) {
+      console.error("Realtime refresh error:", err);
+    }
+  }, [selectedWardId]);
+
+  useRealtimeEvent("attendance_records", "*", refreshWardData);
+  useRealtimeEvent("homework_assignments", "*", refreshWardData);
+  useRealtimeEvent("invoices", "*", refreshWardData);
+  useRealtimeEvent("notices", "*", refreshWardData);
 
   const activeWard = wards.find((w) => w.id === selectedWardId) || wards[0];
 

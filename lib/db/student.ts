@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { sharedStore, SharedHomeworkAssignment, SharedHomeworkSubmission, SharedGradebookEntry, SharedNotice } from "@/lib/db/shared-store";
+import { logAudit, AuditAction } from "@/lib/services/audit-service";
 
 export interface StudentProfile {
   id: string;
@@ -450,6 +451,15 @@ export async function submitHomeworkSolution(payload: {
   } catch (err) {
     console.warn("Supabase upsert for submitHomeworkSolution:", err);
   }
+
+  await logAudit({
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    actorId: "b0000000-0000-0000-0000-000000000008",
+    action: AuditAction.HOMEWORK_SUBMITTED,
+    entityTable: "homework_submissions",
+    entityId: sub.id,
+    newValues: { homeworkId: payload.homeworkId, fileName: payload.fileName },
+  });
 
   return { success: true, submissionTimestamp: timestamp, submissionId: sub.id };
 }

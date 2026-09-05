@@ -188,21 +188,43 @@ export async function markNotificationRead(notificationId: string): Promise<void
   }
 }
 
+export const markNotificationAsRead = markNotificationRead;
+
 /**
- * Mark all notifications as read for a user.
+ * Mark all notifications as read for a user or role.
  */
-export async function markAllRead(userProfileId: string): Promise<void> {
+export async function markAllRead(userProfileIdOrRole: string): Promise<void> {
   try {
     const supabase = createClient();
     await supabase
       .from("notifications")
       .update({ is_read: true })
-      .eq("recipient_user_id", userProfileId)
+      .eq("recipient_user_id", userProfileIdOrRole)
       .eq("is_read", false);
   } catch (err) {
     console.warn("markAllRead failed:", err);
   }
 }
+
+export async function markAllNotificationsAsRead(role: UserRole): Promise<void> {
+  await markAllRead(role);
+}
+
+/**
+ * Fetch notifications for a user/role with unread count.
+ */
+export async function fetchUserNotifications(role: UserRole): Promise<{
+  notifications: NotificationItem[];
+  unreadCount: number;
+}> {
+  const items = await fetchNotifications(role, role);
+  const unreadCount = items.filter((n) => !n.isRead).length;
+  return {
+    notifications: items,
+    unreadCount,
+  };
+}
+
 
 /**
  * Get unread count for a user.

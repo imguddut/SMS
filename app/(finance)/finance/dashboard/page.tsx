@@ -16,6 +16,7 @@ import {
   BankReconciliationItem,
 } from "@/lib/db/finance";
 import { PdfPreviewModal, PDFStudentMetadata } from "@/components/ui/pdf-preview-modal";
+import { useRealtimeEvent } from "@/components/providers/realtime-provider";
 import { FinanceQuoteBanner } from "@/components/ui/finance-quote-banner";
 import {
   Building2,
@@ -79,6 +80,24 @@ export default function FinanceDashboardPage() {
     }
     loadData();
   }, []);
+
+  const refreshFinanceData = React.useCallback(async () => {
+    try {
+      const [statsData, invoicesData, feedData] = await Promise.all([
+        fetchFinanceDashboardStats(),
+        fetchFinanceInvoices(),
+        fetchBankReconciliationFeed(),
+      ]);
+      setStats(statsData);
+      setInvoices(invoicesData);
+      setFeed(feedData);
+    } catch (err) {
+      console.error("Realtime refresh error:", err);
+    }
+  }, []);
+
+  useRealtimeEvent("payments", "*", refreshFinanceData);
+  useRealtimeEvent("invoices", "*", refreshFinanceData);
 
   const handleDownloadTreasurySummary = () => {
     const totalInv = stats?.totalInvoiced || 48500000;
