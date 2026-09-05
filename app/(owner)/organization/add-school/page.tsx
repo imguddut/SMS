@@ -93,21 +93,21 @@ export default function AddSchoolWizardPage() {
       role="ORGANIZATION_OWNER"
       userName="Julian Vance-Moreau, D.Phil"
       userRoleTitle="Chancellor & Trust Chairman"
-      epochText="Multi-School Provisioning Wizard • Transactional Enclave"
+      epochText="Multi-School Network • Add New Campus"
     >
       <div className="max-w-4xl mx-auto space-y-8 pb-16">
         {/* Header */}
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <Link href="/organization" className="text-xs text-amber-600 hover:underline flex items-center gap-1">
+            <Link href="/organization" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
               <ArrowLeft className="w-3 h-3" /> Back to Organization Dashboard
             </Link>
           </div>
           <h1 className="font-serif text-3xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
-            Provision New School Campus
+            Add New School Campus
           </h1>
           <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">
-            Setting up a new operational school tenant under{" "}
+            Setting up a new school campus under{" "}
             <strong>{currentOrganization?.name || "King's Educational Trust"}</strong>.
           </p>
         </div>
@@ -125,7 +125,7 @@ export default function AddSchoolWizardPage() {
               key={step}
               className={`flex flex-col items-center text-center p-2 rounded-lg transition-all ${
                 currentStep === step
-                  ? "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 font-semibold"
+                  ? "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-semibold"
                   : currentStep > step
                   ? "text-emerald-600 dark:text-emerald-400"
                   : "text-stone-400"
@@ -134,7 +134,7 @@ export default function AddSchoolWizardPage() {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 text-xs font-bold ${
                   currentStep === step
-                    ? "bg-amber-600 text-white shadow-xs"
+                    ? "bg-blue-600 text-white shadow-xs"
                     : currentStep > step
                     ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950"
                     : "bg-stone-100 dark:bg-stone-800 text-stone-500"

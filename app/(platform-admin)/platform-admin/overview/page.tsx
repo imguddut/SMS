@@ -55,17 +55,17 @@ export default function PlatformAdminOverviewPage() {
       role="SUPER_ADMIN"
       userName="Mr. Rajesh Pillai"
       userRoleTitle="Platform Lead & Super Admin"
-      epochText="Multi-Tenant Sovereign Root • India Central Cluster Online"
+      epochText="Central System Administration • Cloud Network Active"
     >
       <div className="space-y-6 max-w-7xl mx-auto pb-6">
         {/* Top Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-              Platform Overview
+              System Overview
             </h1>
             <p className="text-xs md:text-sm text-slate-500 mt-1">
-              Real-time monitoring of school fleet, SaaS contracts and HSM enclave health across MeitY-empanelled clusters.
+              Real-time monitoring of all schools, subscription billing, and security status.
             </p>
           </div>
 
@@ -76,7 +76,7 @@ export default function PlatformAdminOverviewPage() {
                 className="h-9 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-blue-600 font-semibold text-xs flex items-center gap-2 shadow-2xs transition-colors"
               >
                 <Users className="w-3.5 h-3.5 text-blue-600" />
-                <span>Impersonate Session</span>
+                <span>View as User</span>
               </button>
             </Link>
             <Link href="/platform-admin/schools/new">
@@ -85,7 +85,7 @@ export default function PlatformAdminOverviewPage() {
                 className="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-2 shadow-2xs transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                <span>Provision School</span>
+                <span>+ Add New School</span>
               </button>
             </Link>
           </div>
@@ -93,14 +93,14 @@ export default function PlatformAdminOverviewPage() {
 
         {/* 4 Hero KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Active School Nodes */}
+          {/* Card 1: Active Schools */}
           <div className="bg-[#F4F8FF] border border-[#D9E6FF] rounded-2xl p-5 flex flex-col justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-blue-500/15 text-blue-600 flex items-center justify-center shrink-0">
                 <Building2 className="w-5 h-5" />
               </div>
               <span className="text-xs font-semibold text-slate-700">
-                Active School Nodes
+                Active Schools
               </span>
             </div>
             <div className="mt-4">
@@ -112,7 +112,7 @@ export default function PlatformAdminOverviewPage() {
                 <span className="text-xs text-slate-500 ml-1">total</span>
               </div>
               <p className="text-xs font-semibold text-emerald-600 mt-2">
-                +1 provisioned this quarter
+                +1 added this quarter
               </p>
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function PlatformAdminOverviewPage() {
                 <Users className="w-5 h-5" />
               </div>
               <span className="text-xs font-semibold text-slate-700">
-                Total Enrolled Students
+                Total Students Enrolled
               </span>
             </div>
             <div className="mt-4">
@@ -137,7 +137,7 @@ export default function PlatformAdminOverviewPage() {
             </div>
           </div>
 
-          {/* Card 3: Platform ARR */}
+          {/* Card 3: Platform Annual Revenue */}
           <div className="bg-[#FAF5FF] border border-[#F3E8FF] rounded-2xl p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -146,7 +146,7 @@ export default function PlatformAdminOverviewPage() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-semibold text-slate-700">
-                    Platform ARR (Run-rate)
+                    Annual Platform Revenue
                   </span>
                   <span className="text-[10px] text-purple-600 font-medium">
                     INR (₹)
@@ -159,27 +159,27 @@ export default function PlatformAdminOverviewPage() {
                 ₹4.82 Cr
               </div>
               <p className="text-xs font-medium text-emerald-600 mt-2">
-                99.4% contract renewal fidelity
+                99.4% renewal rate
               </p>
             </div>
           </div>
 
-          {/* Card 4: HSM Enclave State */}
+          {/* Card 4: System Security */}
           <div className="bg-[#FFFBEB] border border-[#FEF3C7] rounded-2xl p-5 flex flex-col justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
                 <Shield className="w-5 h-5" />
               </div>
               <span className="text-xs font-semibold text-slate-700">
-                HSM Enclave State
+                System Security Status
               </span>
             </div>
             <div className="mt-4">
               <div className="text-3xl font-bold text-slate-900">
-                Nominal
+                100% Secure
               </div>
               <p className="text-xs text-slate-500 mt-2">
-                Dilithium-5 post-quantum verified
+                Bank-grade encryption active
               </p>
             </div>
           </div>
@@ -187,23 +187,23 @@ export default function PlatformAdminOverviewPage() {
 
         {/* Row 2: SaaS Revenue Trajectory + HSM Root Enclave */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          {/* Left: SaaS Revenue Trajectory (7 cols) */}
+          {/* Left: Revenue Trends (7 cols) */}
           <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-base font-bold text-slate-900">
-                    SaaS Revenue Trajectory
+                    Revenue Trends
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Institutional contract run-rates (FY 2024–2025)
+                    Annual school contracts (FY 2024–2025)
                   </p>
                 </div>
                 <Link
                   href="/platform-admin/billing"
                   className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1"
                 >
-                  <span>View Full Ledger</span>
+                  <span>View All Billing</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -268,12 +268,12 @@ export default function PlatformAdminOverviewPage() {
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0" />
                       <span className="text-xs font-medium text-slate-700">
-                        Metro Hubs (NCR &amp; BLR)
+                        Metro Schools (Delhi &amp; Bengaluru)
                       </span>
                     </div>
                     <div className="text-right">
                       <span className="text-xs font-bold text-slate-900 block">₹3.65 Cr</span>
-                      <span className="text-[10px] text-slate-400">75.7% of total ARR</span>
+                      <span className="text-[10px] text-slate-400">75.7% of total revenue</span>
                     </div>
                   </div>
 
@@ -281,12 +281,12 @@ export default function PlatformAdminOverviewPage() {
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
                       <span className="text-xs font-medium text-slate-700">
-                        Regional Branches
+                        Regional Schools
                       </span>
                     </div>
                     <div className="text-right">
                       <span className="text-xs font-bold text-slate-900 block">₹98 Lakhs</span>
-                      <span className="text-[10px] text-slate-400">20.3% of total ARR</span>
+                      <span className="text-[10px] text-slate-400">20.3% of total revenue</span>
                     </div>
                   </div>
 
@@ -294,7 +294,7 @@ export default function PlatformAdminOverviewPage() {
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
                       <span className="text-xs font-medium text-slate-700">
-                        HSM Enclave Addons
+                        Security Add-ons
                       </span>
                     </div>
                     <div className="text-right">
@@ -315,7 +315,7 @@ export default function PlatformAdminOverviewPage() {
                   </div>
                   <div>
                     <span className="text-xs font-bold text-slate-800 block">
-                      Sovereign Fleet Tier (66.7%)
+                      Full School Package (66.7%)
                     </span>
                     <span className="text-[10px] text-slate-500">
                       ₹4,50,000 / yr / school
@@ -331,7 +331,7 @@ export default function PlatformAdminOverviewPage() {
                   </div>
                   <div>
                     <span className="text-xs font-bold text-slate-800 block">
-                      Enterprise Campus Tier (33.3%)
+                      Campus Standard Package (33.3%)
                     </span>
                     <span className="text-[10px] text-slate-500">
                       ₹2,50,000 / yr / school
@@ -342,21 +342,21 @@ export default function PlatformAdminOverviewPage() {
             </div>
           </div>
 
-          {/* Right: HSM Root Enclave (5 cols) */}
+          {/* Right: Security & Data Protection (5 cols) */}
           <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs flex flex-col justify-between">
             <div>
               <h2 className="text-base font-bold text-slate-900 mb-3">
-                HSM Root Enclave
+                System Security &amp; Data Protection
               </h2>
 
               {/* Green active banner */}
               <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-3 flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2 text-emerald-800">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span className="text-xs font-bold">FIPS 140-3 Level 4</span>
+                  <span className="text-xs font-bold">Highest Security Level Active</span>
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
-                  Active
+                  Protected
                 </span>
               </div>
 
@@ -365,27 +365,27 @@ export default function PlatformAdminOverviewPage() {
                 <div className="flex items-center justify-between py-1 border-b border-slate-100">
                   <div className="flex items-center gap-2 text-slate-600">
                     <Lock className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Master Root Key ID</span>
+                    <span>Master Security Key</span>
                   </div>
                   <span className="font-mono font-bold text-slate-900">
-                    HSM-ZUR-9942-X
+                    KEY-INDIA-9942-X
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between py-1 border-b border-slate-100">
                   <div className="flex items-center gap-2 text-slate-600">
                     <Sparkles className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Signature Algorithm</span>
+                    <span>Encryption Type</span>
                   </div>
                   <span className="font-semibold text-slate-900">
-                    CRYSTALS-Dilithium5
+                    256-Bit Military Grade
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between py-1 border-b border-slate-100">
                   <div className="flex items-center gap-2 text-slate-600">
                     <Layers className="w-3.5 h-3.5 text-slate-400" />
-                    <span>ZK-Rollup Proofs</span>
+                    <span>Data Verifications</span>
                   </div>
                   <span className="font-semibold text-slate-900">
                     48,290 / 24h
@@ -395,7 +395,7 @@ export default function PlatformAdminOverviewPage() {
                 <div className="flex items-center justify-between py-1">
                   <div className="flex items-center gap-2 text-slate-600">
                     <RotateCw className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Key Rotation Cycle</span>
+                    <span>Security Key Renewal</span>
                   </div>
                   <span className="font-semibold text-slate-900">
                     In 82 days
@@ -411,34 +411,34 @@ export default function PlatformAdminOverviewPage() {
                   className="w-full py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-blue-600 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
                 >
                   <Settings className="w-3.5 h-3.5" />
-                  <span>Configure Cryptography</span>
+                  <span>Security &amp; Encryption Settings</span>
                 </button>
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Bottom Section: Sovereign School Fleet */}
+        {/* Bottom Section: Connected Schools Directory */}
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
           <div className="p-5 md:p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <h2 className="text-base font-bold text-slate-900">
-                  Sovereign School Fleet
+                  Connected Schools Directory
                 </h2>
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  3 Connected Nodes
+                  3 Active Schools
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Active tenant isolation partitions, curriculum architectures, and chancellor assignments.
+                View all school campuses, board curriculums, and administrators.
               </p>
             </div>
             <Link
               href="/platform-admin/schools"
               className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 self-start sm:self-auto shrink-0"
             >
-              <span>View Full Directory</span>
+              <span>View All Schools</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -448,10 +448,10 @@ export default function PlatformAdminOverviewPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/70 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  <th className="py-3 px-6">Institutional Node</th>
-                  <th className="py-3 px-6">Curriculum &amp; Domain</th>
-                  <th className="py-3 px-6">Jurisdiction</th>
-                  <th className="py-3 px-6">Capacity</th>
+                  <th className="py-3 px-6">School Name</th>
+                  <th className="py-3 px-6">Board &amp; Website</th>
+                  <th className="py-3 px-6">Location</th>
+                  <th className="py-3 px-6">Students Enrolled</th>
                   <th className="py-3 px-6">Status</th>
                   <th className="py-3 px-6 text-right">Actions</th>
                 </tr>
@@ -511,7 +511,7 @@ export default function PlatformAdminOverviewPage() {
                           type="button"
                           className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs shadow-2xs"
                         >
-                          Dossier
+                          View Details
                         </button>
                       </Link>
                       <Link href="/platform-admin/impersonate?school=dps-rkpuram">
@@ -520,7 +520,7 @@ export default function PlatformAdminOverviewPage() {
                           className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 text-blue-700 font-medium text-xs flex items-center gap-1.5 shadow-2xs"
                         >
                           <Users className="w-3 h-3" />
-                          <span>Impersonate</span>
+                          <span>Open Portal</span>
                         </button>
                       </Link>
                     </div>
@@ -581,7 +581,7 @@ export default function PlatformAdminOverviewPage() {
                           type="button"
                           className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs shadow-2xs"
                         >
-                          Dossier
+                          View Details
                         </button>
                       </Link>
                       <Link href="/platform-admin/impersonate?school=nps-indiranagar">
@@ -590,7 +590,7 @@ export default function PlatformAdminOverviewPage() {
                           className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 text-blue-700 font-medium text-xs flex items-center gap-1.5 shadow-2xs"
                         >
                           <Users className="w-3 h-3" />
-                          <span>Impersonate</span>
+                          <span>Open Portal</span>
                         </button>
                       </Link>
                     </div>
@@ -648,7 +648,7 @@ export default function PlatformAdminOverviewPage() {
                           type="button"
                           className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs shadow-2xs"
                         >
-                          Dossier
+                          View Details
                         </button>
                       </Link>
                       <Link href="/platform-admin/impersonate?school=cathedral-mumbai">
@@ -657,7 +657,7 @@ export default function PlatformAdminOverviewPage() {
                           className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 text-blue-700 font-medium text-xs flex items-center gap-1.5 shadow-2xs"
                         >
                           <Users className="w-3 h-3" />
-                          <span>Impersonate</span>
+                          <span>Open Portal</span>
                         </button>
                       </Link>
                     </div>

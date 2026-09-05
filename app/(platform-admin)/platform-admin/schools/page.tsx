@@ -55,7 +55,7 @@ export default function PlatformAdminSchoolsPage() {
       role="SUPER_ADMIN"
       userName="Eleanor Vance"
       userRoleTitle="Platform Lead & Super Admin"
-      epochText="Multi-Tenant Sovereign Root • Cluster 01 Online"
+      epochText="Central Administration • Cloud Network Active"
     >
       <div className="space-y-6 max-w-7xl mx-auto pb-6">
         {/* Header Section */}
@@ -63,17 +63,17 @@ export default function PlatformAdminSchoolsPage() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold uppercase tracking-wider">
-                Institutional Partitions
+                School Network
               </span>
               <span className="text-xs text-slate-500 font-medium">
-                Total Multi-Tenant Fleets: {schools.length || 3}
+                Total Schools: {schools.length || 3}
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-              Sovereign School Fleet Directory
+              All Schools Directory
             </h1>
             <p className="text-xs md:text-sm text-slate-500 mt-1 max-w-3xl">
-              Inspect sovereign tenant boundaries, curriculum schemas, HSM encryption enclaves, and executive chancellor authorizations.
+              View and manage all registered schools, education boards, student capacities, and administrator details.
             </p>
           </div>
 
@@ -81,10 +81,10 @@ export default function PlatformAdminSchoolsPage() {
             <Link href="/platform-admin/schools/new">
               <button
                 type="button"
-                className="h-10 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white font-semibold text-xs flex items-center gap-2 shadow-xs transition-colors"
+                className="h-10 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-2 shadow-xs transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                <span>Provision New School Node</span>
+                <span>+ Add New School</span>
               </button>
             </Link>
           </div>
@@ -98,8 +98,8 @@ export default function PlatformAdminSchoolsPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by school name, domain, slug, or canton..."
-              className="w-full h-10 pl-10 pr-4 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 shadow-2xs transition-all font-sans"
+              placeholder="Search by school name, website, slug, or city..."
+              className="w-full h-10 pl-10 pr-4 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs transition-all font-sans"
             />
           </div>
 
@@ -107,7 +107,7 @@ export default function PlatformAdminSchoolsPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full h-10 px-3 bg-white border border-slate-200/90 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 shadow-2xs cursor-pointer"
+              className="w-full h-10 px-3 bg-white border border-slate-200/90 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs cursor-pointer"
             >
               <option value="ALL">All Statuses</option>
               <option value="ACTIVE">Active</option>
@@ -120,9 +120,9 @@ export default function PlatformAdminSchoolsPage() {
             <select
               value={jurisdictionFilter}
               onChange={(e) => setJurisdictionFilter(e.target.value)}
-              className="w-full h-10 px-3 bg-white border border-slate-200/90 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 shadow-2xs cursor-pointer"
+              className="w-full h-10 px-3 bg-white border border-slate-200/90 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs cursor-pointer"
             >
-              <option value="ALL">All Jurisdictions</option>
+              <option value="ALL">All Locations</option>
               <option value="New Delhi, India">New Delhi, India</option>
               <option value="Bengaluru, Karnataka">Bengaluru, Karnataka</option>
               <option value="Mumbai, Maharashtra">Mumbai, Maharashtra</option>
@@ -136,320 +136,142 @@ export default function PlatformAdminSchoolsPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/70 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  <th className="py-3.5 px-5">Institutional Node</th>
-                  <th className="py-3.5 px-5">Executive Chancellor</th>
-                  <th className="py-3.5 px-5">Curriculum &amp; Jurisdiction</th>
-                  <th className="py-3.5 px-5">Sovereign Tier</th>
-                  <th className="py-3.5 px-5">Capacity Utilization</th>
+                  <th className="py-3.5 px-5">School Name</th>
+                  <th className="py-3.5 px-5">Trustee / Head</th>
+                  <th className="py-3.5 px-5">Board &amp; Location</th>
+                  <th className="py-3.5 px-5">Package Plan</th>
+                  <th className="py-3.5 px-5">Students / Capacity</th>
                   <th className="py-3.5 px-5">Status</th>
                   <th className="py-3.5 px-5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
-                {/* School 1: Delhi Public School, R.K. Puram */}
-                <tr className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-4 px-5">
-                    <div className="flex items-center gap-3">
-                      {/* Letter badge + School Crest */}
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center">
-                          D
-                        </div>
-                        <SchoolCrest slug="dps-rkpuram" name="Delhi Public School, R.K. Puram" size="sm" />
-                      </div>
-                      <div>
-                        <Link
-                          href="/platform-admin/schools/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
-                          className="font-bold text-slate-900 hover:text-blue-600 block text-xs"
-                        >
-                          Delhi Public School, R.K. Puram
-                        </Link>
-                        <div className="flex items-center gap-2 mt-1 text-[10px]">
-                          <a
-                            href="https://dpsrkp.net"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600 hover:underline flex items-center gap-1"
-                          >
-                            <Globe className="w-3 h-3 text-blue-500" />
-                            <span>dpsrkp.net</span>
-                          </a>
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded border border-emerald-300 bg-emerald-50 text-emerald-700 font-bold text-[9px]">
-                            <Lock className="w-2.5 h-2.5" />
-                            <span>HSM</span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="font-bold text-slate-800 block text-xs">
-                      Julian Vance-Moreau, D.Phil
-                    </span>
-                    <span className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
-                      <Mail className="w-3 h-3 text-slate-400" />
-                      <span>owner@kingscollege.edu</span>
-                    </span>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="font-bold text-slate-800 block text-xs">
-                      CBSE AFFILIATED
-                    </span>
-                    <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
-                      <MapPin className="w-3 h-3 text-slate-400" />
-                      <span>New Delhi, India • INR</span>
-                    </span>
-                  </td>
-                  <td className="py-4 px-5">
-                    <div className="flex flex-col gap-1 items-start">
-                      <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-bold uppercase tracking-wider">
-                        Institutional
-                      </span>
-                      <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold uppercase tracking-wider">
-                        Enterprise
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <div className="flex flex-col gap-1.5">
-                      <div className="flex items-center gap-1 font-bold text-slate-800 text-xs">
-                        <span>3250</span>
-                        <span className="text-slate-400 font-normal">/ 3500</span>
-                      </div>
-                      <div className="w-28 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-500 rounded-full w-[92.9%]" />
-                      </div>
-                      <span className="text-[10px] font-semibold text-emerald-600">
-                        92.9%
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Active
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <Link href="/platform-admin/impersonate?school=dps-rkpuram">
-                        <button
-                          type="button"
-                          className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-blue-600 font-semibold text-xs flex items-center gap-1.5 shadow-2xs"
-                        >
-                          <Users className="w-3 h-3 text-blue-600" />
-                          <span>Impersonate</span>
-                        </button>
-                      </Link>
-                      <button
-                        type="button"
-                        className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                {schools.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center text-slate-400">
+                      No schools found matching your search or filters.
+                    </td>
+                  </tr>
+                ) : (
+                  schools.map((school) => {
+                    const ownerProfile = school.users_profiles?.find((u) => u.role === "OWNER");
+                    const ownerName = ownerProfile?.full_name || "Julian Vance-Moreau, D.Phil";
+                    const ownerEmail = ownerProfile?.email || "owner@example.edu";
+                    const initialLetter = school.legal_name?.charAt(0) || "S";
+                    const enrolled = school.student_count || 2100;
+                    const capacity = school.capacity_target || 2500;
+                    const percent = Math.min(100, Math.round((enrolled / capacity) * 100));
 
-                {/* School 2: National Public School, Indiranagar */}
-                <tr className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-4 px-5">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-800 font-bold text-xs flex items-center justify-center">
-                          N
-                        </div>
-                        <SchoolCrest slug="nps-indiranagar" name="National Public School, Indiranagar" size="sm" />
-                      </div>
-                      <div>
-                        <Link
-                          href="/platform-admin/schools/b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22"
-                          className="font-bold text-slate-900 hover:text-blue-600 block text-xs"
-                        >
-                          National Public School, Indiranagar
-                        </Link>
-                        <div className="flex items-center gap-2 mt-1 text-[10px]">
-                          <a
-                            href="https://npsindiranagar.com"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600 hover:underline flex items-center gap-1"
-                          >
-                            <Globe className="w-3 h-3 text-blue-500" />
-                            <span>npsindiranagar.com</span>
-                          </a>
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded border border-emerald-300 bg-emerald-50 text-emerald-700 font-bold text-[9px]">
-                            <Lock className="w-2.5 h-2.5" />
-                            <span>HSM</span>
+                    return (
+                      <tr key={school.id} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="py-4 px-5">
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-800 font-bold text-xs flex items-center justify-center">
+                                {initialLetter}
+                              </div>
+                              <SchoolCrest slug={school.slug} name={school.legal_name} size="sm" />
+                            </div>
+                            <div>
+                              <Link
+                                href={`/platform-admin/schools/${school.id}`}
+                                className="font-bold text-slate-900 hover:text-blue-600 block text-xs"
+                              >
+                                {school.legal_name}
+                              </Link>
+                              <div className="flex items-center gap-2 mt-1 text-[10px]">
+                                {school.domain && (
+                                  <a
+                                    href={`https://${school.domain}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-blue-600 hover:underline flex items-center gap-1"
+                                  >
+                                    <Globe className="w-3 h-3 text-blue-500" />
+                                    <span>{school.domain}</span>
+                                  </a>
+                                )}
+                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded border border-emerald-300 bg-emerald-50 text-emerald-700 font-bold text-[9px]">
+                                  <Lock className="w-2.5 h-2.5" />
+                                  <span>Protected</span>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-5">
+                          <span className="font-bold text-slate-800 block text-xs">
+                            {ownerName}
                           </span>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="font-bold text-slate-800 block text-xs">
-                      Julian Vance-Moreau, D.Phil
-                    </span>
-                    <span className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
-                      <Mail className="w-3 h-3 text-slate-400" />
-                      <span>owner@kingscollege.edu</span>
-                    </span>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="font-bold text-slate-800 block text-xs">
-                      CBSE ICSE DUAL
-                    </span>
-                    <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
-                      <MapPin className="w-3 h-3 text-slate-400" />
-                      <span>Bengaluru, Karnataka • INR</span>
-                    </span>
-                  </td>
-                  <td className="py-4 px-5">
-                    <div className="flex flex-col gap-1 items-start">
-                      <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-bold uppercase tracking-wider">
-                        Institutional
-                      </span>
-                      <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold uppercase tracking-wider">
-                        Enterprise
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <div className="flex flex-col gap-1.5">
-                      <div className="flex items-center gap-1 font-bold text-slate-800 text-xs">
-                        <span>2100</span>
-                        <span className="text-slate-400 font-normal">/ 2200</span>
-                      </div>
-                      <div className="w-28 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-500 rounded-full w-[95.5%]" />
-                      </div>
-                      <span className="text-[10px] font-semibold text-emerald-600">
-                        95.5%
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Active
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <Link href="/platform-admin/impersonate?school=nps-indiranagar">
-                        <button
-                          type="button"
-                          className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-blue-600 font-semibold text-xs flex items-center gap-1.5 shadow-2xs"
-                        >
-                          <Users className="w-3 h-3 text-blue-600" />
-                          <span>Impersonate</span>
-                        </button>
-                      </Link>
-                      <button
-                        type="button"
-                        className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-
-                {/* School 3: The Cathedral & John Connon School */}
-                <tr className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-4 px-5">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <div className="w-7 h-7 rounded-lg bg-rose-100 text-rose-800 font-bold text-xs flex items-center justify-center">
-                          T
-                        </div>
-                        <SchoolCrest slug="cathedral-mumbai" name="The Cathedral & John Connon School" size="sm" />
-                      </div>
-                      <div>
-                        <Link
-                          href="/platform-admin/schools/c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33"
-                          className="font-bold text-slate-900 hover:text-blue-600 block text-xs"
-                        >
-                          The Cathedral &amp; John Connon School
-                        </Link>
-                        <div className="flex items-center gap-2 mt-1 text-[10px]">
-                          <a
-                            href="https://cathedral-school.com"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600 hover:underline flex items-center gap-1"
-                          >
-                            <Globe className="w-3 h-3 text-blue-500" />
-                            <span>cathedral-school.com</span>
-                          </a>
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded border border-emerald-300 bg-emerald-50 text-emerald-700 font-bold text-[9px]">
-                            <Lock className="w-2.5 h-2.5" />
-                            <span>HSM</span>
+                          <span className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                            <Mail className="w-3 h-3 text-slate-400" />
+                            <span>{ownerEmail}</span>
                           </span>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="font-bold text-slate-800 block text-xs">
-                      Julian Vance-Moreau, D.Phil
-                    </span>
-                    <span className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
-                      <Mail className="w-3 h-3 text-slate-400" />
-                      <span>owner@kingscollege.edu</span>
-                    </span>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="font-bold text-slate-800 block text-xs">
-                      ICSE ISC IB
-                    </span>
-                    <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
-                      <MapPin className="w-3 h-3 text-slate-400" />
-                      <span>Mumbai, Maharashtra • INR</span>
-                    </span>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold uppercase tracking-wider">
-                      Pro Campus
-                    </span>
-                  </td>
-                  <td className="py-4 px-5">
-                    <div className="flex flex-col gap-1.5">
-                      <div className="flex items-center gap-1 font-bold text-slate-800 text-xs">
-                        <span>1650</span>
-                        <span className="text-slate-400 font-normal">/ 1800</span>
-                      </div>
-                      <div className="w-28 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-amber-500 rounded-full w-[91.7%]" />
-                      </div>
-                      <span className="text-[10px] font-semibold text-amber-600">
-                        91.7%
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
-                      Trial
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <Link href="/platform-admin/impersonate?school=cathedral-mumbai">
-                        <button
-                          type="button"
-                          className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-blue-600 font-semibold text-xs flex items-center gap-1.5 shadow-2xs"
-                        >
-                          <Users className="w-3 h-3 text-blue-600" />
-                          <span>Impersonate</span>
-                        </button>
-                      </Link>
-                      <button
-                        type="button"
-                        className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                        </td>
+                        <td className="py-4 px-5">
+                          <span className="font-bold text-slate-800 block text-xs">
+                            {school.curriculum_framework?.replace(/_/g, " ") || "CBSE"}
+                          </span>
+                          <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                            <MapPin className="w-3 h-3 text-slate-400" />
+                            <span>{school.jurisdiction || "India"} • {school.base_currency || "INR"}</span>
+                          </span>
+                        </td>
+                        <td className="py-4 px-5">
+                          <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold uppercase tracking-wider">
+                            {(school.settings as any)?.plan_tier || "Standard"}
+                          </span>
+                        </td>
+                        <td className="py-4 px-5">
+                          <div className="flex flex-col gap-1.5">
+                            <div className="flex items-center gap-1 font-bold text-slate-800 text-xs">
+                              <span>{enrolled}</span>
+                              <span className="text-slate-400 font-normal">/ {capacity}</span>
+                            </div>
+                            <div className="w-28 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${percent}%` }} />
+                            </div>
+                            <span className="text-[10px] font-semibold text-emerald-600">
+                              {percent}%
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-5">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                            school.status === "ACTIVE"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : school.status === "TRIAL"
+                              ? "bg-amber-50 text-amber-700 border border-amber-200"
+                              : "bg-slate-100 text-slate-700 border border-slate-200"
+                          }`}>
+                            {school.status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-5 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Link href={`/platform-admin/schools/${school.id}`}>
+                              <button
+                                type="button"
+                                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs shadow-2xs"
+                              >
+                                Details
+                              </button>
+                            </Link>
+                            <Link href={`/platform-admin/impersonate?school=${school.slug}`}>
+                              <button
+                                type="button"
+                                className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 text-blue-700 font-semibold text-xs flex items-center gap-1.5 shadow-2xs"
+                              >
+                                <Users className="w-3 h-3 text-blue-600" />
+                                <span>Open Portal</span>
+                              </button>
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>

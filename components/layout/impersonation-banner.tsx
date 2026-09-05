@@ -57,7 +57,7 @@ export function ImpersonationBanner() {
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="font-bold text-[#FDD275] uppercase tracking-wider">
-            Sovereign Impersonation Session Active:
+            Viewing Portal As:
           </span>
           <span className="text-white font-medium flex items-center gap-1">
             <UserCheck className="w-3.5 h-3.5 text-[#C9A24B]" />
@@ -78,7 +78,7 @@ export function ImpersonationBanner() {
         className="h-7 text-xs px-3 font-semibold gap-1.5 shrink-0 bg-[#C9A24B] text-[#141F38] hover:bg-[#b08b3a]"
       >
         <ArrowLeft className="w-3 h-3" />
-        Exit Session
+        Back to Admin
       </Button>
     </div>
   );

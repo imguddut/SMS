@@ -107,18 +107,18 @@ export default function PlatformAdminNewSchoolPage() {
   };
 
   const steps = [
-    { num: 1, title: "Institutional Identity", icon: Building2 },
-    { num: 2, title: "Executive Authority", icon: UserCheck },
-    { num: 3, title: "Sovereign Entitlements", icon: Shield },
-    { num: 4, title: "Cryptographic Attestation", icon: Cpu },
+    { num: 1, title: "School Details", icon: Building2 },
+    { num: 2, title: "Trustee / Head", icon: UserCheck },
+    { num: 3, title: "Plan & Features", icon: Shield },
+    { num: 4, title: "Review & Deploy", icon: Cpu },
   ];
 
   return (
     <AppShell
       role="SUPER_ADMIN"
       userName="Mr. Rajesh Pillai"
-      userRoleTitle="Platform Lead &amp; Super Admin"
-      epochText="Multi-Tenant Sovereign Root • India Central Cluster Online"
+      userRoleTitle="Platform Lead & Super Admin"
+      epochText="Central Administration • Cloud Network Active"
     >
       <div className="max-w-4xl mx-auto space-y-8 pb-12">
         {/* Page Header */}
@@ -126,17 +126,17 @@ export default function PlatformAdminNewSchoolPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Badge variant="gold" dot>
-                Provisioning Wizard
+                New School Setup
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                DPDP Act 2023 &amp; MeitY Empanelled Cluster
+                Standard School Onboarding
               </span>
             </div>
             <h1 className="font-serif text-3xl font-normal text-primary">
-              Provision Sovereign School Node
+              Add New School
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-0.5">
-              Establish an isolated multi-tenant partition with custom CBSE/ICSE curriculum, INR ledger, and executive management credentials.
+              Register a new school campus with board curriculum, fee currency, and primary administrator account.
             </p>
           </div>
           <Link href="/platform-admin/schools">
@@ -187,22 +187,22 @@ export default function PlatformAdminNewSchoolPage() {
           </div>
         )}
 
-        {/* Step 1: Institutional Identity */}
+        {/* Step 1: School Identity */}
         {currentStep === 1 && (
           <Card className="p-6 space-y-6">
             <div className="border-b border-border/60 pb-3">
               <h2 className="font-serif text-xl font-medium text-primary">
-                Step 1: Institutional Identity &amp; Legal Metadata
+                Step 1: School Information &amp; Board Affiliation
               </h2>
               <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                Define the school entity, DNS routing, CBSE/ICSE affiliation, and base currency.
+                Enter the official school name, web address slug, education board, and fee currency.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="md:col-span-2 space-y-1.5">
                 <label className="font-sans text-xs font-semibold text-primary">
-                  Legal School Name *
+                  Official School Name *
                 </label>
                 <Input
                   value={formData.legal_name}
@@ -213,7 +213,7 @@ export default function PlatformAdminNewSchoolPage() {
 
               <div className="space-y-1.5">
                 <label className="font-sans text-xs font-semibold text-primary">
-                  Tenant URL Slug *
+                  Web Address Slug *
                 </label>
                 <Input
                   value={formData.slug}
@@ -221,13 +221,13 @@ export default function PlatformAdminNewSchoolPage() {
                   placeholder="sanskriti-delhi"
                 />
                 <span className="font-sans text-[11px] text-on-surface-variant">
-                  Access URL: {formData.slug || "slug"}.agragati.edu.in
+                  Portal Link: {formData.slug || "slug"}.agragati.edu.in
                 </span>
               </div>
 
               <div className="space-y-1.5">
                 <label className="font-sans text-xs font-semibold text-primary">
-                  Custom Domain Subdomain (Optional)
+                  Custom Domain / Website (Optional)
                 </label>
                 <Input
                   value={formData.domain}
@@ -238,28 +238,28 @@ export default function PlatformAdminNewSchoolPage() {
 
               <div className="space-y-1.5">
                 <label className="font-sans text-xs font-semibold text-primary">
-                  Institution Type *
+                  School Type *
                 </label>
                 <select
                   value={formData.institution_type}
                   onChange={(e) => handleChange("institution_type", e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface font-sans text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface font-sans text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="BOARDING_AND_DAY">Day &amp; Residential School</option>
                   <option value="INTERNATIONAL_BOARDING">CBSE / IB World School</option>
                   <option value="CLASSICAL_ACADEMY">Senior Secondary Public School</option>
-                  <option value="DAY_LYCEUM">Grammar &amp; Foundational School</option>
+                  <option value="DAY_LYCEUM">Grammar &amp; Primary School</option>
                 </select>
               </div>
 
               <div className="space-y-1.5">
                 <label className="font-sans text-xs font-semibold text-primary">
-                  Curriculum Framework *
+                  Education Board *
                 </label>
                 <select
                   value={formData.curriculum_framework}
                   onChange={(e) => handleChange("curriculum_framework", e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface font-sans text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface font-sans text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="CBSE_AFFILIATED">CBSE (Central Board of Secondary Education)</option>
                   <option value="ICSE_ISC">CISCE (ICSE / ISC)</option>
@@ -271,12 +271,12 @@ export default function PlatformAdminNewSchoolPage() {
 
               <div className="space-y-1.5">
                 <label className="font-sans text-xs font-semibold text-primary">
-                  Sovereign Jurisdiction *
+                  State / Region *
                 </label>
                 <select
                   value={formData.jurisdiction}
                   onChange={(e) => handleChange("jurisdiction", e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface font-sans text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface font-sans text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="India (Delhi NCT)">India (Delhi NCT)</option>
                   <option value="India (Karnataka)">India (Karnataka)</option>
@@ -289,12 +289,12 @@ export default function PlatformAdminNewSchoolPage() {
 
               <div className="space-y-1.5">
                 <label className="font-sans text-xs font-semibold text-primary">
-                  Base Financial Ledger Currency *
+                  Fee Currency *
                 </label>
                 <select
                   value={formData.base_currency}
                   onChange={(e) => handleChange("base_currency", e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface font-sans text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface font-sans text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="INR">INR — Indian Rupee (₹)</option>
                   <option value="USD">USD — US Dollar ($)</option>
@@ -307,8 +307,8 @@ export default function PlatformAdminNewSchoolPage() {
             </div>
 
             <div className="flex justify-end pt-4 border-t border-border/60">
-              <Button variant="primary" onClick={handleNext} className="gap-2 font-sans text-sm">
-                Proceed to Executive Authority <ArrowRight className="w-4 h-4" />
+              <Button variant="primary" onClick={handleNext} className="gap-2 font-sans text-sm bg-blue-600 hover:bg-blue-700 text-white">
+                Next: Trustee / Owner Details <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </Card>
@@ -319,17 +319,17 @@ export default function PlatformAdminNewSchoolPage() {
           <Card className="p-6 space-y-6">
             <div className="border-b border-border/60 pb-3">
               <h2 className="font-serif text-xl font-medium text-primary">
-                Step 2: Executive Trustee &amp; Root Authority
+                Step 2: Trustee / Primary Administrator
               </h2>
               <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                Designate the institutional Owner/Trustee with full console, finance, and governance control.
+                Create the primary login account for the school owner, director, or principal.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1.5">
                 <label className="font-sans text-xs font-semibold text-primary">
-                  Executive Full Name *
+                  Full Name *
                 </label>
                 <Input
                   value={formData.owner_name}
@@ -340,7 +340,7 @@ export default function PlatformAdminNewSchoolPage() {
 
               <div className="space-y-1.5">
                 <label className="font-sans text-xs font-semibold text-primary">
-                  Official School Email *
+                  Official Email Address *
                 </label>
                 <Input
                   type="email"
@@ -352,7 +352,7 @@ export default function PlatformAdminNewSchoolPage() {
 
               <div className="space-y-1.5">
                 <label className="font-sans text-xs font-semibold text-primary">
-                  Official Designation / Title *
+                  Designation / Role Title *
                 </label>
                 <Input
                   value={formData.owner_title}
@@ -363,7 +363,7 @@ export default function PlatformAdminNewSchoolPage() {
 
               <div className="space-y-1.5">
                 <label className="font-sans text-xs font-semibold text-primary">
-                  Direct Contact Mobile Number
+                  Contact Phone Number
                 </label>
                 <Input
                   value={formData.owner_phone}
@@ -374,7 +374,7 @@ export default function PlatformAdminNewSchoolPage() {
 
               <div className="md:col-span-2 space-y-1.5">
                 <label className="font-sans text-xs font-semibold text-primary">
-                  Master Temporary Access Passkey
+                  Temporary Initial Password
                 </label>
                 <Input
                   type="text"
@@ -382,31 +382,31 @@ export default function PlatformAdminNewSchoolPage() {
                   onChange={(e) => handleChange("initial_password", e.target.value)}
                 />
                 <span className="font-sans text-[11px] text-on-surface-variant">
-                  The executive will be prompted to register FIPS WebAuthn biometric passkey on initial sign-in.
+                  The administrator will be asked to choose their own permanent password upon first login.
                 </span>
               </div>
             </div>
 
             <div className="flex justify-between pt-4 border-t border-border/60">
               <Button variant="outline" onClick={handlePrev} className="gap-2 font-sans text-sm">
-                <ArrowLeft className="w-4 h-4" /> Back to Identity
+                <ArrowLeft className="w-4 h-4" /> Back: School Details
               </Button>
-              <Button variant="primary" onClick={handleNext} className="gap-2 font-sans text-sm">
-                Proceed to Sovereign Entitlements <ArrowRight className="w-4 h-4" />
+              <Button variant="primary" onClick={handleNext} className="gap-2 font-sans text-sm bg-blue-600 hover:bg-blue-700 text-white">
+                Next: Select Plan &amp; Features <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </Card>
         )}
 
-        {/* Step 3: Sovereign Plan & Entitlements */}
+        {/* Step 3: Plan & Features */}
         {currentStep === 3 && (
           <Card className="p-6 space-y-6">
             <div className="border-b border-border/60 pb-3">
               <h2 className="font-serif text-xl font-medium text-primary">
-                Step 3: SaaS Licensing &amp; Hardware Entitlements
+                Step 3: Choose Plan &amp; Student Capacity
               </h2>
               <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                Select licensing tier, student capacity envelope, and cryptographic enclave configurations.
+                Select the package tier, expected student capacity, and optional features.
               </p>
             </div>
 
@@ -415,18 +415,21 @@ export default function PlatformAdminNewSchoolPage() {
               {[
                 {
                   id: "Sovereign Fleet",
+                  title: "Complete School Suite",
                   price: "₹4,50,000 / yr",
-                  desc: "Dedicated HSM cryptographic hardware enclave, AI teacher copilot, multi-branch fleet governance.",
+                  desc: "All features included: AI teacher tools, advanced security, multi-branch control.",
                 },
                 {
                   id: "Enterprise Campus",
+                  title: "Standard School Package",
                   price: "₹2,50,000 / yr",
-                  desc: "Standard sovereign isolation, CBSE/ICSE gradebook, automated UPI fee reconciliation.",
+                  desc: "CBSE/ICSE gradebook, automated online fee collection, parent & student apps.",
                 },
                 {
                   id: "Foundation",
+                  title: "Essential Starter",
                   price: "₹1,20,000 / yr",
-                  desc: "Essential SIS modules, basic ledger, single-campus administration.",
+                  desc: "Attendance, report cards, basic fee records for single campus.",
                 },
               ].map((tier) => (
                 <div
@@ -434,19 +437,19 @@ export default function PlatformAdminNewSchoolPage() {
                   onClick={() => handleChange("plan_tier", tier.id)}
                   className={`p-4 rounded-lg border cursor-pointer transition-all ${
                     formData.plan_tier === tier.id
-                      ? "border-secondary bg-secondary-container/20 ring-1 ring-secondary"
-                      : "border-border/80 hover:border-secondary/40"
+                      ? "border-blue-500 bg-blue-50/40 ring-1 ring-blue-500"
+                      : "border-border/80 hover:border-blue-400"
                   }`}
                 >
                   <div className="flex justify-between items-center mb-1">
                     <span className="font-serif font-medium text-primary text-base">
-                      {tier.id}
+                      {tier.title}
                     </span>
                     {formData.plan_tier === tier.id && (
-                      <CheckCircle2 className="w-4 h-4 text-secondary" />
+                      <CheckCircle2 className="w-4 h-4 text-blue-600" />
                     )}
                   </div>
-                  <div className="font-sans text-xs font-bold text-secondary mb-2">
+                  <div className="font-sans text-xs font-bold text-blue-600 mb-2">
                     {tier.price}
                   </div>
                   <p className="font-sans text-[11px] text-on-surface-variant leading-relaxed">
@@ -458,7 +461,7 @@ export default function PlatformAdminNewSchoolPage() {
 
             <div className="space-y-1.5 pt-2">
               <label className="font-sans text-xs font-semibold text-primary">
-                Enrolled Scholar Target Capacity
+                Maximum Student Capacity
               </label>
               <Input
                 type="number"
@@ -471,75 +474,75 @@ export default function PlatformAdminNewSchoolPage() {
             {/* Entitlement Toggles */}
             <div className="space-y-3 pt-2">
               <div className="font-sans text-xs font-semibold text-primary uppercase tracking-wider">
-                Cryptographic & Infrastructure Entitlements
+                Security &amp; Optional Features
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <label className="flex items-center justify-between p-3 rounded-lg border border-border/70 cursor-pointer hover:bg-surface-variant/20">
+                <label className="flex items-center justify-between p-3 rounded-lg border border-border/70 cursor-pointer hover:bg-slate-50">
                   <div>
                     <div className="font-sans text-xs font-semibold text-primary">
-                      Dedicated HSM Enclave
+                      Bank-Grade Encryption
                     </div>
                     <div className="font-sans text-[11px] text-on-surface-variant">
-                      CRYSTALS-Dilithium5 quantum-resistant keys
+                      High-security data protection active
                     </div>
                   </div>
                   <input
                     type="checkbox"
                     checked={formData.hsm_enclave}
                     onChange={(e) => handleChange("hsm_enclave", e.target.checked)}
-                    className="w-4 h-4 text-secondary rounded"
+                    className="w-4 h-4 text-blue-600 rounded"
                   />
                 </label>
 
-                <label className="flex items-center justify-between p-3 rounded-lg border border-border/70 cursor-pointer hover:bg-surface-variant/20">
+                <label className="flex items-center justify-between p-3 rounded-lg border border-border/70 cursor-pointer hover:bg-slate-50">
                   <div>
                     <div className="font-sans text-xs font-semibold text-primary">
-                      Biometric Turnstile Gateway Sync
+                      Biometric Attendance Sync
                     </div>
                     <div className="font-sans text-[11px] text-on-surface-variant">
-                      Edge synchronization for physical access control
+                      Connect with RFID and biometric gates
                     </div>
                   </div>
                   <input
                     type="checkbox"
                     checked={formData.biometric_sync}
                     onChange={(e) => handleChange("biometric_sync", e.target.checked)}
-                    className="w-4 h-4 text-secondary rounded"
+                    className="w-4 h-4 text-blue-600 rounded"
                   />
                 </label>
 
-                <label className="flex items-center justify-between p-3 rounded-lg border border-border/70 cursor-pointer hover:bg-surface-variant/20">
+                <label className="flex items-center justify-between p-3 rounded-lg border border-border/70 cursor-pointer hover:bg-slate-50">
                   <div>
                     <div className="font-sans text-xs font-semibold text-primary">
-                      AI Pedagogical Neural Engine
+                      Smart AI Insights
                     </div>
                     <div className="font-sans text-[11px] text-on-surface-variant">
-                      Automated radar telemetry & learning mastery
+                      Automated report card comments and study tips
                     </div>
                   </div>
                   <input
                     type="checkbox"
                     checked={formData.ai_insights}
                     onChange={(e) => handleChange("ai_insights", e.target.checked)}
-                    className="w-4 h-4 text-secondary rounded"
+                    className="w-4 h-4 text-blue-600 rounded"
                   />
                 </label>
 
-                <label className="flex items-center justify-between p-3 rounded-lg border border-border/70 cursor-pointer hover:bg-surface-variant/20">
+                <label className="flex items-center justify-between p-3 rounded-lg border border-border/70 cursor-pointer hover:bg-slate-50">
                   <div>
                     <div className="font-sans text-xs font-semibold text-primary">
-                      Sovereign Ledger Boundary
+                      Secure Private Database
                     </div>
                     <div className="font-sans text-[11px] text-on-surface-variant">
-                      Strict RLS PostgreSQL schema isolation
+                      Separate data storage for this school
                     </div>
                   </div>
                   <input
                     type="checkbox"
                     checked={formData.isolated_ledger}
                     onChange={(e) => handleChange("isolated_ledger", e.target.checked)}
-                    className="w-4 h-4 text-secondary rounded"
+                    className="w-4 h-4 text-blue-600 rounded"
                   />
                 </label>
               </div>
@@ -547,93 +550,93 @@ export default function PlatformAdminNewSchoolPage() {
 
             <div className="flex justify-between pt-4 border-t border-border/60">
               <Button variant="outline" onClick={handlePrev} className="gap-2 font-sans text-sm">
-                <ArrowLeft className="w-4 h-4" /> Back to Authority
+                <ArrowLeft className="w-4 h-4" /> Back: Trustee Details
               </Button>
-              <Button variant="primary" onClick={handleNext} className="gap-2 font-sans text-sm">
-                Proceed to Cryptographic Attestation <ArrowRight className="w-4 h-4" />
+              <Button variant="primary" onClick={handleNext} className="gap-2 font-sans text-sm bg-blue-600 hover:bg-blue-700 text-white">
+                Next: Review &amp; Confirm <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </Card>
         )}
 
-        {/* Step 4: Cryptographic Attestation & Final Deployment */}
+        {/* Step 4: Review & Final Deployment */}
         {currentStep === 4 && (
           <Card className="p-6 space-y-6">
             <div className="border-b border-border/60 pb-3">
               <h2 className="font-serif text-xl font-medium text-primary">
-                Step 4: Cryptographic Attestation & Node Cluster Deployment
+                Step 4: Review &amp; Create School
               </h2>
               <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                Verify institutional parameters and commit new sovereign partition to the live cluster.
+                Review the entered details below and click 'Create &amp; Save School' to complete onboarding.
               </p>
             </div>
 
             {/* Review Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg bg-surface-variant/40 border border-border/60 font-sans text-xs">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg bg-slate-50 border border-slate-200 font-sans text-xs">
               <div>
-                <span className="text-on-surface-variant">Institution:</span>
+                <span className="text-on-surface-variant">School Name:</span>
                 <div className="font-serif text-base font-semibold text-primary mt-0.5">
                   {formData.legal_name}
                 </div>
                 <div className="text-on-surface-variant mt-0.5">
-                  Slug: <span className="font-mono text-secondary font-medium">{formData.slug}</span>
+                  Web Slug: <span className="font-mono text-blue-600 font-medium">{formData.slug}</span>
                 </div>
                 <div className="text-on-surface-variant">
-                  Jurisdiction: <span className="font-medium text-primary">{formData.jurisdiction}</span> ({formData.base_currency})
+                  Location: <span className="font-medium text-primary">{formData.jurisdiction}</span> ({formData.base_currency})
                 </div>
               </div>
 
               <div>
-                <span className="text-on-surface-variant">Executive Chancellor:</span>
+                <span className="text-on-surface-variant">Trustee / School Head:</span>
                 <div className="font-semibold text-primary mt-0.5">
                   {formData.owner_name}
                 </div>
                 <div className="text-on-surface-variant">{formData.owner_email}</div>
                 <div className="text-on-surface-variant mt-1">
-                  Plan Tier: <Badge variant="gold">{formData.plan_tier}</Badge> (Capacity: {formData.capacity_target})
+                  Package Plan: <Badge variant="gold">{formData.plan_tier}</Badge> (Capacity: {formData.capacity_target})
                 </div>
               </div>
             </div>
 
             {/* Automated Health Checks */}
             <div className="space-y-2.5 font-sans text-xs">
-              <div className="flex items-center justify-between p-2.5 rounded bg-surface border border-border/70">
+              <div className="flex items-center justify-between p-2.5 rounded bg-white border border-slate-200">
                 <span className="flex items-center gap-2 text-primary font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-[#3D5B42]" /> Subdomain DNS Availability Check
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> School Web Address Available
                 </span>
-                <span className="text-[#3D5B42] font-semibold">VERIFIED</span>
+                <span className="text-emerald-600 font-semibold">READY</span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded bg-surface border border-border/70">
+              <div className="flex items-center justify-between p-2.5 rounded bg-white border border-slate-200">
                 <span className="flex items-center gap-2 text-primary font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-[#3D5B42]" /> PostgreSQL Multi-Tenant Partition Schema
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Database Storage Setup
                 </span>
-                <span className="text-[#3D5B42] font-semibold">INITIALIZED</span>
+                <span className="text-emerald-600 font-semibold">INITIALIZED</span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded bg-surface border border-border/70">
+              <div className="flex items-center justify-between p-2.5 rounded bg-white border border-slate-200">
                 <span className="flex items-center gap-2 text-primary font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-[#3D5B42]" /> HSM Root Keypair Generation (CRYSTALS-Dilithium5)
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Security Encryption Active
                 </span>
-                <span className="text-[#3D5B42] font-semibold">READY</span>
+                <span className="text-emerald-600 font-semibold">READY</span>
               </div>
             </div>
 
             <div className="flex justify-between pt-4 border-t border-border/60">
               <Button variant="outline" onClick={handlePrev} className="gap-2 font-sans text-sm">
-                <ArrowLeft className="w-4 h-4" /> Back to Entitlements
+                <ArrowLeft className="w-4 h-4" /> Back: Plan &amp; Features
               </Button>
               <Button
                 variant="primary"
                 onClick={handleDeploy}
                 disabled={isSubmitting}
-                className="gap-2 font-sans text-sm bg-primary text-secondary-container hover:bg-primary-hover px-6"
+                className="gap-2 font-sans text-sm bg-blue-600 hover:bg-blue-700 text-white px-6 shadow-sm"
               >
                 {isSubmitting ? (
-                  "Provisioning Sovereign Node..."
+                  "Creating School..."
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" /> Commit & Deploy Sovereign Node
+                    <Sparkles className="w-4 h-4" /> Create &amp; Save School
                   </>
                 )}
               </Button>
@@ -643,42 +646,42 @@ export default function PlatformAdminNewSchoolPage() {
 
         {/* Step 5: Success State */}
         {currentStep === 5 && (
-          <Card className="p-8 text-center space-y-6 border-secondary/50 bg-gradient-to-b from-surface to-secondary-container/10">
-            <div className="w-16 h-16 rounded-full bg-[#3D5B42]/10 text-[#3D5B42] flex items-center justify-center mx-auto shadow-sm">
+          <Card className="p-8 text-center space-y-6 border-blue-200 bg-white">
+            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
               <CheckCircle2 className="w-9 h-9" />
             </div>
 
             <div className="space-y-2">
               <Badge variant="gold" dot>
-                Partition Live & Operational
+                School Successfully Created
               </Badge>
-              <h2 className="font-serif text-3xl font-medium text-primary">
-                Sovereign School Node Provisioned
+              <h2 className="font-serif text-3xl font-medium text-slate-900">
+                School Added to Agragati
               </h2>
-              <p className="font-sans text-sm text-on-surface-variant max-w-lg mx-auto">
-                <strong className="text-primary">{formData.legal_name}</strong> has been successfully instantiated on Cluster 01. Chancellor credentials have been enrolled into the sovereign registry.
+              <p className="font-sans text-sm text-slate-600 max-w-lg mx-auto">
+                <strong className="text-slate-900">{formData.legal_name}</strong> has been successfully added. The administrator can now log in using the credentials below.
               </p>
             </div>
 
-            <div className="max-w-md mx-auto p-4 rounded-lg bg-surface border border-border/80 text-left font-sans text-xs space-y-2">
+            <div className="max-w-md mx-auto p-4 rounded-lg bg-slate-50 border border-slate-200 text-left font-sans text-xs space-y-2">
               <div className="flex justify-between">
-                <span className="text-on-surface-variant">Owner Email:</span>
-                <span className="font-mono font-medium text-primary">{formData.owner_email}</span>
+                <span className="text-slate-500">Owner Email:</span>
+                <span className="font-mono font-medium text-slate-900">{formData.owner_email}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-on-surface-variant">Initial Password:</span>
-                <span className="font-mono font-medium text-secondary">{formData.initial_password}</span>
+                <span className="text-slate-500">Initial Password:</span>
+                <span className="font-mono font-medium text-blue-600">{formData.initial_password}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-on-surface-variant">Access URL:</span>
-                <span className="font-mono text-primary">{formData.slug}.agragati.edu</span>
+                <span className="text-slate-500">Access URL:</span>
+                <span className="font-mono text-slate-900">{formData.slug}.agragati.edu</span>
               </div>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <Link href="/platform-admin/schools">
                 <Button variant="outline" className="font-sans text-xs">
-                  Return to Fleet Directory
+                  Back to Schools List
                 </Button>
               </Link>
               <Link
@@ -686,9 +689,9 @@ export default function PlatformAdminNewSchoolPage() {
                   formData.legal_name
                 )}`}
               >
-                <Button variant="primary" className="font-sans text-xs gap-1.5">
-                  <UserCheck className="w-4 h-4 text-secondary-container" />
-                  Impersonate Chancellor Session
+                <Button variant="primary" className="font-sans text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white">
+                  <UserCheck className="w-4 h-4" />
+                  Open School Portal
                 </Button>
               </Link>
             </div>

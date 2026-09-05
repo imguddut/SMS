@@ -35,12 +35,7 @@ export function AppShell({
 
   return (
     <div
-      className={cn(
-        "min-h-screen font-sans antialiased transition-colors duration-200",
-        isPlatformAdmin
-          ? "bg-[#F8FAFC] text-slate-900 selection:bg-blue-100 selection:text-blue-900"
-          : "bg-[#FAF8F5] dark:bg-[#0c0f17] text-stone-900 dark:text-stone-100 selection:bg-amber-100 selection:text-amber-900 dark:selection:bg-amber-900/50 dark:selection:text-amber-200"
-      )}
+      className="min-h-screen font-sans antialiased transition-colors duration-200 bg-[#F8FAFC] dark:bg-[#070D1B] text-slate-900 dark:text-slate-100 selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900/50 dark:selection:text-blue-200"
     >
       {/* Impersonation Banner if active */}
       <ImpersonationBanner />
@@ -70,14 +65,28 @@ export function AppShell({
         </div>
 
         {/* Mobile Header for all screens */}
-        <div className="md:hidden flex items-center justify-between h-16 px-4 bg-white dark:bg-[#12161f] border-b border-stone-200/80 dark:border-stone-800 sticky top-0 z-40 shadow-xs transition-colors duration-200">
-          <div className="flex items-center gap-2">
-            <span className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">Agragati</span>
-            <span className="text-[9px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider px-2 py-0.5 rounded bg-amber-100/80 dark:bg-amber-950/60 border border-transparent dark:border-amber-800/40">
+        <div className="md:hidden flex items-center justify-between h-16 px-4 bg-[#080E1E] border-b border-[#131F37] sticky top-0 z-40 shadow-xs transition-colors duration-200 text-white">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded bg-blue-600 flex items-center justify-center text-white shadow-xs shrink-0">
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+            </div>
+            <span className="font-sans text-base font-bold text-white tracking-wide">Agragati</span>
+            <span className="text-[9px] font-bold text-blue-300 uppercase tracking-wider px-2 py-0.5 rounded bg-blue-950/80 border border-blue-800/40">
               {role}
             </span>
           </div>
-          <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 flex items-center justify-center font-bold text-xs shadow-xs border border-indigo-200/50 dark:border-indigo-800/50">
+          <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
             {userName.slice(0, 2).toUpperCase()}
           </div>
         </div>

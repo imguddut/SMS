@@ -85,8 +85,8 @@ export default function PlatformAdminSchoolDetailPage() {
   if (loading) {
     return (
       <AppShell role="SUPER_ADMIN" userName="Eleanor Vance" userRoleTitle="Platform Lead & Super Admin">
-        <div className="py-20 text-center text-on-surface-variant font-sans">
-          Scanning sovereign partition dossier...
+        <div className="py-20 text-center text-slate-500 font-sans">
+          Loading school details...
         </div>
       </AppShell>
     );
@@ -96,10 +96,10 @@ export default function PlatformAdminSchoolDetailPage() {
     return (
       <AppShell role="SUPER_ADMIN" userName="Eleanor Vance" userRoleTitle="Platform Lead & Super Admin">
         <div className="py-16 text-center space-y-4">
-          <h2 className="font-serif text-2xl text-primary">School Node Not Found</h2>
-          <p className="text-sm text-on-surface-variant">The requested institutional partition could not be located.</p>
+          <h2 className="font-serif text-2xl text-slate-900">School Not Found</h2>
+          <p className="text-sm text-slate-500">The requested school could not be found.</p>
           <Link href="/platform-admin/schools">
-            <Button variant="primary">Return to Fleet Directory</Button>
+            <Button variant="primary" className="bg-blue-600 hover:bg-blue-700 text-white">Back to Schools List</Button>
           </Link>
         </div>
       </AppShell>
@@ -117,16 +117,16 @@ export default function PlatformAdminSchoolDetailPage() {
       role="SUPER_ADMIN"
       userName="Eleanor Vance"
       userRoleTitle="Platform Lead & Super Admin"
-      epochText="Multi-Tenant Sovereign Root • Cluster 01 Online"
+      epochText="Central Administration • Cloud Network Active"
     >
       <div className="space-y-6 max-w-6xl mx-auto pb-12">
         {/* Breadcrumb & Navigation */}
         <div className="flex items-center justify-between">
           <Link
             href="/platform-admin/schools"
-            className="font-sans text-xs text-on-surface-variant hover:text-primary flex items-center gap-1.5 transition-colors"
+            className="font-sans text-xs text-slate-500 hover:text-blue-600 flex items-center gap-1.5 transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to Fleet Directory
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Schools List
           </Link>
 
           <div className="flex items-center gap-2">
@@ -135,8 +135,8 @@ export default function PlatformAdminSchoolDetailPage() {
                 school.legal_name
               )}`}
             >
-              <Button variant="outline" size="sm" className="text-xs gap-1.5 text-secondary border-secondary/40">
-                <UserCheck className="w-3.5 h-3.5" /> Impersonate Chancellor
+              <Button variant="outline" size="sm" className="text-xs gap-1.5 text-blue-600 border-blue-200 hover:bg-blue-50">
+                <UserCheck className="w-3.5 h-3.5" /> Open School Portal
               </Button>
             </Link>
 
@@ -145,18 +145,18 @@ export default function PlatformAdminSchoolDetailPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleStatusChange("SUSPENDED")}
-                className="text-xs text-error hover:bg-error/10 border-error/30"
+                className="text-xs text-rose-600 hover:bg-rose-50 border-rose-200"
               >
-                Suspend Node
+                Suspend School
               </Button>
             ) : (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleStatusChange("ACTIVE")}
-                className="text-xs text-[#3D5B42] hover:bg-[#3D5B42]/10 border-[#3D5B42]/30"
+                className="text-xs text-emerald-600 hover:bg-emerald-50 border-emerald-200"
               >
-                Activate Node
+                Activate School
               </Button>
             )}
           </div>
@@ -208,7 +208,7 @@ export default function PlatformAdminSchoolDetailPage() {
             <div className="flex items-center gap-6 border-t md:border-t-0 md:border-l border-border/60 pt-4 md:pt-0 md:pl-6">
               <div>
                 <div className="font-sans text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
-                  Enrolled Scholars
+                  Enrolled Students
                 </div>
                 <div className="font-serif text-2xl font-medium text-primary mt-0.5">
                   {school.student_count || 850}
@@ -220,7 +220,7 @@ export default function PlatformAdminSchoolDetailPage() {
 
               <div>
                 <div className="font-sans text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
-                  Faculty Seats
+                  Teachers &amp; Staff
                 </div>
                 <div className="font-serif text-2xl font-medium text-primary mt-0.5">
                   {school.faculty_count || 64}
@@ -233,11 +233,11 @@ export default function PlatformAdminSchoolDetailPage() {
         {/* Dossier Navigation Tabs */}
         <div className="flex items-center gap-2 border-b border-border/60 pb-px overflow-x-auto">
           {[
-            { id: "telemetry", label: "Cluster Telemetry", icon: Cpu },
-            { id: "academics", label: "Academic Structure", icon: Layers },
-            { id: "personnel", label: "Administrative Personnel", icon: Users },
-            { id: "ledger", label: "Financial Ledger", icon: CreditCard },
-            { id: "security", label: "Sovereign Security Controls", icon: ShieldCheck },
+            { id: "telemetry", label: "Capacity & Server", icon: Cpu },
+            { id: "academics", label: "Classes & Academics", icon: Layers },
+            { id: "personnel", label: "Staff & Admins", icon: Users },
+            { id: "ledger", label: "Fee Invoices & Billing", icon: CreditCard },
+            { id: "security", label: "Security & Settings", icon: ShieldCheck },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -247,11 +247,11 @@ export default function PlatformAdminSchoolDetailPage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-t-lg font-sans text-xs font-medium transition-all whitespace-nowrap ${
                   isActive
-                    ? "bg-surface text-primary border-t-2 border-secondary shadow-sm font-semibold"
-                    : "text-on-surface-variant hover:text-primary hover:bg-surface-variant/30"
+                    ? "bg-surface text-blue-600 border-t-2 border-blue-600 shadow-sm font-semibold"
+                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? "text-secondary" : ""}`} />
+                <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : ""}`} />
                 {tab.label}
               </button>
             );

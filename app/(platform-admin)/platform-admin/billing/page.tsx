@@ -50,36 +50,36 @@ export default function PlatformAdminBillingPage() {
       role="SUPER_ADMIN"
       userName="Mr. Rajesh Pillai"
       userRoleTitle="Platform Lead & Super Admin"
-      epochText="Multi-Tenant Sovereign Root • India Central Cluster Online"
+      epochText="Central Administration • Cloud Network Active"
     >
       <div className="space-y-6 max-w-7xl mx-auto pb-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-bold uppercase tracking-wider">
-                Sovereign Treasury
+              <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold uppercase tracking-wider">
+                Platform Billing
               </span>
               <span className="text-xs text-slate-500 font-medium">
-                › National Multi-School SaaS Billing Engine
+                › Subscriptions &amp; Invoicing
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
               Platform Billing &amp; Subscriptions
             </h1>
             <p className="text-xs md:text-sm text-slate-500 mt-1 max-w-2xl">
-              Monitor institutional enterprise licenses, hardware enclave subscriptions, and automated Net Banking / UPI settlement fidelity.
+              Monitor school subscription plans, automated payment status, and invoices.
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
             <button
               type="button"
-              onClick={() => alert("Downloading Annual GST Audit Ledger (FY 2024-2025)...")}
-              className="h-10 px-4 rounded-xl bg-[#5839C2] hover:bg-[#4D30B0] text-white font-semibold text-xs flex items-center gap-2 shadow-xs transition-colors"
+              onClick={() => alert("Downloading Billing Ledger (FY 2024-2025)...")}
+              className="h-10 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-2 shadow-xs transition-colors"
             >
               <Download className="w-4 h-4" />
-              <span>Export Annual GST Audit Ledger</span>
+              <span>Download Billing Report</span>
             </button>
           </div>
         </div>
@@ -89,11 +89,11 @@ export default function PlatformAdminBillingPage() {
           {/* Metric 1 */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                 <TrendingUp className="w-5 h-5" />
               </div>
               <span className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">
-                Total Platform Run-Rate
+                Total Platform Revenue
               </span>
             </div>
             <div className="mt-4">
@@ -113,7 +113,7 @@ export default function PlatformAdminBillingPage() {
                 <Users className="w-5 h-5" />
               </div>
               <span className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">
-                Average Revenue / Node (ARPU)
+                Average Revenue / School
               </span>
             </div>
             <div className="mt-4">
@@ -153,7 +153,7 @@ export default function PlatformAdminBillingPage() {
                 <Calendar className="w-5 h-5" />
               </div>
               <span className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">
-                Overdue Institutional Receivables
+                Overdue Invoices
               </span>
             </div>
             <div className="mt-4">
@@ -161,7 +161,7 @@ export default function PlatformAdminBillingPage() {
                 ₹0.00
               </div>
               <p className="text-xs font-semibold text-emerald-600 mt-1">
-                Zero defaulted tenancies
+                All school accounts up to date
               </p>
             </div>
           </div>
@@ -169,31 +169,31 @@ export default function PlatformAdminBillingPage() {
 
         {/* 3 Tier Plan Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Sovereign Fleet Tier */}
+          {/* Complete School Suite */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center">
                   <Crown className="w-5 h-5" />
                 </div>
-                <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-bold">
-                  2 Active Nodes
+                <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold">
+                  2 Active Schools
                 </span>
               </div>
               <h3 className="text-base font-bold text-slate-900">
-                Sovereign Fleet Tier
+                Complete School Suite
               </h3>
               <div className="mt-2 flex items-baseline gap-1">
                 <span className="text-2xl font-bold text-slate-900">₹4,50,000</span>
                 <span className="text-xs text-slate-500">/ yr</span>
               </div>
               <p className="text-xs text-slate-500 mt-3 leading-relaxed">
-                Dedicated HSM cryptographic partition, AI teacher copilot, multi-branch fleet governance, unlimited student seats.
+                Dedicated cryptographic partition, AI teacher copilot, multi-branch governance, unlimited student seats.
               </p>
             </div>
           </div>
 
-          {/* Enterprise Campus */}
+          {/* Standard School Package */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
@@ -201,35 +201,35 @@ export default function PlatformAdminBillingPage() {
                   <Building2 className="w-5 h-5" />
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold">
-                  1 Active Node
+                  1 Active School
                 </span>
               </div>
               <h3 className="text-base font-bold text-slate-900">
-                Enterprise Campus
+                Standard School Package
               </h3>
               <div className="mt-2 flex items-baseline gap-1">
                 <span className="text-2xl font-bold text-slate-900">₹2,50,000</span>
                 <span className="text-xs text-slate-500">/ yr</span>
               </div>
               <p className="text-xs text-slate-500 mt-3 leading-relaxed">
-                Standard tenant isolation, CBSE/ICSE marks entry, automated UPI fee reconciliation, up to 2,000 students.
+                Standard isolation, CBSE/ICSE marks entry, automated UPI fee reconciliation, up to 2,000 students.
               </p>
             </div>
           </div>
 
-          {/* Foundation Academy */}
+          {/* Essential Starter */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center">
                   <GraduationCap className="w-5 h-5" />
                 </div>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
-                  0 Active Nodes
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-50 text-slate-700 border border-slate-200 text-[10px] font-bold">
+                  0 Active Schools
                 </span>
               </div>
               <h3 className="text-base font-bold text-slate-900">
-                Foundation Academy
+                Essential Starter
               </h3>
               <div className="mt-2 flex items-baseline gap-1">
                 <span className="text-2xl font-bold text-slate-900">₹1,20,000</span>
@@ -246,10 +246,10 @@ export default function PlatformAdminBillingPage() {
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
           <div className="p-5 md:p-6 border-b border-slate-100">
             <h2 className="text-base font-bold text-slate-900">
-              Institutional Invoices &amp; Contract Records
+              School Subscription Invoices
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Multi-tenant platform contract billing history and automated settlements.
+              Payment and billing history for all registered schools.
             </p>
           </div>
 

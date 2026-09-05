@@ -71,35 +71,35 @@ export default function SchoolReportsPage() {
   return (
     <AppShell
       role="PRINCIPAL"
-      userName="Mme. Claire De La Tour"
-      userRoleTitle="Head of School & Proviseur"
-      epochText="Term 3 Cycle (Michaelmas) • Geneva Campus"
+      userName="Dr. Arvind Swaminathan"
+      userRoleTitle="Principal & Head of School"
+      epochText="Term 2 (CBSE Board) • Main Campus"
     >
       <div className="space-y-8 max-w-6xl mx-auto pb-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Badge variant="gold" dot>
-                Institutional Audit Registry
+              <Badge variant="navy" dot>
+                School Reports &amp; Insights
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#3D5B42] animate-pulse"></span>
-                AI Predictive Early-Intervention Active
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Student Support Alerts Active
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
-              Institutional Reports &amp; AI Risk Radar
+              School Reports &amp; Student Support
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
-              Proviseur compliance audits, regulatory gradebook matrices, and predictive scholar attrition early-warning radar.
+              Official school attendance, grade summaries, financial ledgers, and students needing academic support.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="primary" size="sm" className="font-sans gap-2">
-              <Download className="w-4 h-4 text-secondary-container" />
-              Download Full Audit Dossier (ZIP)
+            <Button variant="primary" size="sm" className="font-sans gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+              <Download className="w-4 h-4" />
+              Download All Reports (ZIP)
             </Button>
           </div>
         </div>
@@ -107,19 +107,19 @@ export default function SchoolReportsPage() {
         {/* Category Filters */}
         <div className="flex items-center gap-2 border-b border-border/60 pb-px overflow-x-auto font-sans text-xs">
           {[
-            { id: "ALL", label: "All Audit Reports" },
-            { id: "RISK_RADAR", label: "Predictive Risk Radar (3 Flagged)" },
-            { id: "ATTENDANCE", label: "Attendance & Roll-Call" },
-            { id: "ACADEMIC", label: "Academic Gradebooks" },
-            { id: "FINANCIAL", label: "Financial Ledgers" },
-            { id: "SAFETY", label: "Boarding & Safety" },
+            { id: "ALL", label: "All Reports" },
+            { id: "RISK_RADAR", label: "Students Needing Help (3)" },
+            { id: "ATTENDANCE", label: "Attendance Reports" },
+            { id: "ACADEMIC", label: "Report Cards & Grades" },
+            { id: "FINANCIAL", label: "Fee & Finance Reports" },
+            { id: "SAFETY", label: "Campus & Safety" },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setCategoryFilter(tab.id)}
               className={`px-4 py-2.5 rounded-t-lg font-medium transition-all whitespace-nowrap ${
                 categoryFilter === tab.id
-                  ? "bg-surface text-primary border-t-2 border-secondary shadow-sm font-semibold"
+                  ? "bg-surface text-blue-400 border-t-2 border-blue-500 shadow-sm font-semibold"
                   : "text-on-surface-variant hover:text-primary hover:bg-surface-variant/30"
               }`}
             >
@@ -131,32 +131,32 @@ export default function SchoolReportsPage() {
         {/* Content based on filter */}
         {categoryFilter === "RISK_RADAR" ? (
           <div className="space-y-4">
-            <Card className="p-5 bg-secondary/10 border border-secondary/30 flex items-center justify-between">
+            <Card className="p-5 bg-blue-950/20 border border-blue-500/30 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <BrainCircuit className="w-6 h-6 text-secondary" />
+                <BrainCircuit className="w-6 h-6 text-blue-400" />
                 <div>
                   <h3 className="font-serif text-base font-medium text-primary">
-                    Predictive Scholar Attrition &amp; Intervention Model
+                    Students Needing Academic or Attendance Support
                   </h3>
                   <p className="font-sans text-xs text-on-surface-variant">
-                    Multi-factor neural monitoring of attendance drops (below 95%), homework submission latency, and exam score volatility.
+                    Automatic alerts when student attendance drops below 85% or marks decline.
                   </p>
                 </div>
               </div>
-              <Badge variant="gold" className="text-xs">3 Active Cases</Badge>
+              <Badge variant="navy" className="text-xs">3 Active Cases</Badge>
             </Card>
 
             <div className="space-y-4">
               {riskScholars.map((scholar) => (
                 <Card
                   key={scholar.id}
-                  className="p-6 border-l-4 border-l-error border-surface-container-high hover:border-secondary/40 transition-colors"
+                  className="p-6 border-l-4 border-l-rose-500 border-border/80 hover:border-blue-500/40 transition-colors"
                 >
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Badge variant="critical" className="text-[10px]">
-                          Risk Score: {scholar.riskScore}/100
+                          Attention Score: {scholar.riskScore}/100
                         </Badge>
                         <Badge variant="navy" className="text-[10px]">
                           {scholar.riskCategory.replace("_", " ")}
@@ -170,27 +170,27 @@ export default function SchoolReportsPage() {
                         {scholar.studentName}
                       </h3>
                       <p className="font-sans text-xs text-on-surface-variant">
-                        {scholar.form} • {scholar.house} • Assigned Master: <strong>{scholar.assignedStaff}</strong>
+                        {scholar.form} • {scholar.house} • Assigned Teacher: <strong>{scholar.assignedStaff}</strong>
                       </p>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-sans pt-2">
-                        <div className="p-2 rounded bg-surface-container-lowest border border-surface-container-high">
-                          <span className="text-on-surface-variant block text-[10px]">Attendance Variance</span>
-                          <span className="font-semibold text-error">{scholar.attendanceDelta}</span>
+                        <div className="p-2 rounded bg-surface-variant/40 border border-border/60">
+                          <span className="text-on-surface-variant block text-[10px]">Attendance Change</span>
+                          <span className="font-semibold text-rose-400">{scholar.attendanceDelta}</span>
                         </div>
-                        <div className="p-2 rounded bg-surface-container-lowest border border-surface-container-high">
-                          <span className="text-on-surface-variant block text-[10px]">Homework Latency</span>
-                          <span className="font-semibold text-error">{scholar.homeworkLatencyAvg}</span>
+                        <div className="p-2 rounded bg-surface-variant/40 border border-border/60">
+                          <span className="text-on-surface-variant block text-[10px]">Pending Homework</span>
+                          <span className="font-semibold text-rose-400">{scholar.homeworkLatencyAvg}</span>
                         </div>
-                        <div className="p-2 rounded bg-surface-container-lowest border border-surface-container-high">
-                          <span className="text-on-surface-variant block text-[10px]">Mock Exam Volatility</span>
+                        <div className="p-2 rounded bg-surface-variant/40 border border-border/60">
+                          <span className="text-on-surface-variant block text-[10px]">Test Marks Variance</span>
                           <span className="font-semibold text-primary">{scholar.mockExamVariance}</span>
                         </div>
                       </div>
 
-                      <div className="p-3 rounded-lg bg-surface-container-lowest border border-secondary/30 text-xs font-sans mt-2">
-                        <span className="font-bold text-secondary block mb-0.5">
-                          Prescriptive AI Recommendation:
+                      <div className="p-3 rounded-lg bg-surface-variant/40 border border-blue-500/30 text-xs font-sans mt-2">
+                        <span className="font-bold text-blue-400 block mb-0.5">
+                          Recommended Action:
                         </span>
                         <span className="text-primary">{scholar.prescriptiveIntervention}</span>
                       </div>
@@ -202,15 +202,15 @@ export default function SchoolReportsPage() {
                         size="sm"
                         disabled={interventionIds[scholar.id]}
                         onClick={() => handleTriggerIntervention(scholar.id)}
-                        className="text-xs gap-1.5"
+                        className={`text-xs gap-1.5 ${!interventionIds[scholar.id] ? "bg-blue-600 hover:bg-blue-700 text-white" : ""}`}
                       >
                         {interventionIds[scholar.id] ? (
                           <>
-                            <CheckCircle2 className="w-3.5 h-3.5 text-[#3D5B42]" /> Intervention Dispatched
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Support Assigned
                           </>
                         ) : (
                           <>
-                            <Zap className="w-3.5 h-3.5 text-secondary-container" /> Assign Master Tutoring
+                            <Zap className="w-3.5 h-3.5" /> Assign Extra Help
                           </>
                         )}
                       </Button>
@@ -225,10 +225,10 @@ export default function SchoolReportsPage() {
             {filteredReports.map((rep) => (
               <Card
                 key={rep.id}
-                className="p-6 border-border/80 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-secondary/40 transition-colors"
+                className="p-6 border-border/80 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-blue-500/40 transition-colors"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-surface-variant flex items-center justify-center text-primary shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-blue-600/10 text-blue-400 flex items-center justify-center shrink-0">
                     <FileSpreadsheet className="w-6 h-6" />
                   </div>
                   <div className="space-y-1">
@@ -253,11 +253,11 @@ export default function SchoolReportsPage() {
                     variant={downloadedIds[rep.id] ? "outline" : "primary"}
                     size="sm"
                     onClick={() => handleDownload(rep.id)}
-                    className="text-xs gap-1.5"
+                    className={`text-xs gap-1.5 ${!downloadedIds[rep.id] ? "bg-blue-600 hover:bg-blue-700 text-white" : ""}`}
                   >
                     {downloadedIds[rep.id] ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-[#3D5B42]" /> Export Complete
+                        <Check className="w-3.5 h-3.5 text-emerald-400" /> Downloaded
                       </>
                     ) : (
                       <>

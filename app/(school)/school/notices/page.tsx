@@ -72,9 +72,9 @@ export default function SchoolNoticesPage() {
   return (
     <AppShell
       role="PRINCIPAL"
-      userName="Mme. Claire De La Tour"
-      userRoleTitle="Head of School & Proviseur"
-      epochText="Term 3 Cycle (Michaelmas) • Geneva Campus"
+      userName="Dr. Arvind Swaminathan"
+      userRoleTitle="Principal & Head of School"
+      epochText="Academic Year 2024–2025 • Term 2 (CBSE)"
     >
       <div className="space-y-8 max-w-6xl mx-auto pb-12">
         {/* Header */}
@@ -82,17 +82,17 @@ export default function SchoolNoticesPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Badge variant="gold" dot>
-                Campus Bulletin Desk
+                School Notices
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                Official Institutional Communications Channel
+                Announcements &amp; Circulars
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
-              Notices &amp; Official Bulletins
+              School Notices &amp; Circulars
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
-              Publish proviseur announcements, emergency safety broadcasts, examination guidelines, and departmental bulletins.
+              Post important updates, exam timetables, holiday announcements, and event circulars.
             </p>
           </div>
 
@@ -101,10 +101,10 @@ export default function SchoolNoticesPage() {
               variant="primary"
               size="sm"
               onClick={() => setIsModalOpen(true)}
-              className="font-sans gap-2"
+              className="font-sans gap-2 bg-blue-600 hover:bg-blue-700 text-white"
             >
-              <PlusCircle className="w-4 h-4 text-secondary-container" />
-              Draft Official Bulletin
+              <PlusCircle className="w-4 h-4" />
+              + Post New Notice
             </Button>
           </div>
         </div>
@@ -112,19 +112,19 @@ export default function SchoolNoticesPage() {
         {/* Audience Filter Tabs */}
         <div className="flex items-center gap-2 border-b border-border/60 pb-px overflow-x-auto font-sans text-xs">
           {[
-            { id: "ALL", label: "All Communications" },
-            { id: "ALL_CAMPUS", label: "All Campus" },
-            { id: "SENIOR_WING", label: "Senior Wing" },
-            { id: "FACULTY_ONLY", label: "Faculty Only" },
-            { id: "PARENTS_ONLY", label: "Parents & Governors" },
+            { id: "ALL", label: "All Notices" },
+            { id: "ALL_CAMPUS", label: "Whole School" },
+            { id: "SENIOR_WING", label: "Senior Classes (11 & 12)" },
+            { id: "FACULTY_ONLY", label: "Teachers & Staff" },
+            { id: "PARENTS_ONLY", label: "Parents Only" },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setAudienceFilter(tab.id)}
               className={`px-4 py-2.5 rounded-t-lg font-medium transition-all whitespace-nowrap ${
                 audienceFilter === tab.id
-                  ? "bg-surface text-primary border-t-2 border-secondary shadow-sm font-semibold"
-                  : "text-on-surface-variant hover:text-primary hover:bg-surface-variant/30"
+                  ? "bg-surface text-blue-600 border-t-2 border-blue-600 shadow-sm font-semibold"
+                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
               }`}
             >
               {tab.label}
@@ -139,7 +139,7 @@ export default function SchoolNoticesPage() {
               key={not.id}
               className={`p-6 border transition-all ${
                 not.isPinned
-                  ? "border-secondary/60 bg-gradient-to-r from-surface via-secondary-container/5 to-surface shadow-sm"
+                  ? "border-blue-300 bg-blue-50/20 shadow-sm"
                   : "border-border/80 bg-surface"
               }`}
             >
@@ -147,8 +147,8 @@ export default function SchoolNoticesPage() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     {not.isPinned && (
-                      <span className="flex items-center gap-1 font-sans text-xs font-bold text-secondary">
-                        <Pin className="w-3.5 h-3.5 fill-secondary" /> Pinned
+                      <span className="flex items-center gap-1 font-sans text-xs font-bold text-blue-600">
+                        <Pin className="w-3.5 h-3.5 fill-blue-600" /> Pinned
                       </span>
                     )}
                     <h3 className="font-serif text-xl font-medium text-primary">
@@ -181,7 +181,7 @@ export default function SchoolNoticesPage() {
 
               <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between font-sans text-xs text-on-surface-variant">
                 <span>
-                  Issued by: <strong className="text-primary">{not.authorName}</strong> ({not.authorTitle})
+                  Posted by: <strong className="text-primary">{not.authorName}</strong> ({not.authorTitle})
                 </span>
                 <span className="font-mono">{not.publishedAt}</span>
               </div>
@@ -194,14 +194,14 @@ export default function SchoolNoticesPage() {
           <Modal
             isOpen={true}
             onClose={() => setIsModalOpen(false)}
-            title="Draft Official Institutional Bulletin"
+            title="Create New School Notice"
             maxWidth="lg"
           >
             <div className="space-y-4 font-sans text-xs">
               <div className="space-y-1.5">
-                <label className="font-semibold text-primary">Bulletin Title *</label>
+                <label className="font-semibold text-primary">Notice Title *</label>
                 <Input
-                  placeholder="e.g. Lent Term Academic Calendar Update &amp; Hall Schedules"
+                  placeholder="e.g. Mid-Term Examination Datesheet & Guidelines"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 />
@@ -213,12 +213,12 @@ export default function SchoolNoticesPage() {
                   <select
                     value={formData.audience}
                     onChange={(e) => setFormData({ ...formData, audience: e.target.value as any })}
-                    className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
+                    className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
-                    <option value="ALL_CAMPUS">All Campus Community</option>
-                    <option value="SENIOR_WING">Senior Wing Scholars (Forms V &amp; VI)</option>
-                    <option value="FACULTY_ONLY">Faculty &amp; Senior Masters Only</option>
-                    <option value="PARENTS_ONLY">Parents &amp; Governors</option>
+                    <option value="ALL_CAMPUS">Whole School</option>
+                    <option value="SENIOR_WING">Senior Classes (11 &amp; 12)</option>
+                    <option value="FACULTY_ONLY">Teachers &amp; Staff Only</option>
+                    <option value="PARENTS_ONLY">Parents Only</option>
                   </select>
                 </div>
 
@@ -227,23 +227,23 @@ export default function SchoolNoticesPage() {
                   <select
                     value={formData.priority}
                     onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
-                    className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
+                    className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
-                    <option value="ACADEMIC">Academic / Curricular</option>
-                    <option value="URGENT">Urgent / Safety Broadcast</option>
-                    <option value="GENERAL">General Notice</option>
+                    <option value="ACADEMIC">Academic / Exams</option>
+                    <option value="URGENT">Urgent Notice</option>
+                    <option value="GENERAL">General Announcement</option>
                   </select>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-semibold text-primary">Bulletin Content *</label>
+                <label className="font-semibold text-primary">Notice Content *</label>
                 <textarea
                   rows={5}
-                  placeholder="Enter the official communique details, schedules, requirements, or procedural instructions..."
+                  placeholder="Type the announcement details, dates, or instructions here..."
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  className="w-full p-3 rounded-lg border border-border bg-surface text-on-surface text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
+                  className="w-full p-3 rounded-lg border border-border bg-surface text-on-surface text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
@@ -256,10 +256,10 @@ export default function SchoolNoticesPage() {
                   size="sm"
                   disabled={isSubmitting || !formData.title || !formData.content}
                   onClick={handleCreateNotice}
-                  className="gap-1.5"
+                  className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  <Send className="w-3.5 h-3.5 text-secondary-container" />
-                  {isSubmitting ? "Publishing..." : "Publish Official Bulletin"}
+                  <Send className="w-3.5 h-3.5" />
+                  {isSubmitting ? "Publishing..." : "Publish Notice"}
                 </Button>
               </div>
             </div>

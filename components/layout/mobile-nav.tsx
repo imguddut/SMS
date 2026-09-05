@@ -47,7 +47,7 @@ export function MobileNav({ role }: MobileNavProps) {
   if (items.length === 0) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#12161f]/95 backdrop-blur-xl border-t border-stone-200/80 dark:border-stone-800 shadow-[0_-1px_8px_rgba(0,0,0,0.05)] md:hidden transition-colors duration-200">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#080E1E]/95 backdrop-blur-xl border-t border-[#131F37] shadow-[0_-1px_8px_rgba(0,0,0,0.3)] md:hidden transition-colors duration-200">
       <div className="flex items-center justify-around h-16 px-2">
         {items.map((item) => {
           const isActive = pathname === item.href;
@@ -58,8 +58,8 @@ export function MobileNav({ role }: MobileNavProps) {
               className={cn(
                 "flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-1 transition-colors font-sans text-[11px]",
                 isActive
-                  ? "text-amber-800 dark:text-amber-400 font-bold"
-                  : "text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 font-medium"
+                  ? "text-blue-400 font-bold"
+                  : "text-slate-400 hover:text-slate-200 font-medium"
               )}
             >
               {item.icon}

@@ -218,7 +218,7 @@ Director of Finance • Agragati Academy`;
                   onClick={() => setSelectedWardId(w.id)}
                   className={`px-5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     isActive
-                      ? "bg-[#8C6D27] text-white shadow-xs"
+                      ? "bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
                       : "bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
                   }`}
                 >

@@ -75,27 +75,27 @@ export default function SchoolApprovalsPage() {
   return (
     <AppShell
       role="PRINCIPAL"
-      userName="Mme. Claire De La Tour"
-      userRoleTitle="Head of School & Proviseur"
-      epochText="Term 3 Cycle (Michaelmas) • Geneva Campus"
+      userName="Dr. Arvind Swaminathan"
+      userRoleTitle="Principal & Head of School"
+      epochText="Term 2 (CBSE Board) • Main Campus"
     >
       <div className="space-y-8 max-w-6xl mx-auto pb-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Badge variant="gold" dot>
-                Proviseur Authorization Authority
+              <Badge variant="navy" dot>
+                Principal Approvals
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                Zero-Knowledge Attested Cryptographic Signatures
+                Official Requests &amp; Staff Authorizations
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
-              Executive Approvals &amp; Warrants Queue
+              Approvals &amp; Requests Queue
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
-              Adjudicate institutional bursary waivers, academic leaves, glaciology field expeditions, transcript publications, and faculty chair appointments.
+              Review and approve student fee waivers, teacher leaves, school trips, and official staff requests.
             </p>
           </div>
         </div>
@@ -103,19 +103,19 @@ export default function SchoolApprovalsPage() {
         {/* Warrant Filter Tabs */}
         <div className="flex items-center gap-2 border-b border-border/60 pb-px overflow-x-auto font-sans text-xs">
           {[
-            { id: "ALL", label: "All Warrants" },
-            { id: "BURSARY_WAIVER", label: "Bursaries & Waivers" },
-            { id: "LEAVE_REQUEST", label: "Faculty Leaves" },
-            { id: "EXCURSION_AUTHORIZATION", label: "Excursions" },
-            { id: "GRADEBOOK_PUBLICATION", label: "Gradebook Publication" },
-            { id: "STAFF_APPOINTMENT", label: "Faculty Appointments" },
+            { id: "ALL", label: "All Requests" },
+            { id: "BURSARY_WAIVER", label: "Fee Waivers" },
+            { id: "LEAVE_REQUEST", label: "Staff Leaves" },
+            { id: "EXCURSION_AUTHORIZATION", label: "School Trips" },
+            { id: "GRADEBOOK_PUBLICATION", label: "Report Card Release" },
+            { id: "STAFF_APPOINTMENT", label: "Staff Appointments" },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setTypeFilter(tab.id)}
               className={`px-4 py-2.5 rounded-t-lg font-medium transition-all whitespace-nowrap ${
                 typeFilter === tab.id
-                  ? "bg-surface text-primary border-t-2 border-secondary shadow-sm font-semibold"
+                  ? "bg-surface text-blue-400 border-t-2 border-blue-500 shadow-sm font-semibold"
                   : "text-on-surface-variant hover:text-primary hover:bg-surface-variant/30"
               }`}
             >
@@ -135,10 +135,10 @@ export default function SchoolApprovalsPage() {
                 key={war.id}
                 className={`p-6 border transition-all ${
                   currentStatus === "APPROVED"
-                    ? "border-[#3D5B42]/50 bg-[#3D5B42]/5"
+                    ? "border-emerald-500/50 bg-emerald-950/10"
                     : currentStatus === "REJECTED"
-                    ? "border-[#752D20]/40 bg-[#752D20]/5"
-                    : "border-border/80 bg-surface shadow-sm hover:border-secondary/40"
+                    ? "border-rose-500/40 bg-rose-950/10"
+                    : "border-border/80 bg-surface shadow-sm hover:border-blue-500/40"
                 }`}
               >
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
@@ -151,7 +151,7 @@ export default function SchoolApprovalsPage() {
                             ? "active"
                             : currentStatus === "REJECTED"
                             ? "critical"
-                            : "gold"
+                            : "navy"
                         }
                         dot
                       >
@@ -168,27 +168,27 @@ export default function SchoolApprovalsPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-sans text-on-surface-variant pt-1">
                       <div>
-                        Applicant: <strong className="text-primary">{war.applicant}</strong> ({war.applicantRole})
+                        Requested by: <strong className="text-primary">{war.applicant}</strong> ({war.applicantRole})
                       </div>
                       <div>
                         Department / House: <strong className="text-primary">{war.departmentOrHouse}</strong>
                       </div>
-                      <div className="sm:col-span-2 font-mono text-secondary font-semibold">
-                        Scope / Valuation: {war.amountOrScope}
+                      <div className="sm:col-span-2 font-mono text-blue-400 font-semibold">
+                        Amount / Details: {war.amountOrScope}
                       </div>
                     </div>
 
                     <div className="p-3.5 rounded-lg bg-surface-variant/40 border border-border/60 text-xs font-sans">
-                      <span className="font-semibold text-primary">Official Justification:</span>
+                      <span className="font-semibold text-primary">Reason for Request:</span>
                       <p className="text-on-surface-variant mt-0.5 leading-relaxed italic">
                         "{war.justification}"
                       </p>
                     </div>
 
                     {signed && (
-                      <div className="p-2.5 rounded bg-surface border border-border/70 font-mono text-[11px] text-[#3D5B42] flex items-center gap-2">
-                        <KeyRound className="w-3.5 h-3.5 text-secondary" />
-                        Signed by Proviseur Mme. Claire De La Tour • Hash: {signed.signature}
+                      <div className="p-2.5 rounded bg-surface border border-border/70 font-mono text-[11px] text-emerald-400 flex items-center gap-2">
+                        <KeyRound className="w-3.5 h-3.5 text-blue-400" />
+                        Approved by Dr. Arvind Swaminathan • Ref: {signed.signature}
                       </div>
                     )}
                   </div>
@@ -200,22 +200,22 @@ export default function SchoolApprovalsPage() {
                           variant="primary"
                           size="sm"
                           onClick={() => handleAction(war.id, "APPROVED")}
-                          className="text-xs gap-1.5 bg-[#3D5B42] hover:bg-[#2e4732] text-white"
+                          className="text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white"
                         >
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Authorize Warrant
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Approve Request
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleAction(war.id, "REJECTED")}
-                          className="text-xs gap-1.5 text-error border-error/30 hover:bg-error/10"
+                          className="text-xs gap-1.5 text-rose-400 border-rose-500/30 hover:bg-rose-500/10"
                         >
-                          <XCircle className="w-3.5 h-3.5" /> Decline Warrant
+                          <XCircle className="w-3.5 h-3.5" /> Reject Request
                         </Button>
                       </>
                     ) : (
                       <Badge variant={currentStatus === "APPROVED" ? "active" : "critical"}>
-                        {currentStatus === "APPROVED" ? "Seal Affixed" : "Declined"}
+                        {currentStatus === "APPROVED" ? "Approved" : "Rejected"}
                       </Badge>
                     )}
                   </div>

@@ -51,14 +51,14 @@ export default function LoginPage() {
   };
 
   const roles: { role: UserRole; label: string; email: string; portal: string }[] = [
-    { role: "SUPER_ADMIN", label: "Platform Admin", email: "superadmin@agragati.edu.in", portal: "National Fleet HQ" },
-    { role: "OWNER", label: "Trust Chairman / CFO", email: "trustee@dpsdelhi.edu.in", portal: "Owner Treasury" },
-    { role: "PRINCIPAL", label: "Principal", email: "principal@dpsdelhi.edu.in", portal: "Principal Desk" },
+    { role: "SUPER_ADMIN", label: "System Admin", email: "superadmin@agragati.edu.in", portal: "Admin Portal" },
+    { role: "OWNER", label: "School Owner / Trustee", email: "trustee@dpsdelhi.edu.in", portal: "Management Office" },
+    { role: "PRINCIPAL", label: "Principal", email: "principal@dpsdelhi.edu.in", portal: "School Office" },
     { role: "SCHOOL_ADMIN", label: "School Admin", email: "admin@dpsdelhi.edu.in", portal: "Operations" },
-    { role: "TEACHER", label: "PGT Faculty (Teacher)", email: "teacher@dpsdelhi.edu.in", portal: "Faculty Suite" },
-    { role: "ACCOUNTANT", label: "Accounts Officer (Bursar)", email: "finance@dpsdelhi.edu.in", portal: "Finance & Accounts" },
+    { role: "TEACHER", label: "Teacher", email: "teacher@dpsdelhi.edu.in", portal: "Teacher Area" },
+    { role: "ACCOUNTANT", label: "Accounts Officer", email: "finance@dpsdelhi.edu.in", portal: "Fees & Accounts" },
     { role: "PARENT", label: "Parent / Guardian", email: "parent@dpsdelhi.edu.in", portal: "Parent Portal" },
-    { role: "STUDENT", label: "Student / Scholar", email: "student@dpsdelhi.edu.in", portal: "Student Space" },
+    { role: "STUDENT", label: "Student", email: "student@dpsdelhi.edu.in", portal: "Student Desk" },
   ];
 
   return (
@@ -85,14 +85,14 @@ export default function LoginPage() {
               Agragati
             </span>
             <span className="text-[10px] font-sans uppercase tracking-[0.14em] text-on-surface-variant font-bold">
-              School OS • India
+              School System
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-3 text-xs text-on-surface-variant">
           <Badge variant="active" dot>
-            DPDP Act 2023 &amp; CBSE Aligned
+            CBSE Aligned &amp; Secure
           </Badge>
           <span className="hidden sm:inline text-outline-variant">•</span>
           <span className="hidden sm:inline">Delhi Public School, R.K. Puram</span>
@@ -104,13 +104,13 @@ export default function LoginPage() {
         <div className="w-full max-w-[480px] space-y-6">
           <div className="text-center space-y-2">
             <span className="text-[11px] font-sans uppercase tracking-widest text-secondary font-bold">
-              Institutional Gateway &amp; School Portals
+              Welcome to Agragati
             </span>
             <h1 className="font-serif text-3xl font-medium tracking-tight text-primary">
-              Sign In to Agragati
+              Sign In to Your Account
             </h1>
             <p className="font-sans text-xs text-on-surface-variant max-w-sm mx-auto">
-              Select your role or enter your institutional credentials.
+              Choose your role below or enter your email and password to log in.
             </p>
           </div>
 
@@ -118,7 +118,7 @@ export default function LoginPage() {
             {/* Quick Role Selector */}
             <div className="space-y-2">
               <label className="font-sans text-[11px] font-bold uppercase tracking-wider text-on-surface flex justify-between">
-                <span>Select Institutional Mandate</span>
+                <span>Select Your Role</span>
                 <span className="text-secondary font-bold">8 Portals</span>
               </label>
               <div className="grid grid-cols-2 gap-1.5 max-h-44 overflow-y-auto pr-1 no-scrollbar">
@@ -146,7 +146,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleLogin} className="space-y-4">
               <Input
-                label="Institutional Email / Master ID"
+                label="Email Address"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -155,7 +155,7 @@ export default function LoginPage() {
               />
 
               <Input
-                label="Passkey / Master Password"
+                label="Password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -170,13 +170,13 @@ export default function LoginPage() {
                     defaultChecked
                     className="rounded text-primary focus:ring-0 accent-primary cursor-pointer"
                   />
-                  <span>Retain sovereign session</span>
+                  <span>Remember me on this computer</span>
                 </label>
                 <Link
                   href="/forgot-password"
                   className="text-secondary hover:underline font-medium"
                 >
-                  Lost Passkey?
+                  Forgot password?
                 </Link>
               </div>
 
@@ -193,7 +193,7 @@ export default function LoginPage() {
                 className="w-full"
                 isLoading={isLoading}
               >
-                <span>Authorize &amp; Enter Portal</span>
+                <span>Sign In</span>
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Button>
             </form>
@@ -201,14 +201,14 @@ export default function LoginPage() {
 
           <div className="text-center text-[11px] text-on-surface-variant flex items-center justify-center gap-2">
             <ShieldCheck className="w-4 h-4 text-secondary" />
-            <span>Encrypted with TLS-256 HSM Enclave Hardware Isolation</span>
+            <span>Safe &amp; Secure 256-Bit Encrypted Login</span>
           </div>
         </div>
       </main>
 
       {/* Footer */}
       <footer className="w-full py-4 text-center text-xs text-on-surface-variant border-t border-outline-variant/30">
-        &copy; {new Date().getFullYear()} Agragati Sovereign Academic Technologies. All rights reserved.
+        &copy; {new Date().getFullYear()} Agragati School Management System. All rights reserved.
       </footer>
     </div>
   );

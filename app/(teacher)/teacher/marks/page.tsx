@@ -147,18 +147,18 @@ Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Badge variant="gold" dot>
-                Official Gradebook Matrix
+              <Badge variant="navy" dot>
+                Class Marks &amp; Grades
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                Term 2 (CBSE 2024–25) • Cryptographic Dilithium-5 Sealing
+                Term 2 (CBSE 2024–25) • Final Evaluation
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
-              Examination Marks Entry &amp; Gradebook
+              Examination Marks Entry &amp; Grades
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
-              Input assessment components, compute weighted aggregate percentages, assign CBSE letter grades (A1–E), and seal the official proviseur gradebook.
+              Enter theory and internal assessment marks, auto-calculate total scores, and save official student grades.
             </p>
           </div>
 
@@ -167,9 +167,9 @@ Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
               variant="outline"
               size="sm"
               onClick={() => setPreviewOpen(true)}
-              className="font-sans text-xs gap-1.5 text-secondary border-secondary/40"
+              className="font-sans text-xs gap-1.5 text-primary border-border hover:bg-surface-variant"
             >
-              <FileText className="w-4 h-4 text-secondary" />
+              <FileText className="w-4 h-4 text-blue-500" />
               Export Gradebook (PDF)
             </Button>
             <Button
@@ -177,16 +177,16 @@ Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
               size="sm"
               disabled={isSubmitting || !!sealedHash}
               onClick={handleSaveGradebook}
-              className="font-sans gap-2"
+              className="font-sans gap-2 bg-blue-600 hover:bg-blue-700 text-white"
             >
               {sealedHash ? (
                 <>
-                  <Check className="w-4 h-4 text-secondary-container" /> Gradebook Sealed
+                  <Check className="w-4 h-4" /> Grades Saved
                 </>
               ) : (
                 <>
-                  <Lock className="w-4 h-4 text-secondary-container" />
-                  {isSubmitting ? "Sealing..." : "Commit Sealed Gradebook"}
+                  <Save className="w-4 h-4" />
+                  {isSubmitting ? "Saving..." : "Save Grades"}
                 </>
               )}
             </Button>
@@ -214,11 +214,11 @@ Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
 
         {/* Sealed Hash Confirmation */}
         {sealedHash && (
-          <div className="p-4 rounded-lg bg-[#3D5B42]/10 border border-[#3D5B42]/40 flex items-center justify-between font-sans text-xs">
-            <div className="flex items-center gap-2 text-[#3D5B42]">
+          <div className="p-4 rounded-lg bg-emerald-950/20 border border-emerald-500/40 flex items-center justify-between font-sans text-xs">
+            <div className="flex items-center gap-2 text-emerald-400">
               <CheckCircle2 className="w-5 h-5" />
               <span>
-                <strong>Official Gradebook Sealed:</strong> Cryptographic signatures recorded for all scholars. Hash: <span className="font-mono font-bold">{sealedHash}</span>
+                <strong>Grades Saved Successfully!</strong> All student scores and CBSE grades have been recorded. Ref: <span className="font-mono font-bold">{sealedHash}</span>
               </span>
             </div>
           </div>

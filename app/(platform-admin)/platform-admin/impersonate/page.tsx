@@ -236,31 +236,31 @@ function PlatformAdminImpersonateContent() {
       role="SUPER_ADMIN"
       userName="Eleanor Vance"
       userRoleTitle="Platform Lead & Super Admin"
-      epochText="Multi-Tenant Sovereign Root • Cluster 01 Online"
+      epochText="Central Administration • Cloud Network Active"
     >
       <div className="space-y-6 max-w-7xl mx-auto pb-6">
         {/* Header with Graphic Illustration */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-bold uppercase tracking-wider">
-                Sovereign Elevation Engine
+              <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold uppercase tracking-wider">
+                Portal Access Preview
               </span>
               <span className="text-xs text-slate-500 font-medium">
-                • Zero-Knowledge Attested Session Delegation
+                • View School As Any Role
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-              Support &amp; Sovereign Impersonation Console
+              View Portal As User
             </h1>
             <p className="text-xs md:text-sm text-slate-500 mt-1">
-              Inspect the user experience directly as an Executive Owner, Principal, Faculty Member, Bursar, Parent, or Scholar. Every impersonation action is logged to the sovereign audit stream.
+              Experience and test any portal view as a School Owner, Principal, Teacher, Accountant, Parent, or Student.
             </p>
           </div>
 
           {/* Delegation Graphic Card on Right */}
           <div className="shrink-0 hidden sm:flex items-center gap-3 p-3.5 bg-white border border-slate-200/90 rounded-2xl shadow-2xs">
-            <div className="w-16 h-12 rounded-xl bg-purple-600 flex items-center justify-center text-white shadow-xs">
+            <div className="w-16 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs">
               <div className="flex items-center gap-1">
                 <ShieldCheck className="w-6 h-6 text-white" />
               </div>
@@ -281,14 +281,14 @@ function PlatformAdminImpersonateContent() {
           </div>
         </div>
 
-        {/* Amber Protocol Banner */}
-        <div className="bg-[#FFFBEB] border border-[#FDE68A] rounded-2xl p-4 flex items-center gap-3.5 shadow-2xs">
-          <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-            <Shield className="w-5 h-5 text-amber-600" />
+        {/* Informative Blue Banner */}
+        <div className="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-4 flex items-center gap-3.5 shadow-2xs">
+          <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+            <Shield className="w-5 h-5 text-blue-600" />
           </div>
-          <div className="text-xs text-amber-950 leading-relaxed">
-            <span className="font-bold text-amber-900">Cryptographic Security Protocol: </span>
-            When you enter an impersonation session, a persistent gold banner will appear across all screens. You can click <span className="font-bold">Exit Session</span> at any moment to return directly to Super Admin.
+          <div className="text-xs text-blue-950 leading-relaxed">
+            <span className="font-bold text-blue-900">Safe Preview Mode: </span>
+            When you view a portal as a user, a top banner will appear. Click <span className="font-bold">Back to Admin</span> at any moment to return directly to Platform Admin.
           </div>
         </div>
 
@@ -300,8 +300,8 @@ function PlatformAdminImpersonateContent() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search user by name, email, or institutional node..."
-              className="w-full h-10 pl-10 pr-4 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 shadow-2xs transition-all font-sans"
+              placeholder="Search user by name, email, or school name..."
+              className="w-full h-10 pl-10 pr-4 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs transition-all font-sans"
             />
           </div>
 
@@ -309,7 +309,7 @@ function PlatformAdminImpersonateContent() {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full h-10 px-3 bg-white border border-slate-200/90 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 shadow-2xs cursor-pointer"
+              className="w-full h-10 px-3 bg-white border border-slate-200/90 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs cursor-pointer"
             >
               <option value="ALL">All Roles</option>
               <option value="OWNER">Owner</option>
@@ -326,9 +326,9 @@ function PlatformAdminImpersonateContent() {
             <select
               value={schoolFilter}
               onChange={(e) => setSchoolFilter(e.target.value)}
-              className="w-full h-10 px-3 bg-white border border-slate-200/90 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 shadow-2xs cursor-pointer"
+              className="w-full h-10 px-3 bg-white border border-slate-200/90 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs cursor-pointer"
             >
-              <option value="ALL">All School Nodes</option>
+              <option value="ALL">All Schools</option>
               <option value="dps-rkpuram">Delhi Public School, R.K. Puram</option>
               <option value="nps-indiranagar">National Public School, Indiranagar</option>
               <option value="cathedral-mumbai">The Cathedral &amp; John Connon School</option>
@@ -340,10 +340,10 @@ function PlatformAdminImpersonateContent() {
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
           <div className="p-5 md:p-6 border-b border-slate-100">
             <h2 className="text-base font-bold text-slate-900">
-              Multi-Tenant User Registry ({filteredUsers.length})
+              Available User Accounts ({filteredUsers.length})
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Select any registered account to initiate an authenticated delegation session.
+              Select any registered user to preview their portal view and features.
             </p>
           </div>
 
@@ -351,8 +351,8 @@ function PlatformAdminImpersonateContent() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/70 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  <th className="py-3.5 px-5">User &amp; Official Title</th>
-                  <th className="py-3.5 px-5">Institutional Node</th>
+                  <th className="py-3.5 px-5">User Name &amp; Title</th>
+                  <th className="py-3.5 px-5">School Campus</th>
                   <th className="py-3.5 px-5">System Role</th>
                   <th className="py-3.5 px-5">Last Activity</th>
                   <th className="py-3.5 px-5 text-right">Action</th>
@@ -411,10 +411,10 @@ function PlatformAdminImpersonateContent() {
                         type="button"
                         onClick={() => handleImpersonate(user)}
                         disabled={impersonatingId === user.id}
-                        className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-indigo-700 hover:text-indigo-800 font-semibold text-xs flex items-center gap-1.5 shadow-2xs transition-colors ml-auto"
+                        className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100 text-blue-700 font-semibold text-xs flex items-center gap-1.5 shadow-2xs transition-colors ml-auto"
                       >
-                        <span>{impersonatingId === user.id ? "Launching..." : "Launch Session"}</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>{impersonatingId === user.id ? "Opening..." : "View Portal"}</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-blue-600" />
                       </button>
                     </td>
                   </tr>

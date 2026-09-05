@@ -106,7 +106,7 @@ export function Topbar({
 
   return (
     <>
-      <header className="fixed top-0 left-0 md:left-sidebar-w right-0 h-16 bg-white/95 dark:bg-[#12161f]/95 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-800 z-40 flex items-center justify-between px-4 md:px-6 shadow-[0_1px_6px_rgba(0,0,0,0.02)] transition-colors duration-200">
+      <header className="fixed top-0 left-0 md:left-sidebar-w right-0 h-16 bg-white/95 dark:bg-[#070D1B]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-[#131F37] z-40 flex items-center justify-between px-4 md:px-6 shadow-[0_1px_6px_rgba(0,0,0,0.02)] transition-colors duration-200">
         {/* Left: Organization & School Switchers */}
         <div className="min-w-0 flex-1 flex items-center gap-3 md:gap-4 pr-2">
           {/* Organization Switcher */}
@@ -114,16 +114,16 @@ export function Topbar({
             <button
               type="button"
               onClick={() => setIsOrgDropdownOpen(!isOrgDropdownOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors text-xs font-semibold"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#0F1A34] hover:bg-slate-200 dark:hover:bg-[#1E2E4A] text-slate-800 dark:text-slate-200 transition-colors text-xs font-semibold"
             >
-              <Building2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+              <Building2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
               <span className="truncate max-w-[140px] sm:max-w-[200px]">{displayOrgName}</span>
-              <ChevronDown className="w-3 h-3 text-stone-400 shrink-0" />
+              <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
             </button>
 
             {isOrgDropdownOpen && (
-              <div className="absolute left-0 mt-1.5 w-64 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl shadow-lg z-50 p-1.5 space-y-1">
-                <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400">
+              <div className="absolute left-0 mt-1.5 w-64 bg-white dark:bg-[#0F1A34] border border-slate-200 dark:border-[#1E2E4A] rounded-xl shadow-lg z-50 p-1.5 space-y-1">
+                <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   Select Organization (Tenant)
                 </div>
                 {[
@@ -137,14 +137,14 @@ export function Topbar({
                       switchOrganization(org.id);
                       setIsOrgDropdownOpen(false);
                     }}
-                    className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs hover:bg-stone-100 dark:hover:bg-stone-800 text-left transition-colors"
+                    className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs hover:bg-slate-100 dark:hover:bg-white/5 text-left transition-colors"
                   >
                     <div>
-                      <div className="font-semibold text-stone-900 dark:text-stone-100">{org.name}</div>
-                      <div className="text-[10px] text-stone-500">{org.type}</div>
+                      <div className="font-semibold text-slate-900 dark:text-slate-100">{org.name}</div>
+                      <div className="text-[10px] text-slate-500">{org.type}</div>
                     </div>
                     {currentOrganization?.id === org.id && (
-                      <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                     )}
                   </button>
                 ))}
@@ -152,25 +152,25 @@ export function Topbar({
             )}
           </div>
 
-          <span className="text-stone-300 dark:text-stone-700 hidden sm:inline">/</span>
+          <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">/</span>
 
           {/* School Switcher */}
           <div className="relative min-w-0" ref={schoolMenuRef}>
             <button
               type="button"
               onClick={() => setIsSchoolDropdownOpen(!isSchoolDropdownOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors text-left text-xs font-semibold text-stone-900 dark:text-stone-100"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-[#0F1A34] transition-colors text-left text-xs font-semibold text-slate-900 dark:text-slate-100"
             >
               <span className="truncate max-w-[140px] sm:max-w-[220px]">{displaySchoolName}</span>
-              <span className="shrink-0 px-1.5 py-0.5 rounded bg-amber-100/90 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-[9px] font-bold uppercase tracking-wider">
+              <span className="shrink-0 px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-[9px] font-bold uppercase tracking-wider">
                 {displayCampusCode}
               </span>
-              <ChevronDown className="w-3 h-3 text-stone-400 shrink-0" />
+              <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
             </button>
 
             {isSchoolDropdownOpen && (
-              <div className="absolute left-0 mt-1.5 w-72 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl shadow-lg z-50 p-1.5 space-y-1">
-                <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400">
+              <div className="absolute left-0 mt-1.5 w-72 bg-white dark:bg-[#0F1A34] border border-slate-200 dark:border-[#1E2E4A] rounded-xl shadow-lg z-50 p-1.5 space-y-1">
+                <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   Select School Campus
                 </div>
 
@@ -181,18 +181,18 @@ export function Topbar({
                       setAllSchoolsMode(true);
                       setIsSchoolDropdownOpen(false);
                     }}
-                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs hover:bg-stone-100 dark:hover:bg-stone-800 text-left transition-colors ${
-                      allSchoolsMode ? "bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 font-semibold" : ""
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs hover:bg-slate-100 dark:hover:bg-white/5 text-left transition-colors ${
+                      allSchoolsMode ? "bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 font-semibold" : ""
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <Layers className="w-3.5 h-3.5 text-amber-600" />
+                      <Layers className="w-3.5 h-3.5 text-blue-600" />
                       <div>
                         <div>All Schools (Consolidated)</div>
-                        <div className="text-[10px] text-stone-500">Aggregate multi-campus telemetry</div>
+                        <div className="text-[10px] text-slate-500">Aggregate multi-campus telemetry</div>
                       </div>
                     </div>
-                    {allSchoolsMode && <Check className="w-3.5 h-3.5 text-amber-600" />}
+                    {allSchoolsMode && <Check className="w-3.5 h-3.5 text-blue-600" />}
                   </button>
                 )}
 
@@ -217,20 +217,20 @@ export function Topbar({
                       switchSchool(s.id);
                       setIsSchoolDropdownOpen(false);
                     }}
-                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs hover:bg-stone-100 dark:hover:bg-stone-800 text-left transition-colors ${
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs hover:bg-slate-100 dark:hover:bg-white/5 text-left transition-colors ${
                       !allSchoolsMode && currentSchool?.id === s.id
-                        ? "bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 font-semibold"
+                        ? "bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 font-semibold"
                         : ""
                     }`}
                   >
                     <div>
-                      <div className="font-semibold text-stone-900 dark:text-stone-100">{s.name}</div>
-                      <div className="text-[10px] text-stone-500">
+                      <div className="font-semibold text-slate-900 dark:text-slate-100">{s.name}</div>
+                      <div className="text-[10px] text-slate-500">
                         {s.code} • {s.city}
                       </div>
                     </div>
                     {!allSchoolsMode && currentSchool?.id === s.id && (
-                      <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                     )}
                   </button>
                 ))}
@@ -239,80 +239,57 @@ export function Topbar({
           </div>
         </div>
 
-        {/* Center: Search Bar for SUPER_ADMIN */}
-        {role === "SUPER_ADMIN" ? (
-          <div className="relative hidden md:flex items-center flex-1 max-w-md mx-6">
+        {/* Right: Search, Actions, Notifications, Profile & Sign Out */}
+        <div className="flex items-center gap-2 md:gap-3 shrink-0">
+          {/* Quick Search */}
+          <div className="relative hidden lg:flex items-center">
             <Search className="absolute left-3 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
               type="text"
               placeholder="Search students, ledgers, records... (⌘K)"
-              className="w-full h-9 pl-9 pr-4 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500/40 transition-all font-sans"
+              className="w-48 xl:w-72 h-9 pl-9 pr-4 bg-slate-100/80 dark:bg-[#0F1A34] border border-slate-200/60 dark:border-[#1E2E4A] rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:bg-white dark:focus:bg-[#152244] focus:ring-1 focus:ring-blue-500/40 transition-all font-sans"
             />
           </div>
-        ) : null}
-
-        {/* Right: Search, Actions, Notifications, Profile & Sign Out */}
-        <div className="flex items-center gap-2 md:gap-3 shrink-0">
-          {/* Quick Search for non SUPER_ADMIN */}
-          {role !== "SUPER_ADMIN" && (
-            <div className="relative hidden lg:flex items-center">
-              <Search className="absolute left-3 w-4 h-4 text-stone-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search students, ledgers, records (⌘K)..."
-                className="w-48 xl:w-72 h-9 pl-9 pr-4 bg-stone-100/80 dark:bg-stone-800/80 border border-stone-200/60 dark:border-stone-700/80 rounded-xl text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none focus:bg-white dark:focus:bg-stone-800 focus:ring-1 focus:ring-amber-500/30 transition-all font-sans"
-              />
-            </div>
-          )}
 
           {/* Action Icons: Theme Sun/Moon & Notification Bell */}
           <div className="flex items-center gap-1">
-            {role !== "SUPER_ADMIN" && (
-              <button
-                type="button"
-                onClick={toggleTheme}
-                className="p-2 rounded-lg text-stone-500 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-amber-300 transition-colors"
-                aria-label="Toggle dark mode"
-                title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-              >
-                {resolvedTheme === "dark" ? (
-                  <Moon className="w-4 h-4 text-amber-400" />
-                ) : (
-                  <Sun className="w-4 h-4" />
-                )}
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-blue-300 transition-colors"
+              aria-label="Toggle dark mode"
+              title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {resolvedTheme === "dark" ? (
+                <Moon className="w-4 h-4 text-blue-400" />
+              ) : (
+                <Sun className="w-4 h-4 text-slate-500" />
+              )}
+            </button>
 
             <button
               type="button"
               onClick={() => setIsDrawerOpen(true)}
-              className="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+              className="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 transition-colors"
               aria-label="Notifications"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white shadow-xs">
+              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-[#070D1B] shadow-xs">
                 3
               </span>
             </button>
           </div>
 
-          <div className="h-5 w-px bg-slate-200 mx-0.5 sm:mx-1" />
+          <div className="h-5 w-px bg-slate-200 dark:bg-[#1E2E4A] mx-0.5 sm:mx-1" />
 
           {/* User Identity Pill with Dropdown */}
           <div className="relative" ref={userMenuRef}>
             <button
               type="button"
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center gap-2 sm:gap-2.5 p-1 rounded-xl hover:bg-slate-100 transition-colors text-left focus:outline-none"
+              className="flex items-center gap-2 sm:gap-2.5 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-left focus:outline-none"
             >
-              <div
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-xs",
-                  role === "SUPER_ADMIN"
-                    ? "bg-[#7C3AED] text-white"
-                    : "bg-indigo-100 text-indigo-800 border border-indigo-200/50"
-                )}
-              >
+              <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-xs bg-blue-600 text-white">
                 {userName
                   .split(" ")
                   .map((n) => n[0])
@@ -320,10 +297,10 @@ export function Topbar({
                   .join("")}
               </div>
               <div className="hidden sm:flex flex-col text-left max-w-[140px] lg:max-w-[220px] min-w-0 pr-1">
-                <span className="font-serif text-xs font-semibold text-stone-800 dark:text-stone-200 truncate leading-tight">
+                <span className="font-sans text-xs font-semibold text-slate-800 dark:text-slate-200 truncate leading-tight">
                   {userName}
                 </span>
-                <span className="text-[10px] text-stone-400 font-medium truncate uppercase tracking-wider">
+                <span className="text-[10px] text-slate-400 font-medium truncate uppercase tracking-wider">
                   {userTitle || role}
                 </span>
               </div>
@@ -331,10 +308,10 @@ export function Topbar({
             </button>
 
             {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl shadow-lg z-50 p-1.5 space-y-1">
-                <div className="px-3 py-2 border-b border-stone-100 dark:border-stone-800">
-                  <div className="text-xs font-bold text-stone-900 dark:text-stone-100">{userName}</div>
-                  <div className="text-[10px] text-stone-500 truncate">{userTitle || role}</div>
+              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#0F1A34] border border-slate-200/80 dark:border-[#1E2E4A] rounded-xl shadow-lg z-50 p-1.5 space-y-1">
+                <div className="px-3 py-2 border-b border-slate-100 dark:border-[#1E2E4A]">
+                  <div className="text-xs font-bold text-slate-900 dark:text-slate-100">{userName}</div>
+                  <div className="text-[10px] text-slate-500 truncate">{userTitle || role}</div>
                 </div>
                 <button
                   type="button"

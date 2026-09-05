@@ -62,9 +62,9 @@ export default function SchoolStudentsPage() {
   return (
     <AppShell
       role="PRINCIPAL"
-      userName="Mme. Claire De La Tour"
-      userRoleTitle="Head of School & Proviseur"
-      epochText="Term 3 Cycle (Michaelmas) • Geneva Campus"
+      userName="Dr. Arvind Swaminathan"
+      userRoleTitle="Principal & Head of School"
+      epochText="Academic Year 2024–2025 • Term 2 (CBSE)"
     >
       <div className="space-y-8 max-w-7xl mx-auto pb-12">
         {/* Header */}
@@ -72,24 +72,24 @@ export default function SchoolStudentsPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Badge variant="gold" dot>
-                Institutional Scholar Directory
+                Student Directory
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                1,842 Enrolled Scholars • Michaelmas Term
+                All Active Students • Current Academic Year
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
-              Students &amp; Scholars Directory
+              All Students
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
-              Inspect scholar profiles, boarding house allocations, guardian contacts, attendance rates, and academic honors.
+              View student profiles, class &amp; section details, parent contacts, attendance rates, and grades.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="primary" size="sm" className="font-sans gap-2">
-              <Download className="w-4 h-4 text-secondary-container" />
-              Export Scholar Register
+            <Button variant="primary" size="sm" className="font-sans gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+              <Download className="w-4 h-4" />
+              Export Student List
             </Button>
           </div>
         </div>
@@ -150,12 +150,12 @@ export default function SchoolStudentsPage() {
             <table className="w-full text-left font-sans text-sm">
               <thead className="bg-surface-variant/40 text-on-surface-variant text-[11px] font-bold uppercase tracking-wider border-b border-border/60">
                 <tr>
-                  <th className="py-3.5 px-6">Scholar &amp; ID</th>
-                  <th className="py-3.5 px-6">Form &amp; House</th>
-                  <th className="py-3.5 px-6">Guardian Contact</th>
+                  <th className="py-3.5 px-6">Student &amp; Roll No</th>
+                  <th className="py-3.5 px-6">Class &amp; Section</th>
+                  <th className="py-3.5 px-6">Parent / Guardian</th>
                   <th className="py-3.5 px-6">Attendance</th>
-                  <th className="py-3.5 px-6">Academic Standing</th>
-                  <th className="py-3.5 px-6 text-right">Dossier</th>
+                  <th className="py-3.5 px-6">Performance</th>
+                  <th className="py-3.5 px-6 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
@@ -163,7 +163,7 @@ export default function SchoolStudentsPage() {
                   <tr key={std.id} className="hover:bg-surface-variant/20 transition-colors">
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-bold text-xs shadow-sm">
+                        <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs shadow-sm">
                           {std.fullName
                             .split(" ")
                             .map((n) => n[0])
@@ -175,7 +175,7 @@ export default function SchoolStudentsPage() {
                             {std.fullName}
                           </div>
                           <div className="text-xs font-mono text-on-surface-variant">
-                            {std.studentNumber} • {std.gender}
+                            Roll: {std.studentNumber} • {std.gender}
                           </div>
                         </div>
                       </div>
@@ -195,7 +195,7 @@ export default function SchoolStudentsPage() {
 
                     <td className="py-4 px-6 text-xs">
                       <span className="font-bold text-[#3D5B42]">{std.attendanceRate}</span>
-                      <div className="text-on-surface-variant font-mono text-[10px]">Turnstile Synced</div>
+                      <div className="text-on-surface-variant font-mono text-[10px]">Biometric Recorded</div>
                     </td>
 
                     <td className="py-4 px-6">
@@ -222,9 +222,9 @@ export default function SchoolStudentsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setSelectedStudent(std)}
-                        className="text-xs gap-1"
+                        className="text-xs gap-1 text-blue-600 border-blue-200 hover:bg-blue-50"
                       >
-                        Inspect
+                        View Details
                       </Button>
                     </td>
                   </tr>
@@ -234,12 +234,12 @@ export default function SchoolStudentsPage() {
           </div>
         </Card>
 
-        {/* Scholar Dossier Inspection Modal */}
+        {/* Student Profile Modal */}
         {selectedStudent && (
           <Modal
             isOpen={true}
             onClose={() => setSelectedStudent(null)}
-            title={`Scholar Dossier — ${selectedStudent.fullName}`}
+            title={`Student Profile — ${selectedStudent.fullName}`}
             maxWidth="lg"
           >
             <div className="space-y-6 font-sans">
@@ -249,7 +249,7 @@ export default function SchoolStudentsPage() {
                     {selectedStudent.fullName}
                   </div>
                   <div className="text-xs text-on-surface-variant font-mono mt-0.5">
-                    ID: {selectedStudent.studentNumber} • {selectedStudent.form}
+                    Roll No: {selectedStudent.studentNumber} • {selectedStudent.form}
                   </div>
                 </div>
                 <Badge variant="gold">{selectedStudent.academicStanding.replace(/_/g, " ")}</Badge>
@@ -258,7 +258,7 @@ export default function SchoolStudentsPage() {
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div className="p-3.5 rounded-lg bg-surface-variant/40 border border-border/60 space-y-1">
                   <span className="text-[10px] uppercase font-bold text-on-surface-variant">
-                    House &amp; Residence
+                    Class &amp; Section
                   </span>
                   <div className="font-medium text-primary text-sm">{selectedStudent.house}</div>
                   <div className="text-on-surface-variant">Attendance: {selectedStudent.attendanceRate}</div>
@@ -266,7 +266,7 @@ export default function SchoolStudentsPage() {
 
                 <div className="p-3.5 rounded-lg bg-surface-variant/40 border border-border/60 space-y-1">
                   <span className="text-[10px] uppercase font-bold text-on-surface-variant">
-                    Guardian Information
+                    Parent / Guardian Details
                   </span>
                   <div className="font-medium text-primary text-sm">{selectedStudent.guardianName}</div>
                   <div className="text-on-surface-variant">{selectedStudent.guardianEmail}</div>
@@ -277,23 +277,23 @@ export default function SchoolStudentsPage() {
               {/* Enrolled Courses */}
               <div>
                 <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">
-                  Active Course Load &amp; Masters
+                  Enrolled Subjects &amp; Teachers
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="p-3 rounded-lg border border-border/70 flex justify-between items-center">
                     <div>
-                      <div className="font-semibold text-primary">Form VI - Advanced Pure Mathematics (HL)</div>
-                      <div className="text-on-surface-variant text-[11px]">Senior Master: Prof. Arthur Vance</div>
+                      <div className="font-semibold text-primary">Class 12 - Advanced Mathematics</div>
+                      <div className="text-on-surface-variant text-[11px]">Teacher: Prof. Rajesh Verma</div>
                     </div>
-                    <span className="font-bold text-[#3D5B42]">Grade: 7 / 7 (98%)</span>
+                    <span className="font-bold text-[#3D5B42]">Score: 98% (A1)</span>
                   </div>
 
                   <div className="p-3 rounded-lg border border-border/70 flex justify-between items-center">
                     <div>
-                      <div className="font-semibold text-primary">Form VI - Classical Literature &amp; Rhetoric</div>
-                      <div className="text-on-surface-variant text-[11px]">Senior Master: Dr. Alistair Finch</div>
+                      <div className="font-semibold text-primary">Class 12 - Physics &amp; Mechanics</div>
+                      <div className="text-on-surface-variant text-[11px]">Teacher: Dr. S. Raman</div>
                     </div>
-                    <span className="font-bold text-[#3D5B42]">Grade: 7 / 7 (96%)</span>
+                    <span className="font-bold text-[#3D5B42]">Score: 96% (A1)</span>
                   </div>
                 </div>
               </div>
@@ -302,8 +302,8 @@ export default function SchoolStudentsPage() {
                 <Button variant="outline" size="sm" onClick={() => setSelectedStudent(null)}>
                   Close
                 </Button>
-                <Button variant="primary" size="sm" className="gap-1.5">
-                  <Download className="w-3.5 h-3.5" /> Export Official Transcript
+                <Button variant="primary" size="sm" className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-white">
+                  <Download className="w-3.5 h-3.5" /> Download Report Card
                 </Button>
               </div>
             </div>

@@ -125,25 +125,25 @@ export default function PlatformAdminSettingsPage() {
       role="SUPER_ADMIN"
       userName="Eleanor Vance"
       userRoleTitle="Platform Lead & Super Admin"
-      epochText="Multi-Tenant Sovereign Root • Cluster 01 Online"
+      epochText="Central Administration • Cloud Network Active"
     >
       <div className="space-y-6 max-w-7xl mx-auto pb-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-bold uppercase tracking-wider">
-                Sovereign Cryptographic Enclave
+              <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold uppercase tracking-wider">
+                System Security Settings
               </span>
               <span className="text-xs text-slate-500 font-medium">
-                • FIPS 140-3 Level 4 Hardware Root
+                • Cloud Security Active
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-              Security, Compliance &amp; Audit Enclave
+              Platform Security &amp; Privacy Settings
             </h1>
             <p className="text-xs md:text-sm text-slate-500 mt-1 max-w-3xl">
-              Post-quantum CRYSTALS-Dilithium5 lattice verifier, multi-tenant PostgreSQL RLS policy audit scanner, and Swiss FADP statutory certification.
+              System-wide security controls, document verification, data privacy scanner, and backup exports.
             </p>
           </div>
 
@@ -151,10 +151,10 @@ export default function PlatformAdminSettingsPage() {
             <button
               type="button"
               onClick={handleSavePolicies}
-              className="h-10 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white font-semibold text-xs flex items-center gap-2 shadow-xs transition-colors"
+              className="h-10 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-2 shadow-xs transition-colors"
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>{savedSuccess ? "Policies Enforced!" : "Save Platform Policies"}</span>
+              <span>{savedSuccess ? "Settings Saved!" : "Save Security Settings"}</span>
             </button>
           </div>
         </div>
@@ -166,12 +166,12 @@ export default function PlatformAdminSettingsPage() {
             onClick={() => setActiveTab("HSM")}
             className={`pb-3 font-semibold flex items-center gap-2 transition-colors border-b-2 ${
               activeTab === "HSM"
-                ? "border-indigo-600 text-indigo-700"
+                ? "border-blue-600 text-blue-700"
                 : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <Cpu className="w-4 h-4" />
-            <span>Architecture &amp; HSM Enclave</span>
+            <span>Security &amp; Encryption</span>
           </button>
 
           <button
@@ -179,12 +179,12 @@ export default function PlatformAdminSettingsPage() {
             onClick={() => setActiveTab("CRYPTO_VERIFIER")}
             className={`pb-3 font-semibold flex items-center gap-2 transition-colors border-b-2 ${
               activeTab === "CRYPTO_VERIFIER"
-                ? "border-indigo-600 text-indigo-700"
+                ? "border-blue-600 text-blue-700"
                 : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <Sparkles className="w-4 h-4" />
-            <span>Post-Quantum Signature Verifier</span>
+            <span>Document Authenticity Verifier</span>
           </button>
 
           <button
@@ -192,12 +192,12 @@ export default function PlatformAdminSettingsPage() {
             onClick={() => setActiveTab("RLS_AUDIT")}
             className={`pb-3 font-semibold flex items-center gap-2 transition-colors border-b-2 ${
               activeTab === "RLS_AUDIT"
-                ? "border-indigo-600 text-indigo-700"
+                ? "border-blue-600 text-blue-700"
                 : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <Layers className="w-4 h-4" />
-            <span>Multi-Tenant RLS Policy Scanner</span>
+            <span>Data Privacy &amp; Isolation Scan</span>
           </button>
 
           <button
@@ -205,12 +205,12 @@ export default function PlatformAdminSettingsPage() {
             onClick={() => setActiveTab("FADP_COMPLIANCE")}
             className={`pb-3 font-semibold flex items-center gap-2 transition-colors border-b-2 ${
               activeTab === "FADP_COMPLIANCE"
-                ? "border-indigo-600 text-indigo-700"
+                ? "border-blue-600 text-blue-700"
                 : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <FileText className="w-4 h-4" />
-            <span>Swiss FADP / GDPR Compliance Desk</span>
+            <span>Compliance &amp; Data Backup</span>
           </button>
         </div>
 

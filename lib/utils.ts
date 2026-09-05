@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import jsPDF from "jspdf";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -58,7 +57,7 @@ export interface PDFStudentMetadata {
   institutionLogoText?: string;
 }
 
-export function triggerClientDownload(
+export async function triggerClientDownload(
   fileName: string,
   content?: string,
   mimeType: string = "application/pdf",
@@ -84,6 +83,8 @@ export function triggerClientDownload(
   }
 
   try {
+    const jsPdfModule = await import("jspdf");
+    const jsPDF = jsPdfModule.default || (jsPdfModule as any).jsPDF;
     // Generate 100% valid standard PDF using jsPDF
     const doc = new jsPDF({
       orientation: "portrait",

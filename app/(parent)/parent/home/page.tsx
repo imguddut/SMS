@@ -339,7 +339,7 @@ Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness 
                       onClick={() => setSelectedWardId(w.id)}
                       className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                         isActive
-                          ? "bg-[#8C6D27] text-white shadow-xs"
+                          ? "bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
                           : "bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"
                       }`}
                     >

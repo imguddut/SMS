@@ -42,11 +42,11 @@ export default function SchoolSettingsPage() {
     return (
       <AppShell
         role="PRINCIPAL"
-        userName="Mme. Claire De La Tour"
-        userRoleTitle="Head of School & Proviseur"
+        userName="Dr. Arvind Swaminathan"
+        userRoleTitle="Principal & Head of School"
       >
         <div className="py-20 text-center text-on-surface-variant font-sans">
-          Loading campus operational parameters...
+          Loading school settings...
         </div>
       </AppShell>
     );
@@ -55,27 +55,27 @@ export default function SchoolSettingsPage() {
   return (
     <AppShell
       role="PRINCIPAL"
-      userName="Mme. Claire De La Tour"
-      userRoleTitle="Head of School & Proviseur"
-      epochText="Term 3 Cycle (Michaelmas) • Geneva Campus"
+      userName="Dr. Arvind Swaminathan"
+      userRoleTitle="Principal & Head of School"
+      epochText="Term 2 (CBSE Board) • Main Campus"
     >
       <div className="space-y-8 max-w-5xl mx-auto pb-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Badge variant="gold" dot>
-                Proviseur Operations Settings
+              <Badge variant="navy" dot>
+                School Settings
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                The King's College &amp; Academy • Geneva Wing
+                Delhi Public School, R.K. Puram • Main Campus
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
-              Campus Operations &amp; Academic Settings
+              School &amp; Academic Settings
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
-              Configure morning roll-call cutoffs, passing grade thresholds, term calendars, and emergency communications broadcast rules.
+              Set morning attendance cutoff times, passing marks thresholds, active academic term, and emergency alerts.
             </p>
           </div>
 
@@ -84,15 +84,15 @@ export default function SchoolSettingsPage() {
               variant="primary"
               size="sm"
               onClick={handleSave}
-              className="font-sans gap-2"
+              className="font-sans gap-2 bg-blue-600 hover:bg-blue-700 text-white"
             >
               {isSaved ? (
                 <>
-                  <Check className="w-4 h-4 text-secondary-container" /> Saved Successfully
+                  <Check className="w-4 h-4 text-emerald-400" /> Changes Saved
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4 text-secondary-container" /> Save Parameters
+                  <Save className="w-4 h-4" /> Save Changes
                 </>
               )}
             </Button>
@@ -103,30 +103,30 @@ export default function SchoolSettingsPage() {
         <Card className="p-6 space-y-6">
           <div className="pb-4 border-b border-border/60">
             <h3 className="font-serif text-xl font-medium text-primary">
-              Roll-Call &amp; Academic Scheduling
+              Daily Attendance &amp; Academic Rules
             </h3>
             <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-              Daily operational schedules and punctuality thresholds.
+              Daily schedules and punctuality settings.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 font-sans text-xs">
             <div className="space-y-1.5">
               <label className="font-semibold text-primary">
-                Morning Roll-Call Cutoff Time
+                Morning Attendance Cutoff Time
               </label>
               <Input
                 value={settings.rollCallCutoffTime}
                 onChange={(e) => setSettings({ ...settings, rollCallCutoffTime: e.target.value })}
               />
               <span className="text-[11px] text-on-surface-variant">
-                Turnstile swipe events logged after this time are flagged as Late.
+                Students arriving after this time are marked Late.
               </span>
             </div>
 
             <div className="space-y-1.5">
               <label className="font-semibold text-primary">
-                Passing Academic Grade Threshold
+                Minimum Passing Marks (%)
               </label>
               <Input
                 value={settings.passingGradeThreshold}
@@ -136,7 +136,7 @@ export default function SchoolSettingsPage() {
 
             <div className="space-y-1.5">
               <label className="font-semibold text-primary">
-                Academic Year Title
+                Current Academic Year
               </label>
               <Input
                 value={settings.academicYearName}
@@ -146,7 +146,7 @@ export default function SchoolSettingsPage() {
 
             <div className="space-y-1.5">
               <label className="font-semibold text-primary">
-                Active Term Cycle
+                Active School Term
               </label>
               <Input
                 value={settings.currentTerm}
@@ -160,41 +160,41 @@ export default function SchoolSettingsPage() {
         <Card className="p-6 space-y-6">
           <div className="pb-4 border-b border-border/60">
             <h3 className="font-serif text-xl font-medium text-primary">
-              Emergency Broadcast &amp; Security Gateways
+              Notifications &amp; Attendance Gate Devices
             </h3>
             <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-              Rapid parent communication gateways and campus physical access synchronization.
+              Parent notifications and student RFID card check-in synchronization.
             </p>
           </div>
 
           <div className="space-y-4 font-sans text-sm">
             <div className="flex items-center justify-between p-4 rounded-lg border border-border/70 bg-surface">
               <div>
-                <div className="font-semibold text-primary">Emergency SMS &amp; Mobile Broadcast Gateway</div>
+                <div className="font-semibold text-primary">Emergency SMS &amp; Mobile App Alerts</div>
                 <div className="text-xs text-on-surface-variant mt-0.5">
-                  Authorize instant Proviseur broadcast push to all parents and guardians.
+                  Send urgent announcements immediately to all parent phones.
                 </div>
               </div>
               <input
                 type="checkbox"
                 checked={settings.emergencyBroadcastGateway}
                 onChange={(e) => setSettings({ ...settings, emergencyBroadcastGateway: e.target.checked })}
-                className="w-4 h-4 text-secondary rounded"
+                className="w-4 h-4 text-blue-600 rounded"
               />
             </div>
 
             <div className="flex items-center justify-between p-4 rounded-lg border border-border/70 bg-surface">
               <div>
-                <div className="font-semibold text-primary">Biometric Turnstile Gateway Edge Sync</div>
+                <div className="font-semibold text-primary">Smart Attendance Gate / RFID Sync</div>
                 <div className="text-xs text-on-surface-variant mt-0.5">
-                  Synchronize RFID card credentials and attendance logs with perimeter turnstiles.
+                  Automatically sync student ID card taps at the school gate with attendance records.
                 </div>
               </div>
               <input
                 type="checkbox"
                 checked={settings.mfaEnforced}
                 onChange={(e) => setSettings({ ...settings, mfaEnforced: e.target.checked })}
-                className="w-4 h-4 text-secondary rounded"
+                className="w-4 h-4 text-blue-600 rounded"
               />
             </div>
           </div>

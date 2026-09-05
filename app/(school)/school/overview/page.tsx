@@ -76,31 +76,31 @@ export default function SchoolOverviewPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Badge variant="gold" dot>
-                Institutional Operations Runtime
+              <Badge variant="navy" dot>
+                Daily School Operations
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                Delhi Public School, R.K. Puram • National Sovereign Enclave
+                Delhi Public School, R.K. Puram • Main Campus
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
               Daily Academic &amp; Campus Operations
             </h1>
             <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
-              Real-time morning roll-call fidelity, daily BHIM UPI fee intake settlement, academic submission tracking, and immediate administrative approvals.
+              Live student attendance, daily fee collection, class progress, and pending approvals.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <Link href="/school/notices">
-              <Button variant="outline" size="sm" className="font-sans gap-2 text-secondary border-secondary/40">
-                <Bell className="w-4 h-4 text-secondary" />
-                Draft Official Bulletin
+              <Button variant="outline" size="sm" className="font-sans gap-2 text-primary border-border hover:bg-surface-variant">
+                <Bell className="w-4 h-4 text-blue-500" />
+                + Post Notice
               </Button>
             </Link>
             <Link href="/school/approvals">
-              <Button variant="primary" size="sm" className="font-sans gap-2">
-                <CheckSquare className="w-4 h-4 text-secondary-container" />
+              <Button variant="primary" size="sm" className="font-sans gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+                <CheckSquare className="w-4 h-4" />
                 Approvals Queue ({warrants.length})
               </Button>
             </Link>
@@ -109,12 +109,12 @@ export default function SchoolOverviewPage() {
 
         {/* 4 Operations KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-5 border-border/80 shadow-sm hover:border-secondary/40 transition-colors">
+          <Card className="p-5 border-border/80 shadow-sm hover:border-blue-500/40 transition-colors">
             <div className="flex items-center justify-between text-on-surface-variant">
               <span className="font-sans text-[11px] font-bold uppercase tracking-wider">
-                Morning Roll-Call
+                Student Attendance
               </span>
-              <span className="font-sans text-xs font-bold text-[#3D5B42] bg-[#3D5B42]/10 px-2 py-0.5 rounded">
+              <span className="font-sans text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
                 97.4% Present
               </span>
             </div>
@@ -123,60 +123,60 @@ export default function SchoolOverviewPage() {
                 1,794 <span className="text-xs font-sans font-normal text-on-surface-variant">/ 1,842</span>
               </div>
               <p className="font-sans text-xs text-on-surface-variant mt-1">
-                48 scholars excused / absent
+                48 students absent or excused
               </p>
             </div>
           </Card>
 
-          <Card className="p-5 border-border/80 shadow-sm hover:border-secondary/40 transition-colors">
+          <Card className="p-5 border-border/80 shadow-sm hover:border-blue-500/40 transition-colors">
             <div className="flex items-center justify-between text-on-surface-variant">
               <span className="font-sans text-[11px] font-bold uppercase tracking-wider">
                 Approvals Queue
               </span>
-              <Badge variant="gold">
+              <Badge variant="navy">
                 {warrants.filter((w) => !authorizedWarrants[w.id]).length} Pending
               </Badge>
             </div>
             <div className="mt-3">
-              <div className="font-serif text-3xl font-medium text-secondary">
-                5 Warrants
+              <div className="font-serif text-3xl font-medium text-blue-400">
+                5 Requests
               </div>
               <p className="font-sans text-xs text-on-surface-variant mt-1">
-                1 Discretionary Fee Waiver
+                1 Fee Waiver Request
               </p>
             </div>
           </Card>
 
-          <Card className="p-5 border-border/80 shadow-sm hover:border-secondary/40 transition-colors">
+          <Card className="p-5 border-border/80 shadow-sm hover:border-blue-500/40 transition-colors">
             <div className="flex items-center justify-between text-on-surface-variant">
               <span className="font-sans text-[11px] font-bold uppercase tracking-wider">
-                Active Class Sections
+                Active Classes
               </span>
-              <GraduationCap className="w-5 h-5 text-secondary" />
+              <GraduationCap className="w-5 h-5 text-blue-400" />
             </div>
             <div className="mt-3">
               <div className="font-serif text-3xl font-medium text-primary">
-                64 Roster Units
+                64 Classes
               </div>
               <p className="font-sans text-xs text-on-surface-variant mt-1">
-                Classes 1–12 (NEP 2020 Stages)
+                Classes 1 to 12
               </p>
             </div>
           </Card>
 
-          <Card className="p-5 border-border/80 shadow-sm hover:border-secondary/40 transition-colors">
+          <Card className="p-5 border-border/80 shadow-sm hover:border-blue-500/40 transition-colors">
             <div className="flex items-center justify-between text-on-surface-variant">
               <span className="font-sans text-[11px] font-bold uppercase tracking-wider">
-                Daily Fee Settlement
+                Today's Fee Collection
               </span>
-              <span className="text-xs font-bold text-secondary">INR (₹)</span>
+              <span className="text-xs font-bold text-blue-400">INR (₹)</span>
             </div>
             <div className="mt-3">
-              <div className="font-serif text-3xl font-medium text-[#3D5B42]">
+              <div className="font-serif text-3xl font-medium text-emerald-400">
                 ₹4,26,000
               </div>
               <p className="font-sans text-xs text-on-surface-variant mt-1">
-                BHIM UPI &amp; Bank Feeds Reconciled
+                UPI &amp; Bank Payments Received
               </p>
             </div>
           </Card>
@@ -189,13 +189,13 @@ export default function SchoolOverviewPage() {
             <div className="flex items-center justify-between pb-4 border-b border-border/60">
               <div>
                 <h3 className="font-serif text-lg font-medium text-primary">
-                  Morning Roll-Call by House
+                  Today's Attendance by House
                 </h3>
                 <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                  Biometric turnstile check-in at 08:30 CET
+                  Morning check-in at 8:30 AM
                 </p>
               </div>
-              <Badge variant="active">Live Radar</Badge>
+              <Badge variant="active">Live</Badge>
             </div>
 
             <div className="space-y-4 font-sans text-xs">
@@ -203,14 +203,14 @@ export default function SchoolOverviewPage() {
                 <div key={h.house} className="space-y-1.5">
                   <div className="flex justify-between font-medium">
                     <span className="text-primary truncate max-w-[200px]">{h.house}</span>
-                    <span className="font-bold text-[#3D5B42]">{h.rate}</span>
+                    <span className="font-bold text-emerald-400">{h.rate}</span>
                   </div>
                   <div className="flex justify-between text-[11px] text-on-surface-variant">
                     <span>{h.present} Present</span>
                     <span>{h.total} Total</span>
                   </div>
                   <div className="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
-                    <div className="bg-[#3D5B42] h-full rounded-full" style={{ width: h.rate }}></div>
+                    <div className="bg-blue-600 h-full rounded-full" style={{ width: h.rate }}></div>
                   </div>
                 </div>
               ))}
@@ -222,14 +222,14 @@ export default function SchoolOverviewPage() {
             <div className="flex items-center justify-between pb-4 border-b border-border/60">
               <div>
                 <h3 className="font-serif text-xl font-medium text-primary">
-                  Executive Warrant Approvals Desk
+                  Pending Staff &amp; Student Approvals
                 </h3>
                 <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                  Institutional sign-off required for bursaries, leave requests, and official publications.
+                  Requests needing principal approval for fee waivers, staff leaves, and notices.
                 </p>
               </div>
               <Link href="/school/approvals">
-                <Button variant="ghost" size="sm" className="text-xs text-secondary gap-1">
+                <Button variant="ghost" size="sm" className="text-xs text-blue-400 hover:text-blue-300 gap-1">
                   View All ({warrants.length}) <ArrowUpRight className="w-3.5 h-3.5" />
                 </Button>
               </Link>
@@ -244,8 +244,8 @@ export default function SchoolOverviewPage() {
                     key={war.id}
                     className={`p-4 rounded-lg border transition-all ${
                       isApproved
-                        ? "bg-[#3D5B42]/10 border-[#3D5B42]/40"
-                        : "bg-surface-variant/30 border-border/70 hover:border-secondary/40"
+                        ? "bg-emerald-950/20 border-emerald-500/40"
+                        : "bg-surface-variant/30 border-border/70 hover:border-blue-500/40"
                     }`}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -254,12 +254,12 @@ export default function SchoolOverviewPage() {
                           <span className="font-serif text-base font-semibold text-primary">
                             {war.title}
                           </span>
-                          <Badge variant={isApproved ? "active" : "gold"}>
-                            {isApproved ? "Authorized" : "Pending"}
+                          <Badge variant={isApproved ? "active" : "navy"}>
+                            {isApproved ? "Approved" : "Pending"}
                           </Badge>
                         </div>
                         <div className="text-xs text-on-surface-variant mt-1">
-                          Applicant: <strong className="text-primary">{war.applicant}</strong> ({war.applicantRole}) • {war.amountOrScope}
+                          Requested by: <strong className="text-primary">{war.applicant}</strong> ({war.applicantRole}) • {war.amountOrScope}
                         </div>
                         <p className="text-[11px] text-on-surface-variant mt-1 italic">
                           "{war.justification}"
@@ -268,17 +268,17 @@ export default function SchoolOverviewPage() {
 
                       <div className="shrink-0 pt-2 sm:pt-0">
                         {isApproved ? (
-                          <span className="text-xs font-bold text-[#3D5B42] flex items-center gap-1">
-                            <CheckCircle2 className="w-4 h-4" /> Signed
+                          <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                            <CheckCircle2 className="w-4 h-4" /> Approved
                           </span>
                         ) : (
                           <Button
                             variant="primary"
                             size="sm"
                             onClick={() => handleQuickAuthorize(war.id)}
-                            className="text-xs gap-1.5"
+                            className="text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white"
                           >
-                            <Zap className="w-3.5 h-3.5" /> Authorize
+                            <Zap className="w-3.5 h-3.5" /> Approve
                           </Button>
                         )}
                       </div>
@@ -296,15 +296,15 @@ export default function SchoolOverviewPage() {
             <div className="flex items-center justify-between pb-4 border-b border-border/60">
               <div>
                 <h3 className="font-serif text-xl font-medium text-primary">
-                  Official Campus Bulletins &amp; Notices
+                  School Notices &amp; Announcements
                 </h3>
                 <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                  Published academic notices and emergency broadcasts.
+                  Recent announcements for students, parents, and teachers.
                 </p>
               </div>
               <Link href="/school/notices">
-                <Button variant="ghost" size="sm" className="text-xs text-secondary gap-1">
-                  Manage Bulletins <ArrowUpRight className="w-3.5 h-3.5" />
+                <Button variant="ghost" size="sm" className="text-xs text-blue-400 hover:text-blue-300 gap-1">
+                  View All Notices <ArrowUpRight className="w-3.5 h-3.5" />
                 </Button>
               </Link>
             </div>
@@ -315,7 +315,7 @@ export default function SchoolOverviewPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="font-serif text-base font-semibold text-primary">{not.title}</span>
-                      {not.isPinned && <Badge variant="gold">Pinned</Badge>}
+                      {not.isPinned && <Badge variant="navy">Pinned</Badge>}
                     </div>
                     <Badge variant={not.priority === "URGENT" ? "critical" : "navy"}>
                       {not.priority}
@@ -334,42 +334,42 @@ export default function SchoolOverviewPage() {
           {/* Quick Access Matrix */}
           <div className="space-y-4">
             <Link href="/school/students" className="block">
-              <Card className="p-4 hover:border-secondary/60 transition-all cursor-pointer">
+              <Card className="p-4 hover:border-blue-500/60 transition-all cursor-pointer">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary text-secondary-container flex items-center justify-center font-bold">
+                  <div className="w-10 h-10 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold">
                     <Users className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="font-serif text-base font-medium text-primary">Students Directory</h4>
-                    <span className="font-sans text-xs text-on-surface-variant">1,842 Enrolled Scholars</span>
+                    <span className="font-sans text-xs text-on-surface-variant">1,842 Students Enrolled</span>
                   </div>
                 </div>
               </Card>
             </Link>
 
             <Link href="/school/classes" className="block">
-              <Card className="p-4 hover:border-secondary/60 transition-all cursor-pointer">
+              <Card className="p-4 hover:border-blue-500/60 transition-all cursor-pointer">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary text-secondary-container flex items-center justify-center font-bold">
+                  <div className="w-10 h-10 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold">
                     <GraduationCap className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="font-serif text-base font-medium text-primary">Classes &amp; Sections</h4>
-                    <span className="font-sans text-xs text-on-surface-variant">64 Form Sections &amp; Tutors</span>
+                    <span className="font-sans text-xs text-on-surface-variant">64 Classes &amp; Teachers</span>
                   </div>
                 </div>
               </Card>
             </Link>
 
             <Link href="/school/reports" className="block">
-              <Card className="p-4 hover:border-secondary/60 transition-all cursor-pointer">
+              <Card className="p-4 hover:border-blue-500/60 transition-all cursor-pointer">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary text-secondary-container flex items-center justify-center font-bold">
+                  <div className="w-10 h-10 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold">
                     <Building2 className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="font-serif text-base font-medium text-primary">Reports &amp; Audits</h4>
-                    <span className="font-sans text-xs text-on-surface-variant">Official Academic Logs</span>
+                    <span className="font-sans text-xs text-on-surface-variant">School Performance &amp; Attendance</span>
                   </div>
                 </div>
               </Card>
