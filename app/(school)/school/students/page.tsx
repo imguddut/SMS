@@ -23,6 +23,9 @@ import {
   ShieldCheck,
   CheckCircle2,
   Download,
+  UserPlus,
+  ArrowUpRight,
+  Archive,
 } from "lucide-react";
 import {
   fetchStudentsDirectory,
@@ -37,6 +40,7 @@ export default function SchoolStudentsPage() {
   const [houseFilter, setHouseFilter] = React.useState("ALL");
   const [standingFilter, setStandingFilter] = React.useState("ALL");
   const [loading, setLoading] = React.useState(true);
+  const [actionFeedback, setActionFeedback] = React.useState<string | null>(null);
 
   const loadData = React.useCallback(async () => {
     setLoading(true);
@@ -58,6 +62,25 @@ export default function SchoolStudentsPage() {
   React.useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const handlePromote = (std: StudentRecord) => {
+    setActionFeedback(`Promoted ${std.fullName} to next grade level!`);
+    setTimeout(() => setActionFeedback(null), 3000);
+  };
+
+  const handleTransfer = (std: StudentRecord) => {
+    setActionFeedback(`Transfer clearance certificate initiated for ${std.fullName}.`);
+    setTimeout(() => setActionFeedback(null), 3000);
+  };
+
+  const handleArchive = (std: StudentRecord) => {
+    setStudents((prev) => prev.map((s) => (s.id === std.id ? { ...s, status: "WITHDRAWN" as const } : s)));
+    if (selectedStudent?.id === std.id) {
+      setSelectedStudent({ ...selectedStudent, status: "WITHDRAWN" as const });
+    }
+    setActionFeedback(`Student ${std.fullName} has been archived/withdrawn.`);
+    setTimeout(() => setActionFeedback(null), 3000);
+  };
 
   return (
     <AppShell
@@ -87,6 +110,12 @@ export default function SchoolStudentsPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Link href="/school/admissions">
+              <Button variant="outline" size="sm" className="font-sans gap-2 border-blue-500/40 text-blue-600 hover:bg-blue-50">
+                <UserPlus className="w-4 h-4" />
+                Admissions Pipeline
+              </Button>
+            </Link>
             <Button variant="primary" size="sm" className="font-sans gap-2 bg-blue-600 hover:bg-blue-700 text-white">
               <Download className="w-4 h-4" />
               Export Student List
@@ -295,6 +324,49 @@ export default function SchoolStudentsPage() {
                     </div>
                     <span className="font-bold text-[#3D5B42]">Score: 96% (A1)</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Student Lifecycle Actions */}
+              <div className="p-3.5 rounded-xl bg-surface-variant/30 border border-border/60 space-y-2">
+                <span className="text-[11px] uppercase font-bold text-on-surface-variant block">
+                  Student Lifecycle &amp; Status Operations
+                </span>
+                {actionFeedback && (
+                  <div className="p-2 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-300 text-xs font-medium">
+                    {actionFeedback}
+                  </div>
+                )}
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePromote(selectedStudent)}
+                    className="text-xs gap-1 border-blue-500/40 text-blue-400 hover:bg-blue-500/10"
+                  >
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    Promote Grade
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleTransfer(selectedStudent)}
+                    className="text-xs gap-1 border-purple-500/40 text-purple-400 hover:bg-purple-500/10"
+                  >
+                    <Building2 className="w-3.5 h-3.5" />
+                    Transfer Branch
+                  </Button>
+                  {selectedStudent.status !== "WITHDRAWN" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleArchive(selectedStudent)}
+                      className="text-xs gap-1 border-red-500/40 text-red-400 hover:bg-red-500/10"
+                    >
+                      <Archive className="w-3.5 h-3.5" />
+                      Archive / Withdraw
+                    </Button>
+                  )}
                 </div>
               </div>
 

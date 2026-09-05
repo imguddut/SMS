@@ -34,6 +34,9 @@ import {
   ChevronRight,
   Megaphone,
   Plus,
+  UserPlus,
+  FileText,
+  Clock,
 } from "lucide-react";
 
 interface NavItem {
@@ -183,6 +186,11 @@ export function Sidebar({
               icon: <LayoutDashboard className="w-4 h-4" />,
             },
             {
+              title: "Admissions",
+              href: "/school/admissions",
+              icon: <UserPlus className="w-4 h-4" />,
+            },
+            {
               title: "Students List",
               href: "/school/students",
               icon: <GraduationCap className="w-4 h-4" />,
@@ -274,6 +282,11 @@ export function Sidebar({
               icon: <Receipt className="w-4 h-4" />,
             },
             {
+              title: "Bills & Expenses",
+              href: "/finance/expenses",
+              icon: <FileText className="w-4 h-4" />,
+            },
+            {
               title: "Student Payment History",
               href: "/finance/student-ledgers",
               icon: <Calculator className="w-4 h-4" />,
@@ -304,6 +317,11 @@ export function Sidebar({
               title: "Attendance Record",
               href: "/parent/attendance",
               icon: <Calendar className="w-4 h-4" />,
+            },
+            {
+              title: "Ask for Leave",
+              href: "/parent/leave",
+              icon: <Clock className="w-4 h-4" />,
             },
             {
               title: "School Fees & Pay",

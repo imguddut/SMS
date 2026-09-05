@@ -21,6 +21,8 @@ import {
   CheckCircle2,
   X,
   ExternalLink,
+  Plus,
+  PlusCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { fetchOwnerOverviewStats, OwnerOverviewStats } from "@/lib/db/owner";
@@ -76,17 +78,24 @@ export default function OwnerOverview() {
       userRoleTitle="Chancellor & Chief Trustee"
     >
       <div className="max-w-6xl mx-auto space-y-6 pb-12">
-        {/* Banner linking to full KPI summary */}
-        <div className="p-3.5 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-between gap-3 text-xs">
+        {/* Banner linking to full KPI summary & Add School */}
+        <div className="p-3.5 rounded-xl bg-blue-600/10 border border-blue-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
             <BarChart3 className="w-4 h-4 text-blue-500 shrink-0" />
-            <span>Looking for multi-campus KPIs, fee yield breakdown, and print-ready reports?</span>
+            <span>Looking for multi-campus KPIs, fee yield breakdown, or adding a new school?</span>
           </div>
-          <Link href="/organization/kpis">
-            <Button size="sm" className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium gap-1 shrink-0">
-              Summary &amp; Numbers Dashboard <ArrowUpRight className="w-3 h-3" />
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link href="/organization/add-school">
+              <Button size="sm" variant="outline" className="h-7 text-xs border-blue-500/40 text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 font-medium gap-1">
+                <Plus className="w-3 h-3" /> + Add School
+              </Button>
+            </Link>
+            <Link href="/organization/kpis">
+              <Button size="sm" className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium gap-1">
+                Summary &amp; Numbers Dashboard <ArrowUpRight className="w-3 h-3" />
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Page Header */}
@@ -105,7 +114,13 @@ export default function OwnerOverview() {
               Check total student enrollment, fee collection status, staff counts, and school profit in plain English.
             </p>
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Link href="/organization/add-school">
+              <Button size="sm" className="gap-1.5 h-9 text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm">
+                <PlusCircle className="w-4 h-4" />
+                + Add School
+              </Button>
+            </Link>
             <Button
               variant="outline"
               size="sm"
@@ -123,8 +138,8 @@ export default function OwnerOverview() {
               </Button>
             </Link>
             <Link href="/owner/fee-analytics">
-              <Button size="sm" className="gap-2 h-9 text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold">
-                <IndianRupee className="w-4 h-4" />
+              <Button size="sm" variant="outline" className="gap-2 h-9 text-xs border-slate-300 dark:border-slate-700 font-semibold">
+                <IndianRupee className="w-4 h-4 text-emerald-500" />
                 Fee Details
               </Button>
             </Link>
@@ -423,7 +438,26 @@ export default function OwnerOverview() {
         </div>
 
         {/* Operational Quick Nav Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link href="/organization/add-school" className="group">
+            <Card className="p-5 hover:border-blue-500/60 transition-all cursor-pointer h-full flex flex-col justify-between bg-white dark:bg-[#0B1528] border-slate-200 dark:border-slate-800 shadow-xs">
+              <div>
+                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors mb-3">
+                  <PlusCircle className="w-5 h-5" />
+                </div>
+                <h4 className="font-serif text-lg font-bold text-slate-900 dark:text-slate-100">
+                  + Add New School
+                </h4>
+                <p className="font-sans text-xs text-slate-600 dark:text-slate-400 mt-1">
+                  Setup a new school campus with classes, academic calendar, and principal.
+                </p>
+              </div>
+              <div className="font-sans text-xs font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1 mt-4">
+                Open Setup Wizard <ArrowUpRight className="w-3.5 h-3.5" />
+              </div>
+            </Card>
+          </Link>
+
           <Link href="/owner/staff" className="group">
             <Card className="p-5 hover:border-blue-500/60 transition-all cursor-pointer h-full flex flex-col justify-between bg-white dark:bg-[#0B1528] border-slate-200 dark:border-slate-800 shadow-xs">
               <div>

@@ -737,3 +737,7 @@ export async function saveGradebookMarks(payload: {
   };
 }
 
+export const gradeHomeworkSubmission = gradeSubmission;
+export const fetchTeacherSubmissions = fetchHomeworkSubmissions;
+
+

@@ -29,6 +29,8 @@ import {
   FileSpreadsheet,
   X,
   ExternalLink,
+  Plus,
+  PlusCircle,
 } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-context";
 import { getOrganizationMetrics } from "@/lib/services/organization-service";
@@ -252,6 +254,16 @@ Status: AUDIT VERIFIED • ALL SYSTEMS NORMAL
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-2.5">
+            <Link href="/organization/add-school">
+              <Button
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-9 gap-1.5 shadow-sm font-medium"
+              >
+                <PlusCircle className="w-4 h-4" />
+                + Add School
+              </Button>
+            </Link>
+
             <Button
               variant="outline"
               size="sm"
@@ -265,8 +277,9 @@ Status: AUDIT VERIFIED • ALL SYSTEMS NORMAL
 
             <Button
               size="sm"
+              variant="outline"
               onClick={() => setIsExportModalOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-9 gap-1.5 shadow-sm font-medium"
+              className="border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs h-9 gap-1.5 font-medium"
             >
               <Download className="w-4 h-4" />
               Download KPI Report

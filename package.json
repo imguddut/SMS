@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "npx tsx tests/run-all.ts",
     "test:unit": "npx tsx tests/unit/utils.test.ts",
+    "test:portal-units": "npx tsx tests/unit/portal-modules-unit.test.ts",
     "test:modules": "npx tsx tests/modules/portal-modules.test.ts",
     "test:integration": "npx tsx tests/integration/cross-portal-lifecycles.test.ts",
     "test:security": "npx tsx tests/security/security-and-isolation.test.ts",

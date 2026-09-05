@@ -15,11 +15,17 @@ import {
   MoreVertical,
   MapPin,
   CheckCircle2,
+  Trash2,
+  Power,
+  PowerOff,
+  ShieldAlert,
+  Loader2,
 } from "lucide-react";
 import {
   fetchAllSchools,
   SchoolWithDetails,
   updateSchoolStatus,
+  deleteSchool,
 } from "@/lib/db/platform-admin";
 import { SchoolStatus } from "@/types/database";
 
@@ -29,6 +35,38 @@ export default function PlatformAdminSchoolsPage() {
   const [statusFilter, setStatusFilter] = React.useState("ALL");
   const [jurisdictionFilter, setJurisdictionFilter] = React.useState("ALL");
   const [loading, setLoading] = React.useState(true);
+  const [deleteModalSchool, setDeleteModalSchool] = React.useState<SchoolWithDetails | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [loadingActionId, setLoadingActionId] = React.useState<string | null>(null);
+
+  const handleToggleStatus = async (school: SchoolWithDetails) => {
+    const nextStatus: SchoolStatus = school.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+    setLoadingActionId(school.id);
+    try {
+      await updateSchoolStatus(school.id, nextStatus);
+      setSchools((prev) =>
+        prev.map((s) => (s.id === school.id ? { ...s, status: nextStatus } : s))
+      );
+    } catch (e) {
+      console.error("Failed to toggle status:", e);
+    } finally {
+      setLoadingActionId(null);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModalSchool) return;
+    setIsDeleting(true);
+    try {
+      await deleteSchool(deleteModalSchool.id);
+      setSchools((prev) => prev.filter((s) => s.id !== deleteModalSchool.id));
+      setDeleteModalSchool(null);
+    } catch (e) {
+      console.error("Failed to delete school:", e);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const loadData = React.useCallback(async () => {
     setLoading(true);
@@ -111,6 +149,7 @@ export default function PlatformAdminSchoolsPage() {
             >
               <option value="ALL">All Statuses</option>
               <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
               <option value="TRIAL">Trial</option>
               <option value="SUSPENDED">Suspended</option>
             </select>
@@ -240,6 +279,8 @@ export default function PlatformAdminSchoolsPage() {
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                             school.status === "ACTIVE"
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : school.status === "INACTIVE"
+                              ? "bg-rose-50 text-rose-700 border border-rose-200"
                               : school.status === "TRIAL"
                               ? "bg-amber-50 text-amber-700 border border-amber-200"
                               : "bg-slate-100 text-slate-700 border border-slate-200"
@@ -249,6 +290,27 @@ export default function PlatformAdminSchoolsPage() {
                         </td>
                         <td className="py-4 px-5 text-right">
                           <div className="flex items-center justify-end gap-1.5">
+                            {/* Toggle Status */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleStatus(school)}
+                              disabled={loadingActionId === school.id}
+                              title={school.status === "ACTIVE" ? "Deactivate School" : "Activate School"}
+                              className={`p-1.5 rounded-lg border text-xs flex items-center gap-1 shadow-2xs transition-colors ${
+                                school.status === "ACTIVE"
+                                  ? "border-amber-200 bg-amber-50/50 hover:bg-amber-100 text-amber-700"
+                                  : "border-emerald-200 bg-emerald-50/50 hover:bg-emerald-100 text-emerald-700"
+                              }`}
+                            >
+                              {loadingActionId === school.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : school.status === "ACTIVE" ? (
+                                <PowerOff className="w-3.5 h-3.5" />
+                              ) : (
+                                <Power className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+
                             <Link href={`/platform-admin/schools/${school.id}`}>
                               <button
                                 type="button"
@@ -257,6 +319,7 @@ export default function PlatformAdminSchoolsPage() {
                                 Details
                               </button>
                             </Link>
+
                             <Link href={`/platform-admin/impersonate?school=${school.slug}`}>
                               <button
                                 type="button"
@@ -266,6 +329,17 @@ export default function PlatformAdminSchoolsPage() {
                                 <span>Open Portal</span>
                               </button>
                             </Link>
+
+                            {/* Delete School */}
+                            <button
+                              type="button"
+                              onClick={() => setDeleteModalSchool(school)}
+                              title="Delete School Campus"
+                              className="p-1.5 rounded-lg border border-rose-200 bg-rose-50/40 hover:bg-rose-100 text-rose-600 shadow-2xs transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span className="sr-only">Delete</span>
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -276,6 +350,65 @@ export default function PlatformAdminSchoolsPage() {
             </table>
           </div>
         </div>
+
+        {/* Delete School Confirmation Modal */}
+        {deleteModalSchool && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-[#0E1B33] border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                  <ShieldAlert className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-lg font-bold text-slate-900 dark:text-slate-100">
+                    Delete School Campus?
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    This action is permanent and will remove the school and its academic records.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-3 border border-slate-200 dark:border-slate-800 space-y-1 text-xs">
+                <div className="font-semibold text-slate-800 dark:text-slate-200">
+                  {deleteModalSchool.legal_name}
+                </div>
+                <div className="text-slate-500 font-mono text-[11px]">
+                  ID: {deleteModalSchool.id} • Slug: {deleteModalSchool.slug}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={() => setDeleteModalSchool(null)}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={handleConfirmDelete}
+                  className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Deleting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Yes, Delete School</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Institutional Sovereign Bottom Footer */}
         <PlatformAdminFooter />

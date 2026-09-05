@@ -49,6 +49,11 @@ const ALL_PERMISSIONS: Permission[] = [
   "audit.read",
   "user.create", "user.read", "user.update", "user.deactivate",
   "timetable.create", "timetable.read", "timetable.update", "timetable.archive",
+  "admission.create", "admission.read", "admission.update", "admission.approve", "admission.reject", "admission.enroll",
+  "expense.create", "expense.read", "expense.update", "expense.approve", "expense.reject", "expense.pay",
+  "vendor.create", "vendor.read", "vendor.update", "vendor.archive",
+  "leave.create", "leave.read", "leave.approve", "leave.reject",
+  "discipline.create", "discipline.read", "discipline.update", "discipline.resolve",
 ];
 
 const ORG_LEADERSHIP_PERMISSIONS: Permission[] = [
@@ -73,6 +78,11 @@ const ORG_LEADERSHIP_PERMISSIONS: Permission[] = [
   "audit.read",
   "user.read",
   "timetable.read",
+  "admission.read",
+  "expense.read",
+  "vendor.read",
+  "leave.read",
+  "discipline.read",
 ];
 
 const ROLE_PERMISSIONS: Record<CanonicalUserRole, Set<Permission>> = {
@@ -93,6 +103,7 @@ const ROLE_PERMISSIONS: Record<CanonicalUserRole, Set<Permission>> = {
     "fee_category.read", "fee_structure.read",
     "invoice.read", "payment.read",
     "bank_statement.read", "reconciliation.read",
+    "expense.read", "vendor.read",
     "audit.read", "notification.read",
   ]),
 
@@ -106,11 +117,12 @@ const ROLE_PERMISSIONS: Record<CanonicalUserRole, Set<Permission>> = {
     "attendance.read",
     "marks.read",
     "invoice.read",
+    "expense.read",
     "notice.read",
     "notification.read",
   ]),
 
-  // 6. PRINCIPAL: Academic & operational oversight, publish marks, timetable, notices, approvals
+  // 6. PRINCIPAL: Academic & operational oversight, approvals, discipline, results finalization
   PRINCIPAL: new Set<Permission>([
     "school.read",
     "student.read", "student.update", "student.archive",
@@ -132,9 +144,14 @@ const ROLE_PERMISSIONS: Record<CanonicalUserRole, Set<Permission>> = {
     "notification.read", "notification.update",
     "audit.read",
     "timetable.create", "timetable.read", "timetable.update", "timetable.archive",
+    "admission.read", "admission.approve", "admission.reject",
+    "expense.read", "expense.approve", "expense.reject",
+    "vendor.read",
+    "leave.read", "leave.approve", "leave.reject",
+    "discipline.create", "discipline.read", "discipline.update", "discipline.resolve",
   ]),
 
-  // 7. SCHOOL ADMIN: Operational registrar, user provisioning, timetables, classes
+  // 7. SCHOOL ADMIN: Operational registrar, user provisioning, timetables, admissions, classes
   SCHOOL_ADMIN: new Set<Permission>([
     "school.read", "school.update",
     "student.create", "student.read", "student.update", "student.archive",
@@ -157,9 +174,13 @@ const ROLE_PERMISSIONS: Record<CanonicalUserRole, Set<Permission>> = {
     "audit.read",
     "user.create", "user.read", "user.update", "user.deactivate",
     "timetable.create", "timetable.read", "timetable.update", "timetable.archive",
+    "admission.create", "admission.read", "admission.update", "admission.enroll",
+    "vendor.create", "vendor.read", "vendor.update",
+    "leave.read", "leave.approve", "leave.reject",
+    "discipline.create", "discipline.read", "discipline.update",
   ]),
 
-  // 8. TEACHER: Assignment-scoped classroom instruction, attendance, homework, marks
+  // 8. TEACHER: Assignment-scoped classroom instruction, attendance, homework, marks, incident logging
   TEACHER: new Set<Permission>([
     "student.read",
     "class.read",
@@ -173,9 +194,11 @@ const ROLE_PERMISSIONS: Record<CanonicalUserRole, Set<Permission>> = {
     "notice.read",
     "notification.read", "notification.update",
     "timetable.read",
+    "leave.create", "leave.read",
+    "discipline.create", "discipline.read",
   ]),
 
-  // 9. ACCOUNTANT: School-scoped finance, invoicing, collection, reconciliation
+  // 9. ACCOUNTANT: School-scoped finance, invoicing, collection, expenses, reconciliation
   ACCOUNTANT: new Set<Permission>([
     "school.read",
     "student.read",
@@ -186,12 +209,14 @@ const ROLE_PERMISSIONS: Record<CanonicalUserRole, Set<Permission>> = {
     "bank_statement.create", "bank_statement.read", "bank_statement.update",
     "reconciliation.create", "reconciliation.read", "reconciliation.update", "reconciliation.reverse",
     "approval.create", "approval.read",
+    "expense.create", "expense.read", "expense.update", "expense.pay",
+    "vendor.create", "vendor.read", "vendor.update",
     "notice.read",
     "notification.read", "notification.update",
     "audit.read",
   ]),
 
-  // 10. PARENT: Child relationship-scoped views, fee payment, absence filing
+  // 10. PARENT: Child relationship-scoped views, fee payment, leave requests
   PARENT: new Set<Permission>([
     "student.read",
     "guardian.read",
@@ -206,9 +231,11 @@ const ROLE_PERMISSIONS: Record<CanonicalUserRole, Set<Permission>> = {
     "notice.read",
     "notification.read", "notification.update",
     "timetable.read",
+    "leave.create", "leave.read",
+    "discipline.read",
   ]),
 
-  // 11. STUDENT: Self-scoped view of assignments, marks, schedule, notices
+  // 11. STUDENT: Self-scoped view of assignments, marks, schedule, notices, leave filing
   STUDENT: new Set<Permission>([
     "student.read",
     "attendance.read",
@@ -220,6 +247,8 @@ const ROLE_PERMISSIONS: Record<CanonicalUserRole, Set<Permission>> = {
     "notice.read",
     "notification.read", "notification.update",
     "timetable.read",
+    "leave.create", "leave.read",
+    "discipline.read",
   ]),
 };
 

@@ -75,14 +75,20 @@ export default function AddSchoolWizardPage() {
     if (currentStep > 1) setCurrentStep((prev) => prev - 1);
   };
 
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    setSubmitError(null);
     try {
       const created = await provisionSchool(orgId, actorId, formData);
       setSuccessResult(created);
       await refresh();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error provisioning school:", err);
+      setSubmitError(
+        err?.message || "An unexpected error occurred. The school was not saved."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -98,17 +104,21 @@ export default function AddSchoolWizardPage() {
       <div className="max-w-4xl mx-auto space-y-8 pb-16">
         {/* Header */}
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <Link href="/organization" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-              <ArrowLeft className="w-3 h-3" /> Back to Organization Dashboard
+          <div className="flex items-center gap-2 mb-2 text-xs text-slate-500">
+            <Link href="/organization" className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 font-medium">
+              <ArrowLeft className="w-3 h-3" /> All Schools
+            </Link>
+            <span>•</span>
+            <Link href="/owner/overview" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+              Campus Overview
             </Link>
           </div>
-          <h1 className="font-serif text-3xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
+          <h1 className="font-serif text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             Add New School Campus
           </h1>
-          <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Setting up a new school campus under{" "}
-            <strong>{currentOrganization?.name || "King's Educational Trust"}</strong>.
+            <strong className="text-slate-900 dark:text-slate-100">{currentOrganization?.name || "King's Educational Trust"}</strong>.
           </p>
         </div>
 
@@ -472,7 +482,7 @@ export default function AddSchoolWizardPage() {
                   size="sm"
                   onClick={handleNext}
                   disabled={!formData.name && currentStep === 1}
-                  className="bg-amber-600 hover:bg-amber-700 text-white text-xs gap-1"
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs gap-1 font-medium"
                 >
                   Continue <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
@@ -481,7 +491,7 @@ export default function AddSchoolWizardPage() {
                   size="sm"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs gap-1.5 shadow-sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs gap-1.5 shadow-sm font-medium"
                 >
                   {isSubmitting ? (
                     <>
@@ -489,12 +499,22 @@ export default function AddSchoolWizardPage() {
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-3.5 h-3.5" /> Commit & Provision Campus
+                      <Sparkles className="w-3.5 h-3.5" /> Commit &amp; Provision Campus
                     </>
                   )}
                 </Button>
               )}
             </CardFooter>
+            {/* Error Banner — shown below footer if DB save fails */}
+            {submitError && (
+              <div className="mx-4 mb-4 flex items-start gap-3 rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                <div>
+                  <p className="font-semibold">Campus was not saved to the database</p>
+                  <p className="mt-0.5 text-xs text-red-600 dark:text-red-400">{submitError}</p>
+                </div>
+              </div>
+            )}
           </Card>
         ) : (
           /* SUCCESS CONFIRMATION */
@@ -502,10 +522,10 @@ export default function AddSchoolWizardPage() {
             <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-300 flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-6 h-6" />
             </div>
-            <h2 className="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100">
+            <h2 className="font-serif text-2xl font-bold text-slate-900 dark:text-slate-100">
               Campus Successfully Provisioned!
             </h2>
-            <p className="text-sm text-stone-600 dark:text-stone-400 mt-1 max-w-md mx-auto">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-md mx-auto">
               <strong>{successResult.name || formData.name}</strong> is now an active operational school under{" "}
               {currentOrganization?.name}.
             </p>
@@ -517,7 +537,7 @@ export default function AddSchoolWizardPage() {
                 </Button>
               </Link>
               <Link href="/school/overview">
-                <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white text-xs">
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium">
                   Launch School Portal
                 </Button>
               </Link>

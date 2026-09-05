@@ -265,11 +265,12 @@ Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
                         type="number"
                         min={0}
                         max={80}
+                        disabled={!!sealedHash}
                         value={row.paper1}
                         onChange={(e) =>
                           handleScoreChange(row.studentId, "paper1", Number(e.target.value))
                         }
-                        className="w-20 h-8 text-center rounded border border-border bg-surface text-primary font-bold font-mono text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
+                        className="w-20 h-8 text-center rounded border border-border bg-surface text-primary font-bold font-mono text-sm focus:outline-none focus:ring-1 focus:ring-secondary disabled:opacity-60 disabled:cursor-not-allowed"
                       />
                     </td>
 
@@ -278,11 +279,12 @@ Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
                         type="number"
                         min={0}
                         max={20}
+                        disabled={!!sealedHash}
                         value={row.internalAssessment}
                         onChange={(e) =>
                           handleScoreChange(row.studentId, "internalAssessment", Number(e.target.value))
                         }
-                        className="w-20 h-8 text-center rounded border border-border bg-surface text-primary font-bold font-mono text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
+                        className="w-20 h-8 text-center rounded border border-border bg-surface text-primary font-bold font-mono text-sm focus:outline-none focus:ring-1 focus:ring-secondary disabled:opacity-60 disabled:cursor-not-allowed"
                       />
                     </td>
 

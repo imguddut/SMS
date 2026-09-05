@@ -859,3 +859,18 @@ export async function fetchFinanceReports(): Promise<FinanceReportItem[]> {
   ];
 }
 
+// UPDATE: Settle Invoice Payment
+export async function settleInvoicePayment(payload: {
+  invoiceId: string;
+  amount?: number;
+  paymentMethod?: string;
+  transactionReference?: string;
+}): Promise<{ success: boolean; receiptNumber: string }> {
+  const res = sharedStore.payInvoice(payload.invoiceId, payload.paymentMethod || "BHIM_UPI (Google Pay)");
+  return {
+    success: res.success,
+    receiptNumber: res.receiptRef,
+  };
+}
+
+

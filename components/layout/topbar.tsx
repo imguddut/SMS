@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { UserRole } from "@/types/auth";
-import { Bell, Search, Sun, Moon, ChevronDown, LogOut, Building2, Layers, Check } from "lucide-react";
+import { Bell, Search, Sun, Moon, ChevronDown, LogOut, Building2, Layers, Check, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { NotificationDrawer } from "@/components/layout/notification-drawer";
 import { fetchUserNotifications } from "@/lib/db/notifications";
@@ -234,6 +235,19 @@ export function Topbar({
                     )}
                   </button>
                 ))}
+
+                {isOrgUser && (
+                  <div className="pt-1.5 mt-1 border-t border-slate-100 dark:border-slate-800">
+                    <Link
+                      href="/organization/add-school"
+                      onClick={() => setIsSchoolDropdownOpen(false)}
+                      className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 font-medium transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>+ Add New School Campus</span>
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </div>

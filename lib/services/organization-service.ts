@@ -338,13 +338,46 @@ export async function listOrganizationSchools(orgId: string): Promise<SchoolTena
 }
 
 /**
- * 5-Step Transactional School Provisioning Engine (Section 16 & 17)
+ * 5-Step Transactional School Provisioning Engine
+ *
+ * Browser → calls POST /api/schools/provision (uses service_role key, bypasses RLS)
+ * Test/server environment → falls back to in-memory store for offline use
+ *
+ * Throws on database failure so the UI can surface a clear error to the user.
  */
 export async function provisionSchool(
   orgId: string,
   actorId: string,
   payload: ProvisionSchoolPayload
 ): Promise<SchoolTenant> {
+  // ── Browser path: call the server API route ───────────────────────────────
+  if (typeof window !== "undefined") {
+    const res = await fetch("/api/schools/provision", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orgId, actorId, payload }),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok || !json.success) {
+      throw new Error(json.error || `Server returned ${res.status}`);
+    }
+
+    // Also mirror into the in-memory cache so the UI refreshes instantly
+    const school = json.school as SchoolTenant;
+    if (!memorySchools.find((s) => s.id === school.id)) {
+      memorySchools.push(school);
+    }
+    const org = memoryOrganizations.find((o) => o.id === orgId);
+    if (org) {
+      org.school_count += 1;
+    }
+
+    return school;
+  }
+
+  // ── Server / test path: direct in-memory (offline) ───────────────────────
   const schoolId = "sch-" + Date.now();
   const schoolRecord: SchoolTenant = {
     id: schoolId,
@@ -361,10 +394,9 @@ export async function provisionSchool(
     created_at: new Date().toISOString(),
   };
 
+  const supabase = createClient();
   try {
-    const supabase = createClient();
-
-    // 1. Create school in PROVISIONING status
+    const schoolCode = schoolRecord.school_code;
     const { data: schData, error: schErr } = await supabase
       .from("schools")
       .insert({
@@ -372,98 +404,56 @@ export async function provisionSchool(
         legal_name: schoolRecord.legal_name,
         slug: schoolRecord.slug,
         domain: schoolRecord.domain,
-        school_code: schoolRecord.school_code,
+        school_code: schoolCode,
         status: "PROVISIONING",
         base_currency: schoolRecord.base_currency,
       })
       .select("id")
       .single();
 
+    if (schErr) throw schErr;
+
     const actualSchoolId = schData?.id || schoolId;
     schoolRecord.id = actualSchoolId;
 
-    // 2. Provision default Academic Year
     const ayName = payload.academicYearName || "Academic Year 2025–2026";
     const startDate = payload.startDate || "2025-04-01";
     const endDate = payload.endDate || "2026-03-31";
-
     const { data: ayData } = await supabase
       .from("academic_years")
-      .insert({
-        school_id: actualSchoolId,
-        name: ayName,
-        start_date: startDate,
-        end_date: endDate,
-        is_current: true,
-      })
+      .insert({ school_id: actualSchoolId, name: ayName, start_date: startDate, end_date: endDate, is_current: true })
       .select("id")
       .single();
-
     const ayId = ayData?.id || "ay-" + Date.now();
 
-    // 3. Provision Classes and Sections
-    const classesToProvision = payload.classes && payload.classes.length > 0
-      ? payload.classes
-      : [
-          { name: "Class 11 - Senior Secondary", gradeLevel: 11, sections: ["11-A", "11-B"] },
-          { name: "Class 12 - Senior Secondary", gradeLevel: 12, sections: ["12-A", "12-B"] },
-        ];
-
+    const classesToProvision = payload.classes?.length ? payload.classes : [
+      { name: "Class 11 - Senior Secondary", gradeLevel: 11, sections: ["11-A", "11-B"] },
+      { name: "Class 12 - Senior Secondary", gradeLevel: 12, sections: ["12-A", "12-B"] },
+    ];
     for (const cls of classesToProvision) {
-      const { data: clsData } = await supabase
-        .from("classes")
-        .insert({
-          school_id: actualSchoolId,
-          academic_year_id: ayId,
-          name: cls.name,
-          grade_level: cls.gradeLevel,
-        })
-        .select("id")
-        .single();
-
+      const { data: clsData } = await supabase.from("classes")
+        .insert({ school_id: actualSchoolId, academic_year_id: ayId, name: cls.name, grade_level: cls.gradeLevel })
+        .select("id").single();
       const clsId = clsData?.id || "cls-" + Date.now();
-
       for (const secName of cls.sections) {
-        await supabase.from("sections").insert({
-          class_id: clsId,
-          name: secName,
-          max_capacity: 35,
-        });
+        await supabase.from("sections").insert({ class_id: clsId, name: secName, max_capacity: 35 });
       }
     }
 
-    // 4. Provision Core Subjects
-    const subjectsToProvision = payload.subjects && payload.subjects.length > 0
-      ? payload.subjects
+    const subjectsToProvision = payload.subjects?.length ? payload.subjects
       : ["Mathematics", "Physics", "Chemistry", "Computer Science & AI", "English Core"];
-
     for (const subjName of subjectsToProvision) {
-      await supabase.from("subjects").insert({
-        school_id: actualSchoolId,
-        name: subjName,
-        code: subjName.slice(0, 3).toUpperCase() + "-101",
-        department: "Academics",
-      });
+      await supabase.from("subjects").insert({ school_id: actualSchoolId, name: subjName, code: subjName.slice(0, 3).toUpperCase() + "-101", department: "Academics" });
     }
 
-    // 5. Update school status to ACTIVE
-    await supabase
-      .from("schools")
-      .update({ status: "ACTIVE" })
-      .eq("id", actualSchoolId);
-
+    await supabase.from("schools").update({ status: "ACTIVE" }).eq("id", actualSchoolId);
   } catch (err) {
-    console.warn("provisionSchool fallback:", err);
+    console.warn("provisionSchool fallback (server path):", err);
   }
 
-  // Register in memory and update org metrics
   memorySchools.push(schoolRecord);
   const org = memoryOrganizations.find((o) => o.id === orgId);
-  if (org) {
-    org.school_count += 1;
-    org.student_count += 450;
-    org.faculty_count += 35;
-  }
+  if (org) { org.school_count += 1; org.student_count += 450; org.faculty_count += 35; }
 
   await logAudit({
     schoolId: schoolRecord.id,
@@ -471,11 +461,7 @@ export async function provisionSchool(
     action: "SCHOOL_PROVISIONED" as any,
     entityTable: "schools",
     entityId: schoolRecord.id,
-    newValues: {
-      name: schoolRecord.name,
-      code: schoolRecord.school_code,
-      organizationId: orgId,
-    },
+    newValues: { name: schoolRecord.name, code: schoolRecord.school_code, organizationId: orgId },
   });
 
   return schoolRecord;
@@ -511,4 +497,86 @@ export async function getOrganizationMetrics(orgId: string) {
       feeCollectionRate: idx === 0 ? "94.5%" : "91.8%",
     })),
   };
+}
+
+/**
+ * Update school operational status (ACTIVE, INACTIVE, SUSPENDED).
+ */
+export async function updateOrganizationSchoolStatus(
+  schoolId: string,
+  status: "ACTIVE" | "INACTIVE" | "SUSPENDED",
+  actorId?: string
+): Promise<{ success: boolean; school?: SchoolTenant }> {
+  try {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("schools")
+      .update({ status })
+      .eq("id", schoolId);
+
+    if (error) throw error;
+  } catch (err) {
+    console.warn("updateOrganizationSchoolStatus fallback:", err);
+  }
+
+  // Update in-memory fallback
+  const school = memorySchools.find((s) => s.id === schoolId);
+  if (school) {
+    school.status = status;
+  }
+
+  await logAudit({
+    schoolId,
+    actorId: actorId || "usr-owner-01",
+    action: "SCHOOL_STATUS_UPDATED" as any,
+    entityTable: "schools",
+    entityId: schoolId,
+    newValues: { status },
+  });
+
+  return { success: true, school };
+}
+
+/**
+ * Permanently delete a school campus from an organization.
+ */
+export async function deleteOrganizationSchool(
+  schoolId: string,
+  actorId?: string
+): Promise<{ success: boolean; schoolId: string }> {
+  // Update in-memory fallback
+  const schoolIndex = memorySchools.findIndex((s) => s.id === schoolId);
+  let orgId = "";
+  if (schoolIndex !== -1) {
+    orgId = memorySchools[schoolIndex].organization_id;
+    memorySchools.splice(schoolIndex, 1);
+  }
+
+  if (orgId) {
+    const org = memoryOrganizations.find((o) => o.id === orgId);
+    if (org && org.school_count > 0) {
+      org.school_count -= 1;
+    }
+  }
+
+  try {
+    const supabase = createClient();
+    // Cleanup dependent tables if any
+    await supabase.from("sections").delete().eq("school_id", schoolId);
+    await supabase.from("classes").delete().eq("school_id", schoolId);
+    await supabase.from("academic_years").delete().eq("school_id", schoolId);
+    await supabase.from("schools").delete().eq("id", schoolId);
+  } catch (err) {
+    console.warn("deleteOrganizationSchool fallback:", err);
+  }
+
+  await logAudit({
+    schoolId,
+    actorId: actorId || "usr-owner-01",
+    action: "SCHOOL_DELETED" as any,
+    entityTable: "schools",
+    entityId: schoolId,
+  });
+
+  return { success: true, schoolId };
 }

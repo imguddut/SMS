@@ -135,6 +135,92 @@ export interface SharedNotice {
   signedBy?: string;
 }
 
+export interface SharedAdmission {
+  id: string;
+  schoolId: string;
+  applicationNo: string;
+  applicantName: string;
+  dateOfBirth: string;
+  gender: string;
+  gradeApplyingFor: string;
+  parentName: string;
+  parentEmail: string;
+  parentPhone: string;
+  address: string;
+  status: "PENDING" | "UNDER_REVIEW" | "INTERVIEW_SCHEDULED" | "APPROVED" | "REJECTED" | "ENROLLED";
+  entranceScore?: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SharedVendor {
+  id: string;
+  schoolId: string;
+  name: string;
+  category: string;
+  contactPerson: string;
+  phone: string;
+  email: string;
+  address: string;
+  taxId?: string;
+  bankAccount?: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface SharedExpense {
+  id: string;
+  schoolId: string;
+  expenseNumber: string;
+  vendorId?: string;
+  vendorName: string;
+  category: string;
+  description: string;
+  amount: number;
+  currency: string;
+  invoiceDate: string;
+  dueDate?: string;
+  status: "DRAFT" | "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | "PAID" | "CANCELLED";
+  approvedBy?: string;
+  approvedAt?: string;
+  paymentReference?: string;
+  createdAt: string;
+}
+
+export interface SharedLeaveRequest {
+  id: string;
+  schoolId: string;
+  applicantType: "STUDENT" | "TEACHER" | "STAFF";
+  applicantId: string;
+  applicantName: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  leaveType: string;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+  reviewedBy?: string;
+  reviewNotes?: string;
+  reviewedAt?: string;
+  createdAt: string;
+}
+
+export interface SharedDisciplineRecord {
+  id: string;
+  schoolId: string;
+  studentId: string;
+  studentName: string;
+  incidentDate: string;
+  incidentType: string;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  description: string;
+  actionTaken: string;
+  reportedBy: string;
+  parentNotified: boolean;
+  status: "OPEN" | "RESOLVED" | "APPEALED";
+  createdAt: string;
+}
+
 // ============================================================================
 // INITIAL SEED DATA FOR CROSS-PORTAL CONSISTENCY
 // ============================================================================
@@ -670,6 +756,268 @@ const initialApprovals: SharedApproval[] = [
   },
 ];
 
+const initialAdmissions: SharedAdmission[] = [
+  {
+    id: "adm-01",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    applicationNo: "ADM-2025-0101",
+    applicantName: "Riya Sengupta",
+    dateOfBirth: "2009-04-15",
+    gender: "Female",
+    gradeApplyingFor: "Class 11 - Science Stream",
+    parentName: "Dr. Anirban Sengupta",
+    parentEmail: "anirban.s@example.com",
+    parentPhone: "+91 98301 23456",
+    address: "14B Lake Gardens, South Kolkata",
+    status: "PENDING",
+    entranceScore: 88.5,
+    notes: "Merit applicant with distinction in State Talent Search.",
+    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+    updatedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+  },
+  {
+    id: "adm-02",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    applicationNo: "ADM-2025-0102",
+    applicantName: "Vivaan Deshmukh",
+    dateOfBirth: "2011-09-22",
+    gender: "Male",
+    gradeApplyingFor: "Class 9",
+    parentName: "Rajesh Deshmukh",
+    parentEmail: "rajesh.d@example.com",
+    parentPhone: "+91 98220 54321",
+    address: "Plot 88, Model Town",
+    status: "UNDER_REVIEW",
+    entranceScore: 92.0,
+    notes: "Transfer applicant from Army Public School.",
+    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+    updatedAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+  },
+  {
+    id: "adm-03",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    applicationNo: "ADM-2025-0103",
+    applicantName: "Tara Kapoor",
+    dateOfBirth: "2014-02-18",
+    gender: "Female",
+    gradeApplyingFor: "Class 6",
+    parentName: "Simran Kapoor",
+    parentEmail: "simran.k@example.com",
+    parentPhone: "+91 98111 87654",
+    address: "22 Vasant Vihar, New Delhi",
+    status: "APPROVED",
+    entranceScore: 95.0,
+    notes: "Interview cleared with exemplary marks.",
+    createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+    updatedAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+  },
+  {
+    id: "adm-04",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    applicationNo: "ADM-2025-0104",
+    applicantName: "Arjun Pillai",
+    dateOfBirth: "2019-11-04",
+    gender: "Male",
+    gradeApplyingFor: "Class 1",
+    parentName: "Gopal Pillai",
+    parentEmail: "gopal.p@example.com",
+    parentPhone: "+91 98470 11223",
+    address: "7 Kowdiar Avenue, Trivandrum",
+    status: "INTERVIEW_SCHEDULED",
+    notes: "Parent interaction session scheduled for Friday.",
+    createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
+    updatedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+  },
+];
+
+const initialVendors: SharedVendor[] = [
+  {
+    id: "ven-01",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    name: "Orient Book Distributors Pvt Ltd",
+    category: "Academic Books & Library",
+    contactPerson: "Sunil Verma",
+    phone: "+91 11 2327 4567",
+    email: "orders@orientbooks.in",
+    address: "Daryaganj, New Delhi",
+    taxId: "07AAFCO2341K1Z2",
+    bankAccount: "HDFC0000123 / 50200012345678",
+    isActive: true,
+    createdAt: new Date(Date.now() - 86400000 * 60).toISOString(),
+  },
+  {
+    id: "ven-02",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    name: "Supreme Sports & Gymnasium Equipment",
+    category: "Sports & Fitness",
+    contactPerson: "Harpreet Singh",
+    phone: "+91 98140 33445",
+    email: "sales@supremesports.com",
+    address: "Sector 22, Chandigarh",
+    taxId: "03AAACS7788P1ZR",
+    bankAccount: "SBIN0000456 / 30129845612",
+    isActive: true,
+    createdAt: new Date(Date.now() - 86400000 * 45).toISOString(),
+  },
+  {
+    id: "ven-03",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    name: "AeroTech Robotics & Lab Instruments",
+    category: "Lab & Technology",
+    contactPerson: "Kavita Rao",
+    phone: "+91 80 4123 9988",
+    email: "instruments@aerotech.co.in",
+    address: "Peenya Industrial Area, Bengaluru",
+    taxId: "29AABCA9911D1ZX",
+    bankAccount: "ICIC0000889 / 001205012345",
+    isActive: true,
+    createdAt: new Date(Date.now() - 86400000 * 30).toISOString(),
+  },
+  {
+    id: "ven-04",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    name: "CleanGreen Facilities & Hygiene Services",
+    category: "Campus Facilities",
+    contactPerson: "Manoj Yadav",
+    phone: "+91 98200 66778",
+    email: "service@cleangreenindia.com",
+    address: "Andheri East, Mumbai",
+    taxId: "27AAGCC4433E1ZQ",
+    bankAccount: "UTIB0000234 / 918020034567890",
+    isActive: true,
+    createdAt: new Date(Date.now() - 86400000 * 90).toISOString(),
+  },
+];
+
+const initialExpenses: SharedExpense[] = [
+  {
+    id: "exp-01",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    expenseNumber: "EXP-2025-001",
+    vendorId: "ven-03",
+    vendorName: "AeroTech Robotics & Lab Instruments",
+    category: "Lab Equipment",
+    description: "15 IoT Arduino & Raspberry Pi STEM Kits for Atal Tinkering Lab",
+    amount: 185000,
+    currency: "INR",
+    invoiceDate: "2025-01-10",
+    dueDate: "2025-01-25",
+    status: "PENDING_APPROVAL",
+    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+  },
+  {
+    id: "exp-02",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    expenseNumber: "EXP-2025-002",
+    vendorId: "ven-01",
+    vendorName: "Orient Book Distributors Pvt Ltd",
+    category: "Library & Texts",
+    description: "NCERT & Cambridge Reference Texts for Academic Year 2025-26",
+    amount: 92400,
+    currency: "INR",
+    invoiceDate: "2025-01-05",
+    dueDate: "2025-01-20",
+    status: "APPROVED",
+    approvedBy: "Principal Dr. Vikramaditya",
+    approvedAt: "2025-01-08",
+    createdAt: new Date(Date.now() - 86400000 * 6).toISOString(),
+  },
+  {
+    id: "exp-03",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    expenseNumber: "EXP-2025-003",
+    vendorId: "ven-04",
+    vendorName: "CleanGreen Facilities & Hygiene Services",
+    category: "Maintenance",
+    description: "Monthly Campus Sanitization & Water Tank High-Pressure Cleaning",
+    amount: 48000,
+    currency: "INR",
+    invoiceDate: "2024-12-30",
+    dueDate: "2025-01-15",
+    status: "PAID",
+    approvedBy: "Principal Dr. Vikramaditya",
+    paymentReference: "NEFT-HDFC-99182301",
+    createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
+  },
+];
+
+const initialLeaveRequests: SharedLeaveRequest[] = [
+  {
+    id: "lve-01",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    applicantType: "STUDENT",
+    applicantId: "std-01",
+    applicantName: "Aarav Sharma",
+    startDate: "2025-01-20",
+    endDate: "2025-01-22",
+    reason: "Representing school at National Science Congress, Hyderabad",
+    leaveType: "Duty Leave (Academic Event)",
+    status: "APPROVED",
+    reviewedBy: "Principal",
+    reviewNotes: "Official delegation approved.",
+    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+  },
+  {
+    id: "lve-02",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    applicantType: "TEACHER",
+    applicantId: "tch-01",
+    applicantName: "Dr. Arvind Swaminathan",
+    startDate: "2025-01-28",
+    endDate: "2025-01-29",
+    reason: "Attending CBSE National Teacher Empowerment Workshop on AI Pedagogy",
+    leaveType: "Professional Development Leave",
+    status: "PENDING",
+    createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+  },
+  {
+    id: "lve-03",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    applicantType: "STUDENT",
+    applicantId: "std-05",
+    applicantName: "Devansh Gupta",
+    startDate: "2025-01-18",
+    endDate: "2025-01-19",
+    reason: "Viral fever - doctor advised rest",
+    leaveType: "Medical Leave",
+    status: "PENDING",
+    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+  },
+];
+
+const initialDisciplineRecords: SharedDisciplineRecord[] = [
+  {
+    id: "dis-01",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    studentId: "std-03",
+    studentName: "Rohan Singhania",
+    incidentDate: "2025-01-09",
+    incidentType: "Unauthorized Phone Use During Lab",
+    severity: "LOW",
+    description: "Using personal smartphone during Senior Physics Practical session in violation of digital policy.",
+    actionTaken: "Device deposited with Housemaster for the day; written reflection submitted.",
+    reportedBy: "Dr. Arvind Swaminathan",
+    parentNotified: true,
+    status: "RESOLVED",
+    createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
+  },
+  {
+    id: "dis-02",
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    studentId: "std-05",
+    studentName: "Devansh Gupta",
+    incidentDate: "2025-01-11",
+    incidentType: "Corridor Misconduct",
+    severity: "MEDIUM",
+    description: "Rough play in the East Corridor leading to broken acrylic notice display board.",
+    actionTaken: "Community service in campus library (3 hours); verbal reprimand by Vice Principal.",
+    reportedBy: "Security Marshal Verma",
+    parentNotified: true,
+    status: "RESOLVED",
+    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+  },
+];
+
 // ============================================================================
 // SINGLETON SHARED STORE IMPLEMENTATION
 // ============================================================================
@@ -683,6 +1031,11 @@ class SharedDataStore {
   private ledgers: Record<string, SharedLedgerTransaction[]> = { ...initialLedgers };
   private approvals: SharedApproval[] = [...initialApprovals];
   private notices: SharedNotice[] = [...initialNotices];
+  private admissions: SharedAdmission[] = [...initialAdmissions];
+  private vendors: SharedVendor[] = [...initialVendors];
+  private expenses: SharedExpense[] = [...initialExpenses];
+  private leaveRequests: SharedLeaveRequest[] = [...initialLeaveRequests];
+  private disciplineRecords: SharedDisciplineRecord[] = [...initialDisciplineRecords];
 
   // --------------------------------------------------------------------------
   // ATTENDANCE METHODS
@@ -1125,6 +1478,248 @@ class SharedDataStore {
     };
     this.approvals.unshift(newApproval);
     return newApproval;
+  }
+
+  // --------------------------------------------------------------------------
+  // ADMISSIONS
+  // --------------------------------------------------------------------------
+
+  public getAdmissions(schoolId?: string): SharedAdmission[] {
+    if (schoolId) {
+      return this.admissions.filter((a) => a.schoolId === schoolId);
+    }
+    return [...this.admissions];
+  }
+
+  public getAdmissionById(id: string): SharedAdmission | undefined {
+    return this.admissions.find((a) => a.id === id);
+  }
+
+  public createAdmission(input: Omit<SharedAdmission, "id" | "createdAt" | "updatedAt">): SharedAdmission {
+    const id = `adm-${Date.now()}`;
+    const newAdmission: SharedAdmission = {
+      ...input,
+      id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.admissions.unshift(newAdmission);
+    return newAdmission;
+  }
+
+  public updateAdmissionStatus(
+    id: string,
+    status: SharedAdmission["status"],
+    notes?: string
+  ): SharedAdmission | null {
+    const adm = this.admissions.find((a) => a.id === id);
+    if (!adm) return null;
+    adm.status = status;
+    if (notes !== undefined) adm.notes = notes;
+    adm.updatedAt = new Date().toISOString();
+    return adm;
+  }
+
+  public enrollAdmissionStudent(id: string): { admission: SharedAdmission; studentId: string } | null {
+    const adm = this.admissions.find((a) => a.id === id);
+    if (!adm) return null;
+    adm.status = "ENROLLED";
+    adm.updatedAt = new Date().toISOString();
+
+    const newStudentId = `std-${Date.now().toString().slice(-4)}`;
+    // Add to gradebook
+    this.gradebook.push({
+      studentId: newStudentId,
+      studentName: adm.applicantName,
+      studentNumber: `SCH-${new Date().getFullYear()}-${newStudentId.slice(-3)}`,
+      house: "Tagore House",
+      paper1: 0,
+      paper2: 0,
+      internalAssessment: 0,
+      oralSeminar: 0,
+      weightedTotal: 0,
+      predictedGrade: "A",
+      academicStanding: "GOOD_STANDING",
+    });
+
+    // Add to attendance
+    this.attendance.push({
+      id: `att-${Date.now()}`,
+      studentId: newStudentId,
+      studentName: adm.applicantName,
+      form: adm.gradeApplyingFor,
+      house: "Tagore House",
+      turnstileTime: "Enrolled",
+      status: "PRESENT",
+      date: new Date().toISOString().split("T")[0],
+    });
+
+    return { admission: adm, studentId: newStudentId };
+  }
+
+  // --------------------------------------------------------------------------
+  // VENDORS & PROCUREMENT
+  // --------------------------------------------------------------------------
+
+  public getVendors(schoolId?: string): SharedVendor[] {
+    if (schoolId) {
+      return this.vendors.filter((v) => v.schoolId === schoolId);
+    }
+    return [...this.vendors];
+  }
+
+  public createVendor(input: Omit<SharedVendor, "id" | "createdAt">): SharedVendor {
+    const id = `ven-${Date.now()}`;
+    const newVendor: SharedVendor = {
+      ...input,
+      id,
+      createdAt: new Date().toISOString(),
+    };
+    this.vendors.unshift(newVendor);
+    return newVendor;
+  }
+
+  public updateVendor(id: string, patch: Partial<SharedVendor>): SharedVendor | null {
+    const ven = this.vendors.find((v) => v.id === id);
+    if (!ven) return null;
+    Object.assign(ven, patch);
+    return ven;
+  }
+
+  // --------------------------------------------------------------------------
+  // EXPENSES
+  // --------------------------------------------------------------------------
+
+  public getExpenses(schoolId?: string): SharedExpense[] {
+    if (schoolId) {
+      return this.expenses.filter((e) => e.schoolId === schoolId);
+    }
+    return [...this.expenses];
+  }
+
+  public getExpenseById(id: string): SharedExpense | undefined {
+    return this.expenses.find((e) => e.id === id);
+  }
+
+  public createExpense(input: Partial<Omit<SharedExpense, "id" | "createdAt">> & { vendorName: string; amount: number; invoiceNumber?: string; submittedBy?: string }): SharedExpense {
+    const id = `exp-${Date.now()}`;
+    const newExpense: SharedExpense = {
+      schoolId: input.schoolId || "11111111-1111-1111-1111-111111111111",
+      expenseNumber: input.expenseNumber || `EXP-${Date.now().toString().slice(-4)}`,
+      vendorId: input.vendorId || `ven-${Date.now()}`,
+      vendorName: input.vendorName,
+      category: input.category || "OPERATIONAL",
+      amount: input.amount,
+      currency: input.currency || "INR",
+      description: input.description || "Vendor expense",
+      invoiceDate: input.invoiceDate || new Date().toISOString().split("T")[0],
+      status: input.status || "PENDING_APPROVAL",
+      approvedBy: input.approvedBy,
+      approvedAt: input.approvedAt,
+      paymentReference: input.paymentReference,
+      id,
+      createdAt: new Date().toISOString(),
+    };
+    this.expenses.unshift(newExpense);
+    return newExpense;
+  }
+
+  public updateExpenseStatus(
+    id: string,
+    status: SharedExpense["status"],
+    approvedBy?: string,
+    paymentRef?: string
+  ): SharedExpense | null {
+    const exp = this.expenses.find((e) => e.id === id);
+    if (!exp) return null;
+    exp.status = status;
+    if (approvedBy) {
+      exp.approvedBy = approvedBy;
+      exp.approvedAt = new Date().toISOString();
+    }
+    if (paymentRef) {
+      exp.paymentReference = paymentRef;
+    }
+    return exp;
+  }
+
+  // --------------------------------------------------------------------------
+  // LEAVE REQUESTS
+  // --------------------------------------------------------------------------
+
+  public getLeaveRequests(schoolId?: string, applicantId?: string): SharedLeaveRequest[] {
+    let list = [...this.leaveRequests];
+    if (schoolId) list = list.filter((l) => l.schoolId === schoolId);
+    if (applicantId) list = list.filter((l) => l.applicantId === applicantId);
+    return list;
+  }
+
+  public createLeaveRequest(input: Partial<Omit<SharedLeaveRequest, "id" | "createdAt">> & { reason: string; studentId?: string; studentName?: string; form?: string }): SharedLeaveRequest {
+    const id = `lve-${Date.now()}`;
+    const newLeave: SharedLeaveRequest = {
+      schoolId: input.schoolId || "11111111-1111-1111-1111-111111111111",
+      applicantType: input.applicantType || "STUDENT",
+      applicantId: input.applicantId || input.studentId || "std-01",
+      applicantName: input.applicantName || input.studentName || "Student",
+      startDate: input.startDate || new Date().toISOString().split("T")[0],
+      endDate: input.endDate || new Date().toISOString().split("T")[0],
+      reason: input.reason,
+      leaveType: input.leaveType || "CASUAL",
+      status: input.status || "PENDING",
+      reviewedBy: input.reviewedBy,
+      reviewNotes: input.reviewNotes,
+      reviewedAt: input.reviewedAt,
+      id,
+      createdAt: new Date().toISOString(),
+    };
+    this.leaveRequests.unshift(newLeave);
+    return newLeave;
+  }
+
+  public updateLeaveRequestStatus(
+    id: string,
+    status: SharedLeaveRequest["status"],
+    reviewedBy?: string,
+    notes?: string
+  ): SharedLeaveRequest | null {
+    const leave = this.leaveRequests.find((l) => l.id === id);
+    if (!leave) return null;
+    leave.status = status;
+    if (reviewedBy) {
+      leave.reviewedBy = reviewedBy;
+      leave.reviewedAt = new Date().toISOString();
+    }
+    if (notes) leave.reviewNotes = notes;
+    return leave;
+  }
+
+  // --------------------------------------------------------------------------
+  // DISCIPLINE
+  // --------------------------------------------------------------------------
+
+  public getDisciplineRecords(schoolId?: string, studentId?: string): SharedDisciplineRecord[] {
+    let list = [...this.disciplineRecords];
+    if (schoolId) list = list.filter((d) => d.schoolId === schoolId);
+    if (studentId) list = list.filter((d) => d.studentId === studentId);
+    return list;
+  }
+
+  public createDisciplineRecord(input: Omit<SharedDisciplineRecord, "id" | "createdAt">): SharedDisciplineRecord {
+    const id = `dis-${Date.now()}`;
+    const newRecord: SharedDisciplineRecord = {
+      ...input,
+      id,
+      createdAt: new Date().toISOString(),
+    };
+    this.disciplineRecords.unshift(newRecord);
+    return newRecord;
+  }
+
+  public updateDisciplineStatus(id: string, status: SharedDisciplineRecord["status"]): SharedDisciplineRecord | null {
+    const rec = this.disciplineRecords.find((d) => d.id === id);
+    if (!rec) return null;
+    rec.status = status;
+    return rec;
   }
 }
 

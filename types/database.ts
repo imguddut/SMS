@@ -16,7 +16,7 @@ export type UserRole =
   | "PARENT"
   | "STUDENT";
 
-export type SchoolStatus = "PROVISIONING" | "ACTIVE" | "TRIAL" | "SUSPENDED";
+export type SchoolStatus = "PROVISIONING" | "ACTIVE" | "INACTIVE" | "TRIAL" | "SUSPENDED" | "ARCHIVED";
 export type UserStatus = "ACTIVE" | "INVITED" | "SUSPENDED";
 export type StudentStatus = "ACTIVE" | "GRADUATED" | "WITHDRAWN" | "SUSPENDED";
 export type AttendanceStatus = "PRESENT" | "ABSENT" | "EXCUSED" | "LATE";

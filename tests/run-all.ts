@@ -20,6 +20,7 @@ console.log("===================================================================
 
 const testFiles = [
   path.join(process.cwd(), "tests/unit/utils.test.ts"),
+  path.join(process.cwd(), "tests/unit/portal-modules-unit.test.ts"),
   path.join(process.cwd(), "tests/modules/portal-modules.test.ts"),
   path.join(process.cwd(), "tests/integration/cross-portal-lifecycles.test.ts"),
   path.join(process.cwd(), "tests/security/security-and-isolation.test.ts"),

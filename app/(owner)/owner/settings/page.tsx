@@ -18,6 +18,7 @@ import {
   Layers,
   Save,
   Check,
+  Plus,
 } from "lucide-react";
 import {
   fetchOwnerSchoolSettings,
@@ -95,6 +96,16 @@ export default function OwnerSettingsPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Link href="/organization/add-school">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs font-medium border-blue-500/30 text-blue-600 dark:text-blue-400 hover:bg-blue-500/10"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                + Add Another School
+              </Button>
+            </Link>
             <Button
               variant="primary"
               size="sm"

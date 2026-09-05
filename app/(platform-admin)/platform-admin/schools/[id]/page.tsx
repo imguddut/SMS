@@ -26,12 +26,18 @@ import {
   Layers,
   FileSpreadsheet,
   Download,
+  Trash2,
+  ShieldAlert,
+  Loader2,
+  Power,
+  PowerOff,
 } from "lucide-react";
 import {
   fetchSchoolById,
   SchoolWithDetails,
   updateSchoolStatus,
   updateSchoolSettings,
+  deleteSchool,
 } from "@/lib/db/platform-admin";
 import { SchoolStatus } from "@/types/database";
 
@@ -46,6 +52,8 @@ export default function PlatformAdminSchoolDetailPage() {
   >("telemetry");
   const [loading, setLoading] = React.useState(true);
   const [savingSettings, setSavingSettings] = React.useState(false);
+  const [showDeleteModal, setShowDeleteModal] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const loadSchool = React.useCallback(async () => {
     if (!schoolId) return;
@@ -68,6 +76,18 @@ export default function PlatformAdminSchoolDetailPage() {
     if (!school) return;
     await updateSchoolStatus(school.id, nextStatus);
     loadSchool();
+  };
+
+  const handleDelete = async () => {
+    if (!school) return;
+    setIsDeleting(true);
+    try {
+      await deleteSchool(school.id);
+      router.push("/platform-admin/schools");
+    } catch (e) {
+      console.error(e);
+      setIsDeleting(false);
+    }
   };
 
   const handleToggleSetting = async (key: string, currentValue: boolean) => {
@@ -141,24 +161,43 @@ export default function PlatformAdminSchoolDetailPage() {
             </Link>
 
             {school.status === "ACTIVE" ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleStatusChange("SUSPENDED")}
-                className="text-xs text-rose-600 hover:bg-rose-50 border-rose-200"
-              >
-                Suspend School
-              </Button>
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleStatusChange("INACTIVE")}
+                  className="text-xs text-amber-600 hover:bg-amber-50 border-amber-200 gap-1"
+                >
+                  <PowerOff className="w-3.5 h-3.5" /> Deactivate
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleStatusChange("SUSPENDED")}
+                  className="text-xs text-slate-600 hover:bg-slate-50 border-slate-200"
+                >
+                  Suspend
+                </Button>
+              </>
             ) : (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleStatusChange("ACTIVE")}
-                className="text-xs text-emerald-600 hover:bg-emerald-50 border-emerald-200"
+                className="text-xs text-emerald-600 hover:bg-emerald-50 border-emerald-200 gap-1 font-medium"
               >
-                Activate School
+                <Power className="w-3.5 h-3.5" /> Activate School
               </Button>
             )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDeleteModal(true)}
+              className="text-xs text-rose-600 hover:bg-rose-50 border-rose-200 gap-1.5 font-medium"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Delete School
+            </Button>
           </div>
         </div>
 
@@ -595,6 +634,66 @@ export default function PlatformAdminSchoolDetailPage() {
               ))}
             </div>
           </Card>
+        )}
+
+        {/* Delete School Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-[#0E1B33] border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                  <ShieldAlert className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-lg font-bold text-slate-900 dark:text-slate-100">
+                    Delete School Institution?
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    This action will permanently purge the school record and return to directory.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-3 border border-slate-200 dark:border-slate-800 space-y-1 text-xs">
+                <div className="font-semibold text-slate-800 dark:text-slate-200">
+                  {school.legal_name}
+                </div>
+                <div className="text-slate-500 font-mono text-[11px]">
+                  ID: {school.id} • Slug: {school.slug}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isDeleting}
+                  onClick={() => setShowDeleteModal(false)}
+                  className="text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={isDeleting}
+                  onClick={handleDelete}
+                  className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold gap-1.5 shadow-sm"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Deleting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Yes, Delete School</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
         )}
 
         <PlatformAdminFooter />

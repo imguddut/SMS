@@ -109,7 +109,7 @@ export interface SchoolTenant {
   domain?: string | null;
   currency?: string;
   base_currency?: string;
-  status: "ACTIVE" | "TRIAL" | "PROVISIONING" | "SUSPENDED" | "ARCHIVED";
+  status: "ACTIVE" | "INACTIVE" | "TRIAL" | "PROVISIONING" | "SUSPENDED" | "ARCHIVED";
   logo_url?: string | null;
   city?: string | null;
   created_at: string;

@@ -53,7 +53,7 @@ export interface PlatformAuditLog {
 }
 
 // Fallback seed data if DB is cold or offline
-const FALLBACK_SCHOOLS: SchoolWithDetails[] = [
+let FALLBACK_SCHOOLS: SchoolWithDetails[] = [
   {
     id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
     legal_name: "Delhi Public School, R.K. Puram",
@@ -478,11 +478,47 @@ export async function updateSchoolStatus(id: string, status: SchoolStatus) {
       newValues: { status },
     });
 
+    const school = FALLBACK_SCHOOLS.find((s) => s.id === id);
+    if (school) {
+      school.status = status;
+    }
+
     return { success: true, data };
   } catch (err: any) {
     console.warn("updateSchoolStatus offline fallback:", err.message);
+    const school = FALLBACK_SCHOOLS.find((s) => s.id === id);
+    if (school) {
+      school.status = status;
+    }
     return { success: true };
   }
+}
+
+export async function deleteSchool(id: string) {
+  try {
+    const supabase = createClient();
+    await supabase.from("sections").delete().eq("school_id", id);
+    await supabase.from("classes").delete().eq("school_id", id);
+    await supabase.from("academic_years").delete().eq("school_id", id);
+    await supabase.from("schools").delete().eq("id", id);
+  } catch (err: any) {
+    console.warn("deleteSchool fallback:", err.message);
+  }
+
+  const idx = FALLBACK_SCHOOLS.findIndex((s) => s.id === id);
+  if (idx !== -1) {
+    FALLBACK_SCHOOLS.splice(idx, 1);
+  }
+
+  await logAudit({
+    schoolId: id,
+    actorId: "b0000000-0000-0000-0000-000000000001",
+    action: "SCHOOL_DELETED" as any,
+    entityTable: "schools",
+    entityId: id,
+  });
+
+  return { success: true };
 }
 
 export async function updateSchoolSettings(id: string, settings: Record<string, any>) {

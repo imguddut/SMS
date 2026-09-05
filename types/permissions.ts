@@ -160,4 +160,38 @@ export type Permission =
   | "timetable.create"
   | "timetable.read"
   | "timetable.update"
-  | "timetable.archive";
+  | "timetable.archive"
+
+  // Admissions
+  | "admission.create"
+  | "admission.read"
+  | "admission.update"
+  | "admission.approve"
+  | "admission.reject"
+  | "admission.enroll"
+
+  // Expenses & Vouchers
+  | "expense.create"
+  | "expense.read"
+  | "expense.update"
+  | "expense.approve"
+  | "expense.reject"
+  | "expense.pay"
+
+  // Vendors
+  | "vendor.create"
+  | "vendor.read"
+  | "vendor.update"
+  | "vendor.archive"
+
+  // Leave Requests
+  | "leave.create"
+  | "leave.read"
+  | "leave.approve"
+  | "leave.reject"
+
+  // Discipline & Behavioral
+  | "discipline.create"
+  | "discipline.read"
+  | "discipline.update"
+  | "discipline.resolve";
