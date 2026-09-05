@@ -782,7 +782,12 @@ class SharedDataStore {
   // HOMEWORK & SUBMISSION METHODS
   // --------------------------------------------------------------------------
 
-  public getHomeworkAssignments(): SharedHomeworkAssignment[] {
+  public getHomeworkAssignments(formOrClass?: string): SharedHomeworkAssignment[] {
+    if (formOrClass) {
+      return this.homeworkAssignments.filter(
+        (h) => h.form === formOrClass || h.className.includes(formOrClass)
+      );
+    }
     return [...this.homeworkAssignments];
   }
 
@@ -803,6 +808,10 @@ class SharedDataStore {
       return this.homeworkSubmissions.filter((s) => s.homeworkId === homeworkId);
     }
     return [...this.homeworkSubmissions];
+  }
+
+  public getStudentSubmissions(studentId: string): SharedHomeworkSubmission[] {
+    return this.homeworkSubmissions.filter((s) => s.studentId === studentId);
   }
 
   public submitHomework(payload: {
@@ -963,6 +972,13 @@ class SharedDataStore {
     ];
   }
 
+  public getLedgerTransactions(studentId?: string): SharedLedgerTransaction[] {
+    if (studentId) {
+      return this.getStudentLedgerTransactions(studentId);
+    }
+    return Object.values(this.ledgers).flat();
+  }
+
   public postLedgerTx(studentId: string, tx: SharedLedgerTransaction): void {
     if (!this.ledgers[studentId]) {
       this.ledgers[studentId] = [];
@@ -993,8 +1009,16 @@ class SharedDataStore {
     };
   }
 
+  public getBursaryFinancialSnapshot() {
+    const stats = this.getFinanceTreasuryStats();
+    return {
+      ...stats,
+      totalCollectionsTerm: stats.realizedReceipts,
+    };
+  }
+
   public getParentDigest(wardId: string = "ward-01") {
-    const stdId = wardId === "ward-02" ? "std-02" : "std-01";
+    const stdId = (wardId === "ward-02" || wardId === "std-02") ? "std-02" : "std-01";
     const wardInvoices = this.invoices.filter((i) => i.studentId === stdId);
     const pendingInvoices = wardInvoices.filter((i) => i.status === "PENDING" || i.status === "OVERDUE");
     const unpaidBalance = pendingInvoices.reduce((acc, inv) => acc + inv.amount, 0);
@@ -1027,6 +1051,10 @@ class SharedDataStore {
       pendingHomeworkCount: pendingHw,
       unreadNoticesCount: unreadNotices,
     };
+  }
+
+  public getParentPortalSummary(wardOrStudentId: string = "std-01") {
+    return this.getParentDigest(wardOrStudentId);
   }
 
   // --------------------------------------------------------------------------

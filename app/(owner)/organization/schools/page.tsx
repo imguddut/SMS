@@ -50,7 +50,7 @@ export default function OrganizationSchoolsPage() {
             </p>
           </div>
           <Link href="/organization/add-school">
-            <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white text-xs gap-1.5 shadow-sm">
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs gap-1.5 shadow-sm font-medium">
               <PlusCircle className="w-4 h-4" /> Add School
             </Button>
           </Link>
@@ -75,42 +75,42 @@ export default function OrganizationSchoolsPage() {
             return (
               <Card
                 key={school.id}
-                className={`border transition-all ${
+                className={`border transition-all duration-200 ${
                   isSelected
-                    ? "border-amber-500 ring-1 ring-amber-500/30 bg-amber-50/20 dark:bg-amber-950/20"
-                    : "border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900"
+                    ? "border-blue-500 ring-1 ring-blue-500/30 bg-blue-50/20 dark:bg-blue-950/20"
+                    : "border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1528]"
                 }`}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 font-bold">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-bold">
                       {school.school_code || "SCH"}
                     </span>
                     <Badge variant="neutral" className="text-[10px] text-emerald-700 border-emerald-300">
                       {school.status}
                     </Badge>
                   </div>
-                  <CardTitle className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
+                  <CardTitle className="font-serif text-base font-bold text-slate-900 dark:text-slate-100">
                     {school.legal_name}
                   </CardTitle>
-                  <p className="text-xs text-stone-500 flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3 h-3 text-stone-400" /> {school.city || "Main Campus"}
+                  <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                    <MapPin className="w-3 h-3 text-slate-400" /> {school.city || "Main Campus"}
                   </p>
                 </CardHeader>
                 <CardContent className="pt-0 space-y-3">
-                  <div className="flex items-center justify-between text-xs text-stone-500 pt-2 border-t border-stone-100 dark:border-stone-800">
+                  <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <span>Currency: <strong>{school.currency || school.base_currency || "INR"}</strong></span>
                     <Button
                       variant={isSelected ? "primary" : "outline"}
                       size="sm"
                       onClick={() => switchSchool(school.id)}
-                      className="text-xs h-7"
+                      className={`text-xs h-7 ${isSelected ? "bg-blue-600 hover:bg-blue-700 text-white" : ""}`}
                     >
                       {isSelected ? "Active Campus" : "Set Active"}
                     </Button>
                   </div>
                   <Link href="/school/overview">
-                    <Button variant="ghost" size="sm" className="w-full text-xs h-7 text-amber-700 dark:text-amber-400 gap-1">
+                    <Button variant="ghost" size="sm" className="w-full text-xs h-7 text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 gap-1">
                       Enter School Space <ArrowUpRight className="w-3 h-3" />
                     </Button>
                   </Link>

@@ -1,11 +1,8 @@
 import { createClient } from "@/lib/supabase/client";
-<<<<<<< Updated upstream
 import { logAudit, AuditAction } from "@/lib/services/audit-service";
 import { createNotice as createNoticeService } from "@/lib/services/notice-service";
 import { decideApproval } from "@/lib/services/approval-service";
-=======
 import { sharedStore } from "@/lib/db/shared-store";
->>>>>>> Stashed changes
 
 export interface SchoolOperationsStats {
   morningAttendanceRate: string;
@@ -345,11 +342,22 @@ export async function createNotice(payload: {
   audience: "ALL_CAMPUS" | "FACULTY_ONLY" | "SENIOR_WING" | "PARENTS_ONLY";
   priority: "URGENT" | "ACADEMIC" | "GENERAL";
 }): Promise<CampusNoticeItem> {
-<<<<<<< Updated upstream
+  const newNotice = sharedStore.createNotice({
+    title: payload.title,
+    body: payload.content,
+    summary: payload.content.slice(0, 120),
+    category: payload.audience === "PARENTS_ONLY" ? "GOVERNANCE" : "ACADEMIC",
+    author: "Dr. Arvind Swaminathan (Principal)",
+    date: new Date().toISOString().split("T")[0],
+    priority: payload.priority === "URGENT" ? "URGENT" : "STANDARD",
+    requiresConsent: payload.priority === "URGENT",
+    isSigned: false,
+  });
+
   const schoolId = "11111111-1111-1111-1111-111111111111";
   const authorId = "b0000000-0000-0000-0000-000000000004";
+  let noticeId = newNotice.id;
 
-  let noticeId = "not-" + Math.random().toString(36).substring(2, 8);
   try {
     const res = await createNoticeService(schoolId, {
       authorId,
@@ -373,35 +381,6 @@ export async function createNotice(payload: {
 
   return {
     id: noticeId,
-=======
-  const newNotice = sharedStore.createNotice({
-    title: payload.title,
-    body: payload.content,
-    summary: payload.content.slice(0, 120),
-    category: payload.audience === "PARENTS_ONLY" ? "GOVERNANCE" : "ACADEMIC",
-    author: "Dr. Arvind Swaminathan (Principal)",
-    date: new Date().toISOString().split("T")[0],
-    priority: payload.priority === "URGENT" ? "URGENT" : "STANDARD",
-    requiresConsent: payload.priority === "URGENT",
-    isSigned: false,
-  });
-
-  const supabase = createClient();
-  try {
-    await supabase.from("notices").insert({
-      title: payload.title,
-      content: payload.content,
-      audience: payload.audience,
-      priority: payload.priority,
-      author_name: "Dr. Arvind Swaminathan",
-    });
-  } catch (err) {
-    console.warn("Supabase insert for createNotice:", err);
-  }
-
-  return {
-    id: newNotice.id,
->>>>>>> Stashed changes
     title: payload.title,
     content: payload.content,
     audience: payload.audience,
@@ -434,30 +413,17 @@ export async function updateApprovalStatus(
   id: string,
   status: "APPROVED" | "REJECTED"
 ): Promise<{ success: boolean; signatureHash?: string }> {
-<<<<<<< Updated upstream
   const schoolId = "11111111-1111-1111-1111-111111111111";
   const deciderId = "b0000000-0000-0000-0000-000000000003"; // Principal Claire De La Tour
+  const signatureHash = "SIG-PRINCIPAL-9942-APAAR-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+  sharedStore.updateApprovalStatus(id, status, signatureHash);
 
   try {
     await decideApproval(id, deciderId, status);
   } catch (err) {
     console.warn("Approval service fallback:", err);
   }
-
-  const signatureHash = "SIG-PRINCIPAL-9942-APAAR-" + Math.random().toString(36).substring(2, 10).toUpperCase();
-
-  await logAudit({
-    schoolId,
-    actorId: deciderId,
-    action: AuditAction.APPROVAL_DECIDED,
-    entityTable: "approvals",
-    entityId: id,
-    newValues: { status, signatureHash },
-  });
-
-=======
-  const signatureHash = "SIG-PRINCIPAL-9942-APAAR-" + Math.random().toString(36).substring(2, 10).toUpperCase();
-  sharedStore.updateApprovalStatus(id, status, signatureHash);
 
   const supabase = createClient();
   try {
@@ -469,7 +435,15 @@ export async function updateApprovalStatus(
     console.warn("Supabase update for updateApprovalStatus:", err);
   }
 
->>>>>>> Stashed changes
+  await logAudit({
+    schoolId,
+    actorId: deciderId,
+    action: AuditAction.APPROVAL_DECIDED,
+    entityTable: "approvals",
+    entityId: id,
+    newValues: { status, signatureHash },
+  });
+
   return {
     success: true,
     signatureHash,

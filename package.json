@@ -2,12 +2,21 @@
   "name": "agragati-school-os",
   "version": "1.0.0",
   "private": true,
+  "imports": {
+    "@/*": "./*"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "npx tsx tests/run-all.ts",
+    "test:unit": "npx tsx tests/unit/utils.test.ts",
+    "test:modules": "npx tsx tests/modules/portal-modules.test.ts",
+    "test:integration": "npx tsx tests/integration/cross-portal-lifecycles.test.ts",
+    "test:security": "npx tsx tests/security/security-and-isolation.test.ts",
+    "test:e2e": "npx tsx tests/e2e/routes-and-navigation.test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
