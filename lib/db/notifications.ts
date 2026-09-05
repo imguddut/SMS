@@ -101,6 +101,30 @@ const MOCK_NOTIFICATIONS: NotificationItem[] = [
     linkUrl: "/student/homework",
     actionText: "View Assignment",
   },
+  {
+    id: "notif-06",
+    roleTarget: "SUPER_ADMIN",
+    category: "SYSTEM",
+    title: "Multi-Tenant Fleet Status Nominal",
+    message: "National hardware security modules active. All organization tenants synchronized.",
+    timestamp: "4 hours ago",
+    priority: "NORMAL",
+    isRead: false,
+    linkUrl: "/platform-admin/overview",
+    actionText: "View Fleet",
+  },
+  {
+    id: "notif-07",
+    roleTarget: "ORGANIZATION_OWNER",
+    category: "TREASURY",
+    title: "Consolidated Treasury Payout Processed",
+    message: "Monthly multi-school fee collection settled to Trust Central Reserve Account.",
+    timestamp: "5 hours ago",
+    priority: "NORMAL",
+    isRead: false,
+    linkUrl: "/organization",
+    actionText: "View Treasury",
+  },
 ];
 
 // Category mapping from DB to UI
