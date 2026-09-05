@@ -17,6 +17,7 @@ import {
 } from "@/lib/db/student";
 import { triggerClientDownload } from "@/lib/utils";
 import { PdfPreviewModal, PDFStudentMetadata } from "@/components/ui/pdf-preview-modal";
+import { useRealtimeEvent } from "@/components/providers/realtime-provider";
 import {
   Calendar,
   CalendarDays,
@@ -91,6 +92,24 @@ export default function StudentHomePage() {
     }
     loadData();
   }, []);
+
+  useRealtimeEvent("homework_assignments", "*", async () => {
+    try {
+      const hwData = await fetchStudentHomeworkList();
+      setHomework(hwData);
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  useRealtimeEvent("notices", "*", async () => {
+    try {
+      const noticeData = await fetchStudentNotices();
+      setNotices(noticeData);
+    } catch (err) {
+      console.error(err);
+    }
+  });
 
   const handleQuickSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

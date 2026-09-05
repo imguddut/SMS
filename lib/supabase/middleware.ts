@@ -1,6 +1,8 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { UserRole } from "@/types/auth";
+import { UserRole, CanonicalUserRole, normalizeRole, getRoleHomeRoute } from "@/types/roles";
+
+export { getRoleHomeRoute };
 
 interface CookieToSet {
   name: string;
@@ -12,9 +14,12 @@ interface CookieToSet {
 // Role → allowed route prefixes mapping
 // ---------------------------------------------------------------------------
 
-const ROLE_ROUTE_MAP: Record<UserRole, string[]> = {
-  SUPER_ADMIN: ["/platform-admin"],
-  OWNER: ["/owner"],
+const ROLE_ROUTE_MAP: Record<CanonicalUserRole, string[]> = {
+  PLATFORM_ADMIN: ["/platform", "/platform-admin"],
+  ORGANIZATION_OWNER: ["/organization", "/owner"],
+  ORGANIZATION_ADMIN: ["/organization", "/owner"],
+  ORGANIZATION_FINANCE: ["/organization", "/owner", "/finance"],
+  ORGANIZATION_VIEWER: ["/organization", "/owner"],
   PRINCIPAL: ["/school"],
   SCHOOL_ADMIN: ["/school"],
   TEACHER: ["/teacher"],
@@ -23,10 +28,10 @@ const ROLE_ROUTE_MAP: Record<UserRole, string[]> = {
   STUDENT: ["/student"],
 };
 
-function getRoleFromPath(path: string): UserRole | null {
-  if (path.startsWith("/platform-admin")) return "SUPER_ADMIN";
-  if (path.startsWith("/owner")) return "OWNER";
-  if (path.startsWith("/school")) return "SCHOOL_ADMIN"; // PRINCIPAL shares this
+function getRoleFromPath(path: string): CanonicalUserRole | null {
+  if (path.startsWith("/platform") || path.startsWith("/platform-admin")) return "PLATFORM_ADMIN";
+  if (path.startsWith("/organization") || path.startsWith("/owner")) return "ORGANIZATION_OWNER";
+  if (path.startsWith("/school")) return "SCHOOL_ADMIN";
   if (path.startsWith("/teacher")) return "TEACHER";
   if (path.startsWith("/finance")) return "ACCOUNTANT";
   if (path.startsWith("/parent")) return "PARENT";
@@ -97,56 +102,50 @@ export async function updateSession(request: NextRequest) {
 
   // Public paths
   const isAuthPage =
-    path.startsWith("/login") ||
-    path.startsWith("/forgot-password") ||
-    path.startsWith("/reset-password") ||
+    path === "/login" ||
+    path === "/forgot-password" ||
+    path === "/reset-password" ||
     path.startsWith("/auth");
 
-  // Protect internal routes if unauthenticated
-  if (!isAuthenticated && !isAuthPage && path !== "/") {
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+  const isStaticAsset =
+    path.startsWith("/_next") ||
+    path.startsWith("/api") ||
+    path.startsWith("/favicon.ico") ||
+    path.includes(".");
+
+  if (isStaticAsset) {
+    return supabaseResponse;
   }
 
-  // Role-based route enforcement: prevent accessing another role's portal
-  if (isAuthenticated && activeRole && !isAuthPage && path !== "/") {
-    const targetRole = getRoleFromPath(path);
-    if (targetRole) {
-      const allowedPrefixes = ROLE_ROUTE_MAP[activeRole];
-      // PRINCIPAL can also access /school routes
-      const isAllowed = allowedPrefixes?.some((prefix) => path.startsWith(prefix));
-      // Also allow PRINCIPAL to access school routes
-      const isPrincipalOnSchool = activeRole === "PRINCIPAL" && path.startsWith("/school");
+  // 1. Unauthenticated users trying to access protected routes -> redirect to /login
+  if (!isAuthenticated && !isAuthPage && path !== "/") {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirect", path);
+    return NextResponse.redirect(loginUrl);
+  }
 
-      if (!isAllowed && !isPrincipalOnSchool) {
-        // Redirect to the user's own portal home
-        url.pathname = getRoleHomeRoute(activeRole);
-        return NextResponse.redirect(url);
+  // 2. Authenticated users visiting / or /login -> redirect to their portal
+  if (isAuthenticated && (isAuthPage || path === "/")) {
+    const canonical = normalizeRole(activeRole);
+    const targetRoute = getRoleHomeRoute(canonical);
+    return NextResponse.redirect(new URL(targetRoute, request.url));
+  }
+
+  // 3. Role-based Route Protection (Prevent cross-portal privilege escalation)
+  if (isAuthenticated && activeRole) {
+    const requiredRoleForPath = getRoleFromPath(path);
+    if (requiredRoleForPath) {
+      const canonicalUserRole = normalizeRole(activeRole);
+      const allowedPrefixes = ROLE_ROUTE_MAP[canonicalUserRole] || [];
+      const hasAccess = allowedPrefixes.some((prefix) => path.startsWith(prefix));
+
+      if (!hasAccess) {
+        // Redirect to their own authorized portal home
+        const fallbackRoute = getRoleHomeRoute(canonicalUserRole);
+        return NextResponse.redirect(new URL(fallbackRoute, request.url));
       }
     }
   }
 
   return supabaseResponse;
-}
-
-export function getRoleHomeRoute(role: UserRole): string {
-  switch (role) {
-    case "SUPER_ADMIN":
-      return "/platform-admin/overview";
-    case "OWNER":
-      return "/owner/overview";
-    case "PRINCIPAL":
-    case "SCHOOL_ADMIN":
-      return "/school/overview";
-    case "TEACHER":
-      return "/teacher/my-day";
-    case "ACCOUNTANT":
-      return "/finance/dashboard";
-    case "PARENT":
-      return "/parent/home";
-    case "STUDENT":
-      return "/student/home";
-    default:
-      return "/login";
-  }
 }

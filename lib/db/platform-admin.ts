@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { Database, SchoolStatus } from "@/types/database";
+import { logAudit, AuditAction } from "@/lib/services/audit-service";
 
 export type SchoolRecord = Database["public"]["Tables"]["schools"]["Row"];
 export type UserProfileRecord = Database["public"]["Tables"]["users_profiles"]["Row"];
@@ -433,6 +434,15 @@ export async function createSchoolWithAdmin(payload: {
     is_current: true,
   });
 
+  await logAudit({
+    schoolId: school.id,
+    actorId: "b0000000-0000-0000-0000-000000000001",
+    action: "SCHOOL_PROVISIONED",
+    entityTable: "schools",
+    entityId: school.id,
+    newValues: { legalName: payload.legal_name, slug: payload.slug },
+  });
+
   return { school, profile };
 }
 
@@ -447,6 +457,16 @@ export async function updateSchoolStatus(id: string, status: SchoolStatus) {
       .single();
 
     if (error) throw error;
+
+    await logAudit({
+      schoolId: id,
+      actorId: "b0000000-0000-0000-0000-000000000001",
+      action: "SCHOOL_STATUS_UPDATED",
+      entityTable: "schools",
+      entityId: id,
+      newValues: { status },
+    });
+
     return { success: true, data };
   } catch (err: any) {
     console.warn("updateSchoolStatus offline fallback:", err.message);
@@ -465,6 +485,16 @@ export async function updateSchoolSettings(id: string, settings: Record<string, 
       .single();
 
     if (error) throw error;
+
+    await logAudit({
+      schoolId: id,
+      actorId: "b0000000-0000-0000-0000-000000000001",
+      action: AuditAction.SCHOOL_SETTINGS_UPDATED,
+      entityTable: "schools",
+      entityId: id,
+      newValues: settings,
+    });
+
     return { success: true, data };
   } catch (err: any) {
     console.warn("updateSchoolSettings offline fallback:", err.message);

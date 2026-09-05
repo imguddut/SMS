@@ -24,6 +24,7 @@ import {
   updateApprovalStatus,
   ExecutiveApprovalWarrant,
 } from "@/lib/db/school-admin";
+import { useRealtimeEvent } from "@/components/providers/realtime-provider";
 
 export default function SchoolApprovalsPage() {
   const [warrants, setWarrants] = React.useState<ExecutiveApprovalWarrant[]>([]);
@@ -46,6 +47,15 @@ export default function SchoolApprovalsPage() {
     }
     load();
   }, []);
+
+  useRealtimeEvent("approvals", "*", async () => {
+    try {
+      const data = await fetchApprovalsQueue();
+      setWarrants(data);
+    } catch (e) {
+      console.error(e);
+    }
+  });
 
   const handleAction = async (id: string, action: "APPROVED" | "REJECTED") => {
     const res = await updateApprovalStatus(id, action);

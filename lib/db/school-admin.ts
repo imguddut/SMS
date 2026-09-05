@@ -1,4 +1,7 @@
 import { createClient } from "@/lib/supabase/client";
+import { logAudit, AuditAction } from "@/lib/services/audit-service";
+import { createNotice as createNoticeService } from "@/lib/services/notice-service";
+import { decideApproval } from "@/lib/services/approval-service";
 
 export interface SchoolOperationsStats {
   morningAttendanceRate: string;
@@ -335,8 +338,33 @@ export async function createNotice(payload: {
   audience: "ALL_CAMPUS" | "FACULTY_ONLY" | "SENIOR_WING" | "PARENTS_ONLY";
   priority: "URGENT" | "ACADEMIC" | "GENERAL";
 }): Promise<CampusNoticeItem> {
+  const schoolId = "11111111-1111-1111-1111-111111111111";
+  const authorId = "b0000000-0000-0000-0000-000000000004";
+
+  let noticeId = "not-" + Math.random().toString(36).substring(2, 8);
+  try {
+    const res = await createNoticeService(schoolId, {
+      authorId,
+      title: payload.title,
+      contentMarkdown: payload.content,
+      targetAudiences: [payload.audience],
+    });
+    if (res?.noticeId) noticeId = res.noticeId;
+  } catch (err) {
+    console.warn("Notice service fallback:", err);
+  }
+
+  await logAudit({
+    schoolId,
+    actorId: authorId,
+    action: AuditAction.NOTICE_CREATED,
+    entityTable: "notices",
+    entityId: noticeId,
+    newValues: { title: payload.title, audience: payload.audience },
+  });
+
   return {
-    id: "not-" + Math.random().toString(36).substring(2, 8),
+    id: noticeId,
     title: payload.title,
     content: payload.content,
     audience: payload.audience,
@@ -417,9 +445,29 @@ export async function updateApprovalStatus(
   id: string,
   status: "APPROVED" | "REJECTED"
 ): Promise<{ success: boolean; signatureHash?: string }> {
+  const schoolId = "11111111-1111-1111-1111-111111111111";
+  const deciderId = "b0000000-0000-0000-0000-000000000003"; // Principal Claire De La Tour
+
+  try {
+    await decideApproval(id, deciderId, status);
+  } catch (err) {
+    console.warn("Approval service fallback:", err);
+  }
+
+  const signatureHash = "SIG-PRINCIPAL-9942-APAAR-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+  await logAudit({
+    schoolId,
+    actorId: deciderId,
+    action: AuditAction.APPROVAL_DECIDED,
+    entityTable: "approvals",
+    entityId: id,
+    newValues: { status, signatureHash },
+  });
+
   return {
     success: true,
-    signatureHash: "SIG-PRINCIPAL-9942-APAAR-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
+    signatureHash,
   };
 }
 

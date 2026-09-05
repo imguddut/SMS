@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { sharedStore, SharedAttendanceItem, SharedHomeworkAssignment, SharedHomeworkSubmission, SharedGradebookEntry } from "@/lib/db/shared-store";
+import { logAudit, AuditAction } from "@/lib/services/audit-service";
 
 export interface TeacherPeriodSession {
   id: string;
@@ -405,6 +406,15 @@ export async function submitAttendance(payload: {
     console.warn("Supabase upsert for submitAttendance:", err);
   }
 
+  await logAudit({
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    actorId: "b0000000-0000-0000-0000-000000000005",
+    action: AuditAction.ATTENDANCE_MARKED,
+    entityTable: "attendance_records",
+    entityId: payload.classId,
+    newValues: { classId: payload.classId, count: payload.attendance.length, date: today },
+  });
+
   return { success: true, hash };
 }
 
@@ -528,6 +538,15 @@ export async function createHomeworkAssignment(payload: {
     console.warn("Supabase insert for createHomeworkAssignment:", err);
   }
 
+  await logAudit({
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    actorId: "b0000000-0000-0000-0000-000000000005",
+    action: AuditAction.HOMEWORK_CREATED,
+    entityTable: "homework_assignments",
+    entityId: newHw.id,
+    newValues: { title: payload.title, maxMarks: payload.maxMarks, dueDate: payload.dueDate },
+  });
+
   return newHw;
 }
 
@@ -616,6 +635,15 @@ export async function gradeSubmission(
     console.warn("Supabase update for gradeSubmission:", err);
   }
 
+  await logAudit({
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    actorId: "b0000000-0000-0000-0000-000000000005",
+    action: AuditAction.HOMEWORK_GRADED,
+    entityTable: "homework_submissions",
+    entityId: subId,
+    newValues: { marks: finalMarks, feedback: finalFeedback },
+  });
+
   return { success: true };
 }
 
@@ -693,6 +721,15 @@ export async function saveGradebookMarks(payload: {
   } catch (err) {
     console.warn("Supabase upsert for saveGradebookMarks:", err);
   }
+
+  await logAudit({
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    actorId: "b0000000-0000-0000-0000-000000000005",
+    action: AuditAction.MARKS_ENTERED,
+    entityTable: "marks_entries",
+    entityId: payload.classId,
+    newValues: { classId: payload.classId, rowCount: targetRows.length, sealHash },
+  });
 
   return {
     success: true,

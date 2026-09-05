@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { sharedStore, SharedInvoice, SharedHomeworkAssignment, SharedHomeworkSubmission, SharedNotice } from "@/lib/db/shared-store";
+import { logAudit, AuditAction } from "@/lib/services/audit-service";
 
 export interface ParentWardProfile {
   id: string;
@@ -278,13 +279,33 @@ export async function submitAbsenceExcuse(payload: {
     console.warn("Supabase insert for submitAbsenceExcuse:", err);
   }
 
+  await logAudit({
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    actorId: "b0000000-0000-0000-0000-000000000007",
+    action: AuditAction.ATTENDANCE_UPDATED,
+    entityTable: "approvals",
+    entityId: approval.id,
+    newValues: { date: dateStr, reason: payload.reason },
+  });
+
   return { success: true, id: approval.id };
 }
 
 // READ: Invoices for Ward
 export async function fetchWardInvoices(wardId: string): Promise<WardFeeInvoice[]> {
-  const stdId = wardId === "ward-02" ? "std-02" : "std-01";
-  const storeInvoices = sharedStore.getInvoices().filter((i) => !i.studentId || i.studentId === stdId || i.studentId === "std-01");
+  const isWard2 = wardId === "ward-02" || wardId === "s2";
+  const storeInvoices = sharedStore.getInvoices().filter((i) => {
+    if (!i.studentId) return true;
+    if (isWard2) {
+      return i.studentId === "ward-02" || i.studentId === "std-02" || i.studentId === "s2";
+    }
+    return (
+      i.studentId === wardId ||
+      i.studentId === "ward-01" ||
+      i.studentId === "std-01" ||
+      i.studentId === "c0000000-0000-0000-0000-000000000008"
+    );
+  });
 
   const supabase = createClient();
   try {
@@ -376,6 +397,15 @@ export async function payInvoice(
   } catch (err) {
     console.warn("Supabase update for payInvoice:", err);
   }
+
+  await logAudit({
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    actorId: "b0000000-0000-0000-0000-000000000007",
+    action: AuditAction.PAYMENT_RECORDED,
+    entityTable: "payments",
+    entityId: invId,
+    newValues: { invoiceId: invId, paymentMethod: pMethod, receiptRef: result.receiptRef },
+  });
 
   return { ...result, receiptNumber: result.receiptRef };
 }
@@ -545,6 +575,15 @@ export async function signNoticeConsent(
   } catch (err) {
     console.warn("Supabase insert for signNoticeConsent:", err);
   }
+
+  await logAudit({
+    schoolId: "11111111-1111-1111-1111-111111111111",
+    actorId: "b0000000-0000-0000-0000-000000000007",
+    action: "NOTICE_CONSENT_SIGNED",
+    entityTable: "notices",
+    entityId: notId,
+    newValues: { signer: signerName, signedDate },
+  });
 
   return { success: true, signedDate };
 }
