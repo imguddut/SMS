@@ -214,34 +214,29 @@ export async function markNotificationRead(notificationId: string): Promise<void
 
 export const markNotificationAsRead = markNotificationRead;
 
-/**
- * Mark all notifications as read for a user or role.
- */
-export async function markAllRead(userProfileIdOrRole: string): Promise<void> {
+export async function markAllNotificationsAsRead(userProfileIdOrRole?: string | UserRole): Promise<void> {
   try {
     const supabase = createClient();
     await supabase
       .from("notifications")
       .update({ is_read: true })
-      .eq("recipient_user_id", userProfileIdOrRole)
+      .eq("recipient_user_id", userProfileIdOrRole || "default-user")
       .eq("is_read", false);
   } catch (err) {
-    console.warn("markAllRead failed:", err);
+    console.warn("markAllNotificationsAsRead failed:", err);
   }
 }
 
-export async function markAllNotificationsAsRead(role: UserRole): Promise<void> {
-  await markAllRead(role);
-}
+export const markAllRead = markAllNotificationsAsRead;
 
 /**
  * Fetch notifications for a user/role with unread count.
  */
-export async function fetchUserNotifications(role: UserRole): Promise<{
+export async function fetchUserNotifications(role?: UserRole): Promise<{
   notifications: NotificationItem[];
   unreadCount: number;
 }> {
-  const items = await fetchNotifications(role, role);
+  const items = await fetchNotifications(role || "default-user", role);
   const unreadCount = items.filter((n) => !n.isRead).length;
   return {
     notifications: items,
@@ -300,22 +295,6 @@ export async function createNotification(params: {
   } catch (err) {
     console.warn("createNotification failed:", err);
   }
-}
-
-export async function fetchUserNotifications(
-  role?: UserRole
-): Promise<{ notifications: NotificationItem[]; unreadCount: number }> {
-  const items = await fetchNotifications("default-user", role);
-  const unreadCount = items.filter((n) => !n.isRead).length;
-  return { notifications: items, unreadCount };
-}
-
-export async function markNotificationAsRead(id: string): Promise<void> {
-  return markNotificationRead(id);
-}
-
-export async function markAllNotificationsAsRead(userProfileId?: string): Promise<void> {
-  return markAllRead(userProfileId || "default-user");
 }
 
 // Webhook events (still mock for now, planned for future)
