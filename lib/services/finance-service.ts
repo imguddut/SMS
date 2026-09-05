@@ -6,6 +6,7 @@
  */
 
 import { createClient } from "@/lib/supabase/client";
+import { sharedStore } from "@/lib/db/shared-store";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -405,9 +406,13 @@ export async function recordPayment(
         .eq("id", invoiceId);
     }
 
+    // Sync to cross-portal reactive store
+    sharedStore.payInvoice(invoiceId, data.paymentMethod);
+
     return { paymentId: payment!.id, receiptNumber };
   } catch (err) {
     console.warn("recordPayment fallback:", err);
+    sharedStore.payInvoice(invoiceId, data.paymentMethod);
     return { paymentId: "pay-" + Date.now(), receiptNumber: `RCP-${Date.now()}` };
   }
 }

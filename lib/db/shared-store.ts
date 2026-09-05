@@ -105,10 +105,19 @@ export interface SharedLedgerTransaction {
 
 export interface SharedApproval {
   id: string;
-  approvalType: string;
-  status: "PENDING" | "APPROVED" | "REJECTED";
-  petitionerNotes: string;
-  createdAt: string;
+  type: "BURSARY_WAIVER" | "LEAVE_REQUEST" | "EXCURSION_AUTHORIZATION" | "GRADEBOOK_PUBLICATION" | "STAFF_APPOINTMENT";
+  approvalType?: string;
+  title: string;
+  applicant: string;
+  applicantRole: string;
+  departmentOrHouse: string;
+  amountOrScope: string;
+  dateRequested: string;
+  justification: string;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "ESCROW";
+  petitionerNotes?: string;
+  createdAt?: string;
+  signatureHash?: string;
 }
 
 export interface SharedNotice {
@@ -583,6 +592,84 @@ const initialNotices: SharedNotice[] = [
   },
 ];
 
+const initialApprovals: SharedApproval[] = [
+  {
+    id: "war-01",
+    type: "BURSARY_WAIVER",
+    approvalType: "BURSARY_WAIVER",
+    title: "National Science Olympiad Rank 1 Merit Scholarship Waiver",
+    applicant: "Rajesh Sharma",
+    applicantRole: "Parent • PTA Representative",
+    departmentOrHouse: "Tagore House",
+    amountOrScope: "₹ 36,250 Tuition Credit",
+    dateRequested: "Today, 09:15 IST",
+    justification: "Senior Scholar Aarav Sharma scored All-India Rank 1 in NSO and qualified for the International Science Delegation.",
+    status: "PENDING",
+    petitionerNotes: "NSO Rank 1 Scholarship request for Aarav Sharma",
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+  },
+  {
+    id: "war-02",
+    type: "LEAVE_REQUEST",
+    approvalType: "LEAVE_REQUEST",
+    title: "CBSE National Capacity Building Workshop Attendance",
+    applicant: "Prof. Rajesh Verma",
+    applicantRole: "Senior PGT Mathematics & HOD",
+    departmentOrHouse: "Mathematics & Computer Science",
+    amountOrScope: "3 Working Days (Jan 15–17, 2025)",
+    dateRequested: "Yesterday, 14:20 IST",
+    justification: "Representing school as Master Trainer at CBSE Centre of Excellence Workshop on NEP 2020 Competency-Based Assessment.",
+    status: "PENDING",
+    petitionerNotes: "CBSE workshop leave request",
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
+  },
+  {
+    id: "war-03",
+    type: "EXCURSION_AUTHORIZATION",
+    approvalType: "EXCURSION_AUTHORIZATION",
+    title: "ISRO Space Applications Centre Study Tour",
+    applicant: "Mrs. Sunita Deshmukh",
+    applicantRole: "Vice Principal & Science Dean",
+    departmentOrHouse: "Senior Secondary Science & AI",
+    amountOrScope: "₹ 45,000 Departmental Budget (35 Students)",
+    dateRequested: "2 days ago",
+    justification: "Educational field tour for Class 11 and 12 Physics & AI students to ISRO Space Centre.",
+    status: "PENDING",
+    petitionerNotes: "ISRO Study Tour budget approval",
+    createdAt: new Date(Date.now() - 172800000).toISOString(),
+  },
+  {
+    id: "war-04",
+    type: "GRADEBOOK_PUBLICATION",
+    approvalType: "GRADEBOOK_PUBLICATION",
+    title: "Term 2 Pre-Board Marksheets Digital Seal Warrant",
+    applicant: "Mrs. Sunita Deshmukh",
+    applicantRole: "Academic Dean",
+    departmentOrHouse: "Examination Cell",
+    amountOrScope: "3,250 Student Gradebooks Sealed",
+    dateRequested: "Today, 11:00 CET",
+    justification: "All departmental moderation meetings concluded. DigiLocker APAAR hashes generated for all student report cards.",
+    status: "PENDING",
+    petitionerNotes: "Term 2 Pre-Board seal authorization",
+    createdAt: new Date(Date.now() - 7200000).toISOString(),
+  },
+  {
+    id: "war-05",
+    type: "STAFF_APPOINTMENT",
+    approvalType: "STAFF_APPOINTMENT",
+    title: "Robotics & Artificial Intelligence Lab Equipment Requisition",
+    applicant: "Rameshwar Gupta",
+    applicantRole: "Chief Accounts Officer",
+    departmentOrHouse: "School Infrastructure & Technology",
+    amountOrScope: "₹ 1,85,000 Capital Budget",
+    dateRequested: "3 days ago",
+    justification: "Procurement of 15 IoT development kits and 3D printing modules for the ATL Innovation Lab.",
+    status: "PENDING",
+    petitionerNotes: "Robotics lab equipment acquisition",
+    createdAt: new Date(Date.now() - 259200000).toISOString(),
+  },
+];
+
 // ============================================================================
 // SINGLETON SHARED STORE IMPLEMENTATION
 // ============================================================================
@@ -594,7 +681,7 @@ class SharedDataStore {
   private gradebook: SharedGradebookEntry[] = [...initialGradebook];
   private invoices: SharedInvoice[] = [...initialInvoices];
   private ledgers: Record<string, SharedLedgerTransaction[]> = { ...initialLedgers };
-  private approvals: SharedApproval[] = [];
+  private approvals: SharedApproval[] = [...initialApprovals];
   private notices: SharedNotice[] = [...initialNotices];
 
   // --------------------------------------------------------------------------
@@ -961,10 +1048,50 @@ class SharedDataStore {
     return false;
   }
 
-  public addApproval(approval: Omit<SharedApproval, "id" | "createdAt">): SharedApproval {
+  public createNotice(notice: Omit<SharedNotice, "id">): SharedNotice {
+    const id = `not-${Date.now()}`;
+    const newNotice: SharedNotice = {
+      id,
+      ...notice,
+    };
+    this.notices.unshift(newNotice);
+    return newNotice;
+  }
+
+  public getApprovals(): SharedApproval[] {
+    return [...this.approvals];
+  }
+
+  public getPendingApprovalsCount(): number {
+    return this.approvals.filter((a) => a.status === "PENDING").length;
+  }
+
+  public updateApprovalStatus(id: string, status: "APPROVED" | "REJECTED", signatureHash?: string): boolean {
+    const app = this.approvals.find((a) => a.id === id);
+    if (app) {
+      app.status = status;
+      if (signatureHash) app.signatureHash = signatureHash;
+      return true;
+    }
+    return false;
+  }
+
+  public addApproval(approval: Partial<SharedApproval> & { petitionerNotes?: string }): SharedApproval {
     const id = `appr-${Date.now()}`;
+    const defaultType = (approval.type || approval.approvalType || "LEAVE_REQUEST") as SharedApproval["type"];
     const newApproval: SharedApproval = {
       id,
+      type: defaultType,
+      approvalType: defaultType,
+      title: approval.title || (defaultType === "LEAVE_REQUEST" ? "Exemption / Leave Request" : "Student Excursion / Gate Pass"),
+      applicant: approval.applicant || "School Community Member",
+      applicantRole: approval.applicantRole || "Applicant",
+      departmentOrHouse: approval.departmentOrHouse || "Senior Wing",
+      amountOrScope: approval.amountOrScope || "1 Request",
+      dateRequested: approval.dateRequested || "Just now",
+      justification: approval.justification || approval.petitionerNotes || "Request submitted via portal.",
+      status: approval.status || "PENDING",
+      petitionerNotes: approval.petitionerNotes || "",
       createdAt: new Date().toISOString(),
       ...approval,
     };

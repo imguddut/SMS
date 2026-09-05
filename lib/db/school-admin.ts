@@ -1,7 +1,11 @@
 import { createClient } from "@/lib/supabase/client";
+<<<<<<< Updated upstream
 import { logAudit, AuditAction } from "@/lib/services/audit-service";
 import { createNotice as createNoticeService } from "@/lib/services/notice-service";
 import { decideApproval } from "@/lib/services/approval-service";
+=======
+import { sharedStore } from "@/lib/db/shared-store";
+>>>>>>> Stashed changes
 
 export interface SchoolOperationsStats {
   morningAttendanceRate: string;
@@ -89,13 +93,16 @@ export interface CampusReportItem {
 
 // Data Fetchers with Real DB Query & Live Fallback
 export async function fetchSchoolOperationsStats(schoolId?: string): Promise<SchoolOperationsStats> {
+  const pendingCount = sharedStore.getPendingApprovalsCount();
+  const treasury = sharedStore.getFinanceTreasuryStats();
+
   return {
     morningAttendanceRate: "97.4%",
     presentCount: 3165,
     totalStudents: 3250,
-    pendingApprovalsCount: 5,
+    pendingApprovalsCount: pendingCount,
     activeRosterUnits: 96,
-    dailyVaultSettlement: 426000,
+    dailyVaultSettlement: treasury.dailyReconciledAmount || 426000,
     currency: "INR",
     houseAttendance: [
       { house: "Tagore House (Senior Boys)", rate: "98.6%", present: 410, total: 416 },
@@ -338,6 +345,7 @@ export async function createNotice(payload: {
   audience: "ALL_CAMPUS" | "FACULTY_ONLY" | "SENIOR_WING" | "PARENTS_ONLY";
   priority: "URGENT" | "ACADEMIC" | "GENERAL";
 }): Promise<CampusNoticeItem> {
+<<<<<<< Updated upstream
   const schoolId = "11111111-1111-1111-1111-111111111111";
   const authorId = "b0000000-0000-0000-0000-000000000004";
 
@@ -365,6 +373,35 @@ export async function createNotice(payload: {
 
   return {
     id: noticeId,
+=======
+  const newNotice = sharedStore.createNotice({
+    title: payload.title,
+    body: payload.content,
+    summary: payload.content.slice(0, 120),
+    category: payload.audience === "PARENTS_ONLY" ? "GOVERNANCE" : "ACADEMIC",
+    author: "Dr. Arvind Swaminathan (Principal)",
+    date: new Date().toISOString().split("T")[0],
+    priority: payload.priority === "URGENT" ? "URGENT" : "STANDARD",
+    requiresConsent: payload.priority === "URGENT",
+    isSigned: false,
+  });
+
+  const supabase = createClient();
+  try {
+    await supabase.from("notices").insert({
+      title: payload.title,
+      content: payload.content,
+      audience: payload.audience,
+      priority: payload.priority,
+      author_name: "Dr. Arvind Swaminathan",
+    });
+  } catch (err) {
+    console.warn("Supabase insert for createNotice:", err);
+  }
+
+  return {
+    id: newNotice.id,
+>>>>>>> Stashed changes
     title: payload.title,
     content: payload.content,
     audience: payload.audience,
@@ -377,74 +414,27 @@ export async function createNotice(payload: {
 }
 
 export async function fetchApprovalsQueue(): Promise<ExecutiveApprovalWarrant[]> {
-  return [
-    {
-      id: "war-01",
-      type: "BURSARY_WAIVER",
-      title: "National Science Olympiad Rank 1 Merit Scholarship Waiver",
-      applicant: "Rajesh Sharma",
-      applicantRole: "Parent • PTA Representative",
-      departmentOrHouse: "Tagore House",
-      amountOrScope: "₹ 36,250 Tuition Credit",
-      dateRequested: "Today, 09:15 IST",
-      justification: "Senior Scholar Aarav Sharma scored All-India Rank 1 in NSO and qualified for the International Science Delegation.",
-      status: "PENDING",
-    },
-    {
-      id: "war-02",
-      type: "LEAVE_REQUEST",
-      title: "CBSE National Capacity Building Workshop Attendance",
-      applicant: "Prof. Rajesh Verma",
-      applicantRole: "Senior PGT Mathematics & HOD",
-      departmentOrHouse: "Mathematics & Computer Science",
-      amountOrScope: "3 Working Days (Jan 15–17, 2025)",
-      dateRequested: "Yesterday, 14:20 IST",
-      justification: "Representing school as Master Trainer at CBSE Centre of Excellence Workshop on NEP 2020 Competency-Based Assessment.",
-      status: "PENDING",
-    },
-    {
-      id: "war-03",
-      type: "EXCURSION_AUTHORIZATION",
-      title: "ISRO Space Applications Centre Study Tour",
-      applicant: "Mrs. Sunita Deshmukh",
-      applicantRole: "Vice Principal & Science Dean",
-      departmentOrHouse: "Senior Secondary Science & AI",
-      amountOrScope: "₹ 45,000 Departmental Budget (35 Students)",
-      dateRequested: "2 days ago",
-      justification: "Educational field tour for Class 11 and 12 Physics & AI students to ISRO Space Centre.",
-      status: "PENDING",
-    },
-    {
-      id: "war-04",
-      type: "GRADEBOOK_PUBLICATION",
-      title: "Term 2 Pre-Board Marksheets Digital Seal Warrant",
-      applicant: "Mrs. Sunita Deshmukh",
-      applicantRole: "Academic Dean",
-      departmentOrHouse: "Examination Cell",
-      amountOrScope: "3,250 Student Gradebooks Sealed",
-      dateRequested: "Today, 11:00 CET",
-      justification: "All departmental moderation meetings concluded. DigiLocker APAAR hashes generated for all student report cards.",
-      status: "PENDING",
-    },
-    {
-      id: "war-05",
-      type: "STAFF_APPOINTMENT",
-      title: "Robotics & Artificial Intelligence Lab Equipment Requisition",
-      applicant: "Rameshwar Gupta",
-      applicantRole: "Chief Accounts Officer",
-      departmentOrHouse: "School Infrastructure & Technology",
-      amountOrScope: "₹ 1,85,000 Capital Budget",
-      dateRequested: "3 days ago",
-      justification: "Procurement of 15 IoT development kits and 3D printing modules for the ATL Innovation Lab.",
-      status: "PENDING",
-    },
-  ];
+  const storeApprovals = sharedStore.getApprovals();
+  return storeApprovals.map((app) => ({
+    id: app.id,
+    type: (app.type || "LEAVE_REQUEST") as ExecutiveApprovalWarrant["type"],
+    title: app.title,
+    applicant: app.applicant,
+    applicantRole: app.applicantRole,
+    departmentOrHouse: app.departmentOrHouse,
+    amountOrScope: app.amountOrScope,
+    dateRequested: app.dateRequested,
+    justification: app.justification,
+    status: app.status as ExecutiveApprovalWarrant["status"],
+    signatureHash: app.signatureHash,
+  }));
 }
 
 export async function updateApprovalStatus(
   id: string,
   status: "APPROVED" | "REJECTED"
 ): Promise<{ success: boolean; signatureHash?: string }> {
+<<<<<<< Updated upstream
   const schoolId = "11111111-1111-1111-1111-111111111111";
   const deciderId = "b0000000-0000-0000-0000-000000000003"; // Principal Claire De La Tour
 
@@ -465,6 +455,21 @@ export async function updateApprovalStatus(
     newValues: { status, signatureHash },
   });
 
+=======
+  const signatureHash = "SIG-PRINCIPAL-9942-APAAR-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+  sharedStore.updateApprovalStatus(id, status, signatureHash);
+
+  const supabase = createClient();
+  try {
+    await supabase
+      .from("approvals")
+      .update({ status, reviewed_at: new Date().toISOString() })
+      .eq("id", id);
+  } catch (err) {
+    console.warn("Supabase update for updateApprovalStatus:", err);
+  }
+
+>>>>>>> Stashed changes
   return {
     success: true,
     signatureHash,
