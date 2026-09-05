@@ -1,0 +1,275 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agragati Institutional Portal Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Fraunces', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              navy: '#141F38',
+              'navy-tint': '#26365C',
+              'navy-light': '#1E2D4F',
+              gold: '#C9A24B',
+              'gold-deep': '#9C7A32',
+              'gold-soft': '#F4ECE0',
+              canvas: '#FAFAF7',
+              charcoal: '#1C1E26',
+              gray: '#6B6F76',
+              'gray-light': '#9C9FA6',
+              border: 'rgba(28, 30, 38, 0.08)',
+              'border-subtle': 'rgba(28, 30, 38, 0.06)',
+            }
+          },
+          boxShadow: {
+            'academic': '0 4px 20px -2px rgba(20, 31, 56, 0.05), 0 1px 3px 0 rgba(20, 31, 56, 0.02)',
+            'academic-lift': '0 12px 36px -4px rgba(20, 31, 56, 0.08), 0 2px 6px 0 rgba(20, 31, 56, 0.03)',
+            'gold-focus': '0 0 0 3px rgba(201, 162, 75, 0.22)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Subtle archival banknote grid & fine stipple background texture */
+    .bg-academic-texture {
+      background-color: #FAFAF7;
+      background-image: 
+        radial-gradient(circle at 50% 18%, rgba(201, 162, 75, 0.035) 0%, transparent 60%),
+        radial-gradient(#141F38 0.65px, transparent 0.65px),
+        linear-gradient(to right, rgba(20, 31, 56, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(20, 31, 56, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 28px 28px, 112px 112px, 112px 112px;
+      background-position: 0 0, 14px 14px, 0 0, 0 0;
+    }
+    .fine-rule {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201, 162, 75, 0.35) 25%, rgba(20, 31, 56, 0.12) 50%, rgba(201, 162, 75, 0.35) 75%, transparent);
+    }
+  </style>
+</head>
+<body class="bg-academic-texture min-h-screen text-brand-charcoal font-sans antialiased flex flex-col justify-between selection:bg-brand-gold/20 selection:text-brand-navy">
+
+  <!-- Top Minimal Utility Header -->
+  <header class="w-full px-6 py-5 flex items-center justify-between z-10 border-b border-brand-border-subtle bg-brand-canvas/60 backdrop-blur-sm">
+    <div class="flex items-center space-x-3">
+      <!-- Minimal Abstract Chevron Emblem -->
+      <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-navy shadow-sm">
+        <svg class="w-4 h-4 text-brand-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"></polyline>
+          <line x1="12" y1="9" x2="12" y2="21" stroke-width="1.8"></line>
+        </svg>
+      </div>
+      <div class="flex items-baseline space-x-2 flex-wrap">
+        <span class="font-serif text-lg tracking-tight font-medium text-brand-navy">Agragati</span>
+        <span class="text-[11px] font-sans uppercase tracking-[0.14em] text-brand-gray-light font-medium">Gateway</span>
+      </div>
+    </div>
+
+    <!-- Security & Institutional Protocol Indicator -->
+    <div class="flex items-center space-x-4 text-[12px] text-brand-gray">
+      <div class="hidden sm:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-white border border-brand-border text-brand-gray">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+        <span class="font-medium tracking-wide">FIPS 140-3 Cryptographic Core</span>
+      </div>
+      <div class="flex items-center space-x-1 hover:text-brand-navy cursor-pointer transition-colors">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 16v-4"></path>
+          <path d="M12 8h.01"></path>
+        </svg>
+        <span class="font-normal">Institutional Help Desk</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Centered Authentication Stage -->
+  <main class="flex-1 flex items-center justify-center px-4 py-12 z-10">
+    <div class="w-full max-w-[460px]">
+
+      <!-- Brand Presentation Above Card -->
+      <div class="text-center mb-8">
+        <!-- Abstract Chevron / Ascending Arrow Motif -->
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-navy mb-4 shadow-academic">
+          <svg class="w-7 h-7 text-brand-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+            <line x1="12" y1="9" x2="12" y2="21" stroke-width="1.8"></line>
+          </svg>
+        </div>
+
+        <div class="flex items-center justify-center space-x-2.5 mb-1.5">
+          <h1 class="font-serif text-3xl sm:text-[34px] tracking-tight font-medium text-brand-navy">
+            Agragati
+          </h1>
+          <span class="w-1 h-1 rounded-full bg-brand-gold"></span>
+          <span class="font-sans text-[11px] uppercase tracking-[0.2em] font-semibold text-brand-gold-deep bg-brand-gold-soft/70 px-2 py-0.5 rounded">
+            Enterprise
+          </span>
+        </div>
+
+        <!-- Tagline: Tracked-out, muted gray, beneath the wordmark -->
+        <p class="text-[12.5px] uppercase tracking-[0.22em] text-brand-gray font-medium">
+          Intelligence for Institutions
+        </p>
+      </div>
+
+      <!-- Main Login Card -->
+      <div class="bg-white rounded-[14px] border border-brand-border shadow-academic-lift p-8 sm:p-9 relative">
+        
+        <!-- Subtle Top Accent Rule -->
+        <div class="absolute top-0 inset-x-8 h-[2px] bg-gradient-to-r from-transparent via-brand-gold to-transparent opacity-80 rounded-t"></div>
+
+        <!-- Card Header / Title -->
+        <div class="mb-7">
+          <div class="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-gold-deep mb-1.5">
+            Institutional Single Sign-On
+          </div>
+          <h2 class="font-serif text-[22px] tracking-tight text-brand-navy font-normal leading-snug">
+            Sign in to your repository
+          </h2>
+          <p class="text-[13px] text-brand-gray mt-1 leading-relaxed">
+            Authorized access for Trustees, Bursars, Faculty, and Regents.
+          </p>
+        </div>
+
+        <!-- Authentication Form -->
+        <form class="space-y-5" onsubmit="event.preventDefault();">
+          
+          <!-- Institutional Email -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label for="email" class="block text-[12px] font-semibold uppercase tracking-[0.08em] text-brand-charcoal">
+                Institutional Email
+              </label>
+              <span class="text-[11px] text-brand-gray-light">ID or EdX Domain</span>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-brand-gray-light">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </div>
+              <input type="email" id="email" name="email" placeholder="chancellor@agragati.edu or regent.ox.ac.uk" value="provost.sterling@agragati.edu" class="w-full pl-10 pr-3.5 py-3 text-[14px] bg-[#FDFCFA] border border-brand-border rounded-[14px] text-brand-charcoal placeholder:text-brand-gray-light/60 focus:outline-none focus:border-brand-gold focus:bg-white focus:shadow-gold-focus transition-all duration-150" required="">
+            </div>
+          </div>
+
+          <!-- Password Field -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label for="password" class="block text-[12px] font-semibold uppercase tracking-[0.08em] text-brand-charcoal">
+                Security Passkey / Password
+              </label>
+              <a href="#" class="text-[12px] font-medium text-brand-gold-deep hover:underline transition-all">
+                Forgot passkey?
+              </a>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-brand-gray-light">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </div>
+              <input type="password" id="password" name="password" placeholder="••••••••••••••••" value="••••••••••••••••" class="w-full pl-10 pr-11 py-3 text-[14px] bg-[#FDFCFA] border border-brand-border rounded-[14px] text-brand-charcoal placeholder:text-brand-gray-light focus:outline-none focus:border-brand-gold focus:bg-white focus:shadow-gold-focus tracking-widest transition-all duration-150" required="">
+              <button type="button" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-brand-gray-light hover:text-brand-charcoal transition-colors" title="Toggle password visibility">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Institutional Session & Hardware Security Key -->
+          <div class="flex items-center justify-between pt-1">
+            <label class="flex items-center space-x-2.5 cursor-pointer select-none">
+              <input type="checkbox" checked="" class="w-4 h-4 rounded border-brand-border text-brand-navy accent-brand-navy focus:ring-0 focus:ring-offset-0 transition">
+              <span class="text-[12.5px] text-brand-gray font-normal">Remember institution terminal (30 days)</span>
+            </label>
+          </div>
+
+          <!-- Primary Accent CTA: Solid Bronze-Gold Fill with Ink-Navy Text (The One Hero CTA per Screen) -->
+          <div class="pt-2">
+            <button type="submit" class="w-full flex items-center justify-center space-x-2 py-3.5 px-6 rounded-[10px] bg-brand-gold hover:bg-[#D4AF57] active:bg-brand-gold-deep text-brand-navy font-semibold text-[14px] tracking-wide transition-all shadow-sm hover:shadow-md cursor-pointer">
+              <span>Authenticate &amp; Enter Portal</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Secondary Hardware Key / SSO Row -->
+          <div class="pt-2">
+            <div class="relative flex items-center justify-center my-4">
+              <div class="fine-rule w-full"></div>
+              <span class="bg-white px-3 text-[11px] uppercase tracking-[0.14em] text-brand-gray-light font-medium absolute">
+                or federated sign-in
+              </span>
+            </div>
+
+            <!-- SAML / FIDO2 Authentication Button -->
+            <button type="button" class="w-full flex items-center justify-center space-x-2.5 py-3 px-4 rounded-[10px] border border-brand-navy/20 hover:border-brand-navy hover:bg-brand-canvas text-brand-navy text-[13px] font-medium transition-all">
+              <svg class="w-4 h-4 text-brand-navy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+              <span>Log in via Institutional Identity Provider (SAML / Okta)</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Ledger & Session Verification Seal -->
+        <div class="mt-6 pt-5 border-t border-brand-border-subtle flex items-center justify-between text-[11.5px] text-brand-gray-light">
+          <div class="flex items-center space-x-1.5">
+            <svg class="w-3.5 h-3.5 text-brand-gold-deep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span>SHA-256 Verified Handshake</span>
+          </div>
+          <span class="text-brand-gray-light font-mono text-[11px]">Node #04-EU-LON</span>
+        </div>
+
+      </div>
+
+      <!-- Card Sub-Footer: Portal Selector & Switcher -->
+      <div class="mt-6 text-center">
+        <p class="text-[12.5px] text-brand-gray">
+          Need student or parent access? 
+          <a href="#" class="text-brand-navy font-medium underline underline-offset-4 hover:text-brand-gold-deep transition-colors ml-1">
+            Switch to Family Portal →
+          </a>
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Grounded Editorial Footer -->
+  <footer class="w-full px-6 py-5 border-t border-brand-border-subtle bg-brand-canvas/60 text-[12px] text-brand-gray z-10 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <div class="flex items-center space-x-2">
+      <span class="font-serif italic font-medium text-brand-navy">Agragati</span>
+      <span class="text-brand-gray-light">•</span>
+      <span>Autonomous School Operations &amp; Academic Intelligence</span>
+    </div>
+
+    <div class="flex items-center space-x-6 text-[11.5px]">
+      <span class="text-brand-gray-light">SOC-2 Type II Certified</span>
+      <a href="#" class="hover:text-brand-navy transition-colors">Privacy Charter</a>
+      <a href="#" class="hover:text-brand-navy transition-colors">Provost Cryptographic Terms</a>
+      <a href="#" class="hover:text-brand-navy transition-colors">Security Disclosures</a>
+    </div>
+  </footer>
+
+
+</body></html>

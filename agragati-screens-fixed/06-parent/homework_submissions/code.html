@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#faf8ff;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-high": "#e7e7f3", "inverse-surface": "#2e3039", "on-secondary-container": "#775800", "background": "#faf8ff", "on-primary-fixed": "#101b34", "surface-variant": "#e1e1ed", "on-surface-variant": "#45464d", "tertiary-container": "#0c1e43", "tertiary-fixed-dim": "#b6c6f4", "on-error": "#ffffff", "surface-bright": "#faf8ff", "primary-fixed": "#d9e2ff", "on-error-container": "#93000a", "inverse-on-surface": "#f0f0fb", "on-surface": "#191b23", "primary-fixed-dim": "#bbc6e7", "outline": "#76777e", "surface-tint": "#535e7a", "surface-container-highest": "#e1e1ed", "on-tertiary-container": "#7786b1", "on-primary-container": "#7c87a5", "secondary": "#795902", "primary": "#00061d", "tertiary": "#00061d", "on-background": "#191b23", "primary-container": "#141f38", "surface": "#faf8ff", "secondary-fixed-dim": "#ebc166", "on-primary-fixed-variant": "#3c4661", "error": "#ba1a1a", "error-container": "#ffdad6", "secondary-container": "#fdd275", "tertiary-fixed": "#dae2ff", "on-primary": "#ffffff", "secondary-fixed": "#ffdf9e", "inverse-primary": "#bbc6e7", "on-secondary-fixed": "#261a00", "on-secondary-fixed-variant": "#5b4300", "on-tertiary-fixed-variant": "#36466d", "surface-container-low": "#f3f3fe", "on-tertiary": "#ffffff", "on-secondary": "#ffffff", "surface-container-lowest": "#ffffff", "surface-dim": "#d9d9e4", "outline-variant": "#c6c6ce", "surface-container": "#ededf8", "on-tertiary-fixed": "#071a3f" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-3xl": "3rem", "space-4xl": "4rem", "gutter-mobile": "1rem", "space-sm": "0.75rem", "space-2xs": "0.25rem", "sidebar-collapsed-w": "4.5rem", "space-md": "1rem", "space-xl": "2rem", "sidebar-w": "17.5rem", "space-3xs": "0.125rem", "container-max": "88rem", "gutter-desktop": "1.5rem", "space-2xl": "2.5rem", "space-lg": "1.5rem", "space-xs": "0.5rem" }, fontFamily: { "body-lead": ["Public Sans", "sans-serif"], "headline-md": ["Newsreader", "serif"], "headline-lg": ["Newsreader", "serif"], "headline-sm": ["Newsreader", "serif"], "body-sm": ["Public Sans", "sans-serif"], "kpi-metric": ["Newsreader", "serif"], "label-ui": ["Public Sans", "sans-serif"], "kpi-metric-mobile": ["Newsreader", "serif"], "data-mono": ["Public Sans", "sans-serif"], "display-hero": ["Newsreader", "serif"], "eyebrow-accent": ["Public Sans", "sans-serif"], "body-default": ["Public Sans", "sans-serif"], "display-hero-mobile": ["Newsreader", "serif"] }, fontSize: { "body-lead": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "500" }], "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "kpi-metric": ["44px", { "lineHeight": "48px", "letterSpacing": "-0.025em", "fontWeight": "500" }], "label-ui": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "kpi-metric-mobile": ["32px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "500" }], "data-mono": ["13px", { "lineHeight": "18px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "400" }], "eyebrow-accent": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "700" }], "body-default": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "display-hero-mobile": ["38px", { "lineHeight": "44px", "letterSpacing": "-0.015em", "fontWeight": "400" }] } } } }</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-default text-body-default text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-gutter-mobile flex items-center justify-between"><div class="flex items-center gap-space-xs"><img alt="Refined minimal geometric emblem for Agragati — an abstract ascending arrow / forward-motion chevron motif crafted in warm antique gold (#C9A24B) paired with the serif wordmark Agragati in deep ink-navy.. Brand logo. - Primary color: #141f38
+- Font: newsreader
+- Mode: light
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UrkeALLQcyiRXFNcnm6c3hm9fHMdmIk2pHP-KuDZ3Lj9UrSQPIZOfyHGH49g-634kIOT8pd1u8swZteibYPL5TLlJdKt4QmH5MkZoAMkqGY_gTqcET1a1fVfqxJfznJXBGj0H_OrVLyG_qGFF2Fn9XrCLvNE9-rUVjTlom6HvHAS0Os_IwBac0ZeWePFoeuhJQN_x33bFvkXkN1kU8V8Gg4eQZWMzaDNqCmXwAR8LuUcxcevGQNAnTLwZf"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary leading-none tracking-tight">Agragati</span><span class="font-eyebrow-accent text-eyebrow-accent uppercase text-secondary tracking-wider">Parent Portal</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Notifications" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined">notifications</span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1UrUxxDb4c_9yNl9WcraOshMA02U_mRsdL7zpvimgJjs8r91Zvgx4ZxpPgqxLzym9wqi6T-Az1nEpQ6CTGrPPHPskE2Nic2pBHH8F0BMrxGoFVATumXFhm9Tm5pVR0myaVwYT-cQJshzt1q_fSGAyGV5GlzVhvkrGXkOejp6dsmt5nvL5ShvY5Udf0g1cVKIW7OqEykjkUtFGVwVDI3e5hBQ45Dgh3b0Hjkt-wGhKY1vbudiZV7OB2Y8daQ"/></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-20 bg-surface"><div class="flex flex-col w-full px-gutter-mobile gap-space-md pb-space-2xl">
+<!-- Student Identity Banner -->
+<div class="flex items-center justify-between bg-surface-container-low rounded-xl p-space-sm shadow-sm">
+<div class="flex items-center gap-space-sm">
+<div class="relative">
+<img class="w-12 h-12 rounded-full object-cover shadow-sm" data-alt="Editorial close portrait of Genevieve Laurent, a high school scholar girl in a formal navy blue blazer with brass crest buttons, softly illuminated by window daylight in a warm classical oak library, subtle depth, refined institutional photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkC1p2vtFrF-9z_oD5o4zQD_-tnpUPRprTMNR3-JdIiI1zGHi9iNfyFtV_nYBZgDQ5DYiTvaGYdik94VZPsU8JsOEdEfa5vZgcycpp2bFF6dvXNyhTt26MRv7flhwDRmj-C_jU_gXrhCmRdPYsZbuuVEzScCGwSwqDhpHOsY02Fy2SzljjO0JVJl2orH3qBxr__2CYXnr9hOLRs7hG6--Lmcsn9JNgws3TV52B9CylowKbYF9UcZ4PPw"/>
+<span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-secondary ring-2 ring-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-on-secondary font-bold">star</span>
+</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-2xs">
+<span class="font-eyebrow-accent text-eyebrow-accent uppercase text-secondary tracking-wider">Class of 2026</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-label-ui text-label-ui text-on-surface-variant">Grade 11 · IB Diploma</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-primary truncate">Genevieve Laurent</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-eyebrow-accent text-eyebrow-accent uppercase text-on-surface-variant">Curriculum Term</span>
+<span class="font-label-ui text-label-ui text-primary font-bold">Michaelmas Term</span>
+</div>
+</div>
+<!-- Filter Pills / Segmented Selector -->
+<div class="flex items-center gap-space-xs overflow-x-auto py-space-3xs no-scrollbar">
+<button class="px-space-sm py-space-2xs rounded-full bg-primary text-on-primary font-label-ui text-label-ui whitespace-nowrap shadow-sm transition-all flex items-center gap-1.5" id="tab-active" onclick="switchFilter('active')">
+<span>Active / Due</span>
+<span class="w-4 h-4 rounded-full bg-secondary text-on-secondary flex items-center justify-center text-[10px] font-bold">3</span>
+</button>
+<button class="px-space-sm py-space-2xs rounded-full bg-surface-container-high text-on-surface-variant font-label-ui text-label-ui whitespace-nowrap transition-all flex items-center gap-1.5" id="tab-submitted" onclick="switchFilter('submitted')">
+<span>Submitted</span>
+<span class="w-4 h-4 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center text-[10px]">5</span>
+</button>
+<button class="px-space-sm py-space-2xs rounded-full bg-surface-container-high text-on-surface-variant font-label-ui text-label-ui whitespace-nowrap transition-all flex items-center gap-1.5" id="tab-graded" onclick="switchFilter('graded')">
+<span>Graded & Reviewed</span>
+<span class="w-4 h-4 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center text-[10px]">12</span>
+</button>
+</div>
+<!-- Section Title -->
+<div class="flex items-baseline justify-between mt-space-2xs flex-wrap">
+<div class="flex items-baseline gap-space-2xs flex-wrap">
+<span class="font-headline-md text-headline-md text-primary">Academic Dossier</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(Term Week 9)</span>
+</div>
+<span class="font-eyebrow-accent text-eyebrow-accent uppercase text-secondary">3 Critical Tasks</span>
+</div>
+<!-- Assignment Cards List -->
+<div class="flex flex-col gap-space-md">
+<!-- Card 1: IB Chemistry HL (Featured Urgent) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm transition-all">
+<div class="flex items-start justify-between gap-space-xs">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-2xs mb-1">
+<span class="px-2 py-0.5 rounded bg-primary text-on-primary font-eyebrow-accent text-eyebrow-accent uppercase tracking-wider">IB Chem HL</span>
+<span class="font-label-ui text-label-ui text-on-surface-variant">Lab Portfolio IV</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-primary leading-snug">Calorimetry of Organic Hydrocarbons</h2>
+</div>
+<!-- Status Pill: Ochre / Warning -->
+<span class="px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-ui text-[11px] font-bold tracking-wide uppercase whitespace-nowrap shadow-sm">
+          Pending Submission
+        </span>
+</div>
+<!-- Detail Meta Row -->
+<div class="flex items-center gap-space-sm flex-wrap py-space-3xs">
+<div class="flex items-center gap-1 text-error">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="font-data-mono text-data-mono font-bold">Due: Tomorrow, 23:59</span>
+</div>
+<div class="w-1 h-1 rounded-full bg-outline-variant"></div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">person</span>
+<span class="font-body-sm text-body-sm">Dr. Eleanor Thorne</span>
+</div>
+</div>
+<!-- Instructions snippet quote -->
+<div class="bg-surface-container-low rounded-lg p-space-sm flex gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0">format_quote</span>
+<p class="font-body-default text-body-default text-on-surface italic leading-relaxed">
+          Upload formal PDF report with annotated uncertainty calculations and temperature graphs. Ensure enthalpy balance sheets follow SI conventions.
+        </p>
+</div>
+<!-- Attachment Preview Chip -->
+<div class="flex items-center justify-between bg-surface-container rounded-lg p-space-xs">
+<div class="flex items-center gap-space-xs min-w-0">
+<div class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">lab_profile</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-ui text-label-ui text-primary truncate">Lab_Protocol_Calorimetry_v2.pdf</span>
+<span class="font-eyebrow-accent text-eyebrow-accent text-on-surface-variant uppercase">Pre-lab brief · 1.8 MB</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary p-1">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+</div>
+<!-- Mobile Submission CTA Trigger -->
+<button class="w-full h-11 rounded-lg bg-secondary text-on-secondary font-label-ui text-label-ui uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-transform" onclick="openDrawer()">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+<span>Upload Work (PDF / Camera)</span>
+</button>
+</div>
+<!-- Card 2: AP English Literature -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-xs">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-2xs mb-1">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-eyebrow-accent text-eyebrow-accent uppercase tracking-wider">AP Literature</span>
+<span class="font-label-ui text-label-ui text-on-surface-variant">Critical Essay</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-primary leading-snug">Comparative Essay: Milton's Paradise Lost vs. Dante's Inferno</h2>
+</div>
+<!-- Status Pill: In Progress Draft -->
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface-variant font-label-ui text-[11px] font-bold tracking-wide uppercase whitespace-nowrap">
+          In Progress / Draft
+        </span>
+</div>
+<!-- Detail Meta Row -->
+<div class="flex items-center gap-space-sm flex-wrap">
+<div class="flex items-center gap-1 text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-secondary">event</span>
+<span class="font-data-mono text-data-mono">Due: Friday, Nov 8, 17:00</span>
+</div>
+<div class="w-1 h-1 rounded-full bg-outline-variant"></div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">person</span>
+<span class="font-body-sm text-body-sm">Mr. Julian Sterling</span>
+</div>
+</div>
+<!-- Draft Progress Bar -->
+<div class="flex flex-col gap-1.5 pt-space-3xs">
+<div class="flex items-center justify-between font-label-ui text-label-ui">
+<span class="text-on-surface-variant">Draft Word Count: 1,420 / 2,000 words</span>
+<span class="text-secondary font-bold">71%</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full rounded-full bg-secondary" style="width: 71%"></div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-2xs">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Auto-saved 24 mins ago</span>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container text-primary font-label-ui text-label-ui flex items-center gap-1 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">edit_document</span>
+<span>Open Google Doc</span>
+</button>
+</div>
+</div>
+<!-- Card 3: Pure Mathematics (Analysis & Approaches) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-xs">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-2xs mb-1">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-eyebrow-accent text-eyebrow-accent uppercase tracking-wider">Pure Math AA</span>
+<span class="font-label-ui text-label-ui text-on-surface-variant">Calculus & Vectors</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-primary leading-snug">Problem Set 9: Differential Equations & Maclaurin Series</h2>
+</div>
+<!-- Status Pill: Pending -->
+<span class="px-2.5 py-1 rounded-full bg-surface-variant text-on-surface font-label-ui text-[11px] font-bold tracking-wide uppercase whitespace-nowrap">
+          Pending
+        </span>
+</div>
+<!-- Detail Meta Row -->
+<div class="flex items-center gap-space-sm flex-wrap">
+<div class="flex items-center gap-1 text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-secondary">event</span>
+<span class="font-data-mono text-data-mono">Due: Monday, Nov 11, 08:30</span>
+</div>
+<div class="w-1 h-1 rounded-full bg-outline-variant"></div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">person</span>
+<span class="font-body-sm text-body-sm">Prof. Marcus Vance</span>
+</div>
+</div>
+<div class="flex items-center justify-between bg-surface-container-low p-space-xs rounded-lg">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">description</span>
+<span class="font-body-sm text-body-sm">PS_9_Worksheet_Calculus.pdf (14 questions)</span>
+</div>
+<button class="text-secondary font-label-ui text-label-ui font-bold hover:underline">View PDF</button>
+</div>
+</div>
+</div>
+<!-- Submitted & Graded Section (Collapsible Accordion / Highlight) -->
+<div class="mt-space-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-primary">Recent Evaluations</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-ui text-[11px]">Last 7 days</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary flex items-center gap-0.5 font-label-ui text-label-ui" onclick="toggleSection('graded-container')">
+<span id="graded-toggle-text">Collapse</span>
+<span class="material-symbols-outlined text-[18px] transition-transform" id="graded-toggle-icon">expand_less</span>
+</button>
+</div>
+<!-- Graded Highlight Card with Audio Commentary Note -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm transition-all" id="graded-container">
+<div class="flex items-start justify-between gap-space-xs">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-2xs mb-1">
+<span class="px-2 py-0.5 rounded bg-surface-container text-secondary font-eyebrow-accent text-eyebrow-accent uppercase tracking-wider font-bold">World History HL</span>
+<span class="font-label-ui text-label-ui text-on-surface-variant">Archival Thesis</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary">Diplomatic Origins of the Westphalian Order</h3>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Evaluator: Dr. Aris Thorne · Returned Yesterday</span>
+</div>
+<!-- Grade Badge -->
+<div class="flex flex-col items-center justify-center bg-primary text-on-primary px-3 py-1.5 rounded-lg shadow-sm">
+<span class="font-kpi-metric-mobile text-kpi-metric-mobile text-secondary-container leading-none font-headline-md">98<span class="text-label-ui text-on-primary">/100</span></span>
+<span class="font-label-ui text-[10px] text-secondary font-bold tracking-widest mt-0.5">GRADE A+</span>
+</div>
+</div>
+<!-- Teacher Audio Commentary Component -->
+<div class="bg-surface-container-low rounded-xl p-space-sm flex flex-col gap-space-2xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[18px]">record_voice_over</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-ui text-label-ui text-primary font-bold">Faculty Voice Note: “Exemplary historiography”</span>
+<span class="font-eyebrow-accent text-eyebrow-accent text-on-surface-variant uppercase">Dr. Thorne · 01:24 duration</span>
+</div>
+</div>
+<button class="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center shadow hover:bg-surface-container-highest transition-colors" id="play-btn" onclick="toggleAudio()">
+<span class="material-symbols-outlined text-[18px]" id="play-icon">play_arrow</span>
+</button>
+</div>
+<!-- Waveform visualizer bars -->
+<div class="flex items-center gap-1 pt-space-3xs px-space-2xs">
+<span class="h-2 w-1 rounded-full bg-secondary"></span>
+<span class="h-4 w-1 rounded-full bg-secondary"></span>
+<span class="h-6 w-1 rounded-full bg-secondary"></span>
+<span class="h-3 w-1 rounded-full bg-primary"></span>
+<span class="h-7 w-1 rounded-full bg-secondary"></span>
+<span class="h-5 w-1 rounded-full bg-primary"></span>
+<span class="h-3 w-1 rounded-full bg-outline-variant"></span>
+<span class="h-6 w-1 rounded-full bg-outline-variant"></span>
+<span class="h-4 w-1 rounded-full bg-outline-variant"></span>
+<span class="h-2 w-1 rounded-full bg-outline-variant"></span>
+<span class="h-5 w-1 rounded-full bg-outline-variant"></span>
+<span class="h-7 w-1 rounded-full bg-outline-variant"></span>
+<span class="h-3 w-1 rounded-full bg-outline-variant"></span>
+<span class="h-2 w-1 rounded-full bg-outline-variant"></span>
+<span class="flex-1"></span>
+<span class="font-data-mono text-body-sm text-on-surface-variant" id="audio-time">0:00 / 1:24</span>
+</div>
+<p class="font-body-default text-body-default text-on-surface-variant pt-1 text-[13px]">
+          “Genevieve's utilization of primary treaties from the Osnabrück archives was nothing short of collegiate excellence. Annotations preserved on page 14.”
+        </p>
+</div>
+<div class="flex items-center justify-between pt-space-3xs">
+<button class="flex items-center gap-1 text-primary font-label-ui text-label-ui font-semibold">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span>View Annotated Script</span>
+</button>
+<button class="flex items-center gap-1 text-secondary font-label-ui text-label-ui font-semibold">
+<span class="material-symbols-outlined text-[16px]">share</span>
+<span>Export Summary</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Study Group & Academic Support Mini Tile -->
+<div class="bg-primary-container text-on-primary-container rounded-xl p-space-md shadow-sm flex items-center justify-between mt-space-2xs">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest/10 text-secondary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">school</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-on-primary truncate">Faculty Office Hours</span>
+<span class="font-body-sm text-body-sm text-primary-fixed-dim">Drop-in help desk open tomorrow 15:30</span>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-lg bg-secondary text-on-secondary font-label-ui text-label-ui font-bold shrink-0">
+      Book Slot
+    </button>
+</div>
+<!-- Mobile Submission Drawer / Bottom Sheet Modal -->
+<div class="fixed inset-0 z-50 pointer-events-none opacity-0 transition-opacity duration-300 flex flex-col justify-end" id="submission-drawer">
+<!-- Backdrop scrim -->
+<div class="absolute inset-0 bg-primary/60 backdrop-blur-xs" onclick="closeDrawer()"></div>
+<!-- Drawer panel -->
+<div class="relative w-full bg-surface-container-lowest rounded-t-2xl p-space-md flex flex-col gap-space-md shadow-2xl transform translate-y-full transition-transform duration-300" id="drawer-panel">
+<!-- Drag Handle -->
+<div class="w-12 h-1.5 rounded-full bg-outline-variant mx-auto -mt-1 mb-1"></div>
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-eyebrow-accent text-eyebrow-accent uppercase text-secondary">Dispatch Assignment</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Lab Investigation 4: Calorimetry</h3>
+<span class="font-body-sm text-body-sm text-on-surface-variant">IB Chemistry HL · Dr. Thorne</span>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface" onclick="closeDrawer()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Upload Options Grid -->
+<div class="grid grid-cols-3 gap-space-xs">
+<button class="flex flex-col items-center justify-center p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container text-primary gap-space-2xs transition-colors text-center" onclick="simulateUpload('Camera Scan')">
+<div class="w-11 h-11 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[22px]">document_scanner</span>
+</div>
+<span class="font-label-ui text-label-ui font-semibold">Scan Pages</span>
+<span class="font-body-sm text-[10px] text-on-surface-variant">OCR Camera</span>
+</button>
+<button class="flex flex-col items-center justify-center p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container text-primary gap-space-2xs transition-colors text-center" onclick="simulateUpload('Local Files')">
+<div class="w-11 h-11 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[22px]">upload_file</span>
+</div>
+<span class="font-label-ui text-label-ui font-semibold">Browse Files</span>
+<span class="font-body-sm text-[10px] text-on-surface-variant">PDF, DOCX</span>
+</button>
+<button class="flex flex-col items-center justify-center p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container text-primary gap-space-2xs transition-colors text-center" onclick="simulateUpload('Cloud Storage')">
+<div class="w-11 h-11 rounded-full bg-surface-container-high text-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[22px]">cloud_upload</span>
+</div>
+<span class="font-label-ui text-label-ui font-semibold">Cloud Drive</span>
+<span class="font-body-sm text-[10px] text-on-surface-variant">Drive / Dropbox</span>
+</button>
+</div>
+<!-- Selected File Placeholder (Interactive) -->
+<div class="bg-surface-container rounded-xl p-space-sm flex items-center justify-between" id="file-attachment-slot">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-secondary text-[24px]">picture_as_pdf</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-ui text-label-ui text-primary font-bold truncate" id="file-name-label">Calorimetry_Final_Draft_GL.pdf</span>
+<span class="font-data-mono text-[11px] text-on-surface-variant" id="file-size-label">4.2 MB · Ready to compile</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] cursor-pointer" onclick="clearFile()">delete</span>
+</div>
+<!-- Honor Code Attestation -->
+<div class="flex items-start gap-space-xs pt-space-3xs">
+<input checked="" class="mt-1 accent-primary w-4 h-4 rounded" id="honor-pledge" type="checkbox"/>
+<label class="font-body-sm text-[12px] text-on-surface-variant leading-tight" for="honor-pledge">
+          I affirm this assignment reflects Genevieve Laurent's independent scholarly research adhering to the Agragati Academic Integrity Charter.
+        </label>
+</div>
+<!-- Final Submit CTA -->
+<button class="w-full h-12 rounded-xl bg-primary text-on-primary font-label-ui text-label-ui uppercase tracking-wider font-bold shadow-md hover:bg-primary-container active:scale-[0.99] transition-transform flex items-center justify-center gap-2" onclick="confirmSubmission()">
+<span class="material-symbols-outlined text-[20px]">send_and_archive</span>
+<span>Certify & Submit Document</span>
+</button>
+</div>
+</div>
+<!-- Micro-interaction Toast -->
+<div class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-primary text-on-primary px-space-md py-space-xs rounded-full shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2" id="toast-notify">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+<span class="font-label-ui text-label-ui" id="toast-text">Submission recorded into registry</span>
+</div>
+</div>
+<script>
+  function switchFilter(type) {
+    const tabs = ['active', 'submitted', 'graded'];
+    tabs.forEach(t => {
+      const el = document.getElementById('tab-' + t);
+      if (!el) return;
+      if (t === type) {
+        el.className = 'px-space-sm py-space-2xs rounded-full bg-primary text-on-primary font-label-ui text-label-ui whitespace-nowrap shadow-sm transition-all flex items-center gap-1.5';
+      } else {
+        el.className = 'px-space-sm py-space-2xs rounded-full bg-surface-container-high text-on-surface-variant font-label-ui text-label-ui whitespace-nowrap transition-all flex items-center gap-1.5';
+      }
+    });
+    showToast('Filtered view: ' + type.charAt(0).toUpperCase() + type.slice(1));
+  }
+
+  function openDrawer() {
+    const drawer = document.getElementById('submission-drawer');
+    const panel = document.getElementById('drawer-panel');
+    drawer.classList.remove('pointer-events-none', 'opacity-0');
+    drawer.classList.add('opacity-100');
+    panel.classList.remove('translate-y-full');
+    panel.classList.add('translate-y-0');
+  }
+
+  function closeDrawer() {
+    const drawer = document.getElementById('submission-drawer');
+    const panel = document.getElementById('drawer-panel');
+    panel.classList.add('translate-y-full');
+    panel.classList.remove('translate-y-0');
+    setTimeout(() => {
+      drawer.classList.add('pointer-events-none', 'opacity-0');
+      drawer.classList.remove('opacity-100');
+    }, 250);
+  }
+
+  function simulateUpload(source) {
+    document.getElementById('file-name-label').textContent = 'Scanned_Pages_' + source.replace(/\s+/g, '_') + '.pdf';
+    document.getElementById('file-size-label').textContent = '3.8 MB · Uploaded just now';
+    showToast('Attached via ' + source);
+  }
+
+  function clearFile() {
+    document.getElementById('file-name-label').textContent = 'No file attached';
+    document.getElementById('file-size-label').textContent = 'Please choose a scan or document';
+  }
+
+  function confirmSubmission() {
+    closeDrawer();
+    setTimeout(() => {
+      showToast('Lab Report submitted to Dr. Eleanor Thorne');
+    }, 300);
+  }
+
+  let isPlaying = false;
+  function toggleAudio() {
+    isPlaying = !isPlaying;
+    const icon = document.getElementById('play-icon');
+    const timer = document.getElementById('audio-time');
+    if (isPlaying) {
+      icon.textContent = 'pause';
+      timer.textContent = '0:28 / 1:24';
+      showToast('Playing feedback from Dr. Thorne');
+    } else {
+      icon.textContent = 'play_arrow';
+      timer.textContent = '0:00 / 1:24';
+    }
+  }
+
+  function toggleSection(containerId) {
+    const container = document.getElementById(containerId);
+    const text = document.getElementById('graded-toggle-text');
+    const icon = document.getElementById('graded-toggle-icon');
+    if (container.classList.contains('hidden')) {
+      container.classList.remove('hidden');
+      text.textContent = 'Collapse';
+      icon.classList.remove('rotate-180');
+    } else {
+      container.classList.add('hidden');
+      text.textContent = 'Expand';
+      icon.classList.add('rotate-180');
+    }
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast-notify');
+    const toastText = document.getElementById('toast-text');
+    toastText.textContent = msg;
+    toast.classList.remove('opacity-0', 'pointer-events-none');
+    toast.classList.add('opacity-100');
+    setTimeout(() => {
+      toast.classList.remove('opacity-100');
+      toast.classList.add('opacity-0', 'pointer-events-none');
+    }, 2400);
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/85 backdrop-blur-xl shadow-[0_-1px_8px_rgba(0,0,0,0.04)]" data-active-classes="text-secondary font-bold"><div class="flex items-center justify-around h-16 px-space-2xs"><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-space-3xs text-on-surface-variant hover:text-on-surface transition-colors" data-path="overview" href="#"><span class="material-symbols-outlined text-[22px]">dashboard</span><span class="font-label-ui text-[11px] leading-tight">Home</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-space-3xs text-on-surface-variant hover:text-on-surface transition-colors" data-path="attendance" href="#"><span class="material-symbols-outlined text-[22px]">calendar_today</span><span class="font-label-ui text-[11px] leading-tight">Attendance</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-space-3xs text-on-surface-variant hover:text-on-surface transition-colors" data-path="fees" href="#"><span class="material-symbols-outlined text-[22px]">payments</span><span class="font-label-ui text-[11px] leading-tight">Fees</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-space-3xs transition-colors text-secondary font-bold" data-path="homework" href="#"><span class="material-symbols-outlined text-[22px]">assignment</span><span class="font-label-ui text-[11px] leading-tight">Homework</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-space-3xs text-on-surface-variant hover:text-on-surface transition-colors" data-path="results-and-notices" href="#"><span class="material-symbols-outlined text-[22px]">campaign</span><span class="font-label-ui text-[11px] leading-tight">Notices</span></a></div></nav></body></html>

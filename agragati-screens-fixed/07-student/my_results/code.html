@@ -1,0 +1,387 @@
+<!DOCTYPE html><html class="h-full" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><title>Agragati Student Portal</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base { html, body { width: 100%; margin: 0; padding: 0; } body { overscroll-behavior: none; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-primary-fixed-variant": "#3c4661", "on-secondary": "#ffffff", "on-tertiary": "#ffffff", "tertiary-fixed": "#dae2ff", "tertiary-fixed-dim": "#b6c6f4", "surface-container": "#ededf8", "on-primary-container": "#7c87a5", "surface-bright": "#faf8ff", "primary-container": "#141f38", "on-primary-fixed": "#101b34", "on-error-container": "#93000a", "surface-container-low": "#f3f3fe", "primary-fixed-dim": "#bbc6e7", "outline": "#76777e", "surface-container-highest": "#e1e1ed", "on-tertiary-container": "#7786b1", "surface": "#faf8ff", "on-secondary-container": "#775800", "primary-fixed": "#d9e2ff", "secondary-fixed-dim": "#ebc166", "error": "#ba1a1a", "surface-container-lowest": "#ffffff", "on-error": "#ffffff", "inverse-primary": "#bbc6e7", "on-background": "#191b23", "surface-variant": "#e1e1ed", "tertiary": "#00061d", "inverse-on-surface": "#f0f0fb", "on-tertiary-fixed-variant": "#36466d", "error-container": "#ffdad6", "surface-tint": "#535e7a", "on-secondary-fixed-variant": "#5b4300", "secondary-fixed": "#ffdf9e", "on-primary": "#ffffff", "secondary-container": "#fdd275", "surface-container-high": "#e7e7f3", "tertiary-container": "#0c1e43", "primary": "#00061d", "inverse-surface": "#2e3039", "background": "#faf8ff", "outline-variant": "#c6c6ce", "secondary": "#795902", "on-surface": "#191b23", "on-tertiary-fixed": "#071a3f", "on-secondary-fixed": "#261a00", "on-surface-variant": "#45464d", "surface-dim": "#d9d9e4" }, borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" }, spacing: { "gutter-mobile": "1rem", "space-xs": "0.5rem", "container-max": "88rem", "space-sm": "0.75rem", "space-lg": "1.5rem", "space-2xs": "0.25rem", "sidebar-w": "17.5rem", "sidebar-collapsed-w": "4.5rem", "space-xl": "2rem", "space-3xs": "0.125rem", "gutter-desktop": "1.5rem", "space-md": "1rem", "space-4xl": "4rem", "space-3xl": "3rem", "space-2xl": "2.5rem" }, fontFamily: { "body-sm": ["Public Sans", "sans-serif"], "headline-lg": ["Newsreader", "serif"], "body-default": ["Public Sans", "sans-serif"], "headline-sm": ["Newsreader", "serif"], "display-hero": ["Newsreader", "serif"], "kpi-metric-mobile": ["Newsreader", "serif"], "display-hero-mobile": ["Newsreader", "serif"], "label-ui": ["Public Sans", "sans-serif"], "data-mono": ["Public Sans", "sans-serif"], "kpi-metric": ["Newsreader", "serif"], "headline-md": ["Newsreader", "serif"], "eyebrow-accent": ["Public Sans", "sans-serif"], "body-lead": ["Public Sans", "sans-serif"] }, fontSize: { "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }], "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.015em", fontWeight: "500" }], "body-default": ["14px", { lineHeight: "22px", fontWeight: "400" }], "headline-sm": ["20px", { lineHeight: "28px", letterSpacing: "-0.005em", fontWeight: "600" }], "display-hero": ["56px", { lineHeight: "64px", letterSpacing: "-0.02em", fontWeight: "400" }], "kpi-metric-mobile": ["32px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "500" }], "display-hero-mobile": ["38px", { lineHeight: "44px", letterSpacing: "-0.015em", fontWeight: "400" }], "label-ui": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "data-mono": ["13px", { lineHeight: "18px", letterSpacing: "-0.01em", fontWeight: "500" }], "kpi-metric": ["44px", { lineHeight: "48px", letterSpacing: "-0.025em", fontWeight: "500" }], "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "500" }], "eyebrow-accent": ["11px", { lineHeight: "14px", letterSpacing: "0.08em", fontWeight: "700" }], "body-lead": ["16px", { lineHeight: "26px", fontWeight: "400" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-default text-body-default text-on-surface flex flex-col min-h-full"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(20,31,56,0.04)]"><div class="h-16 px-gutter-mobile flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs min-w-0 flex-1"><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-2xs"><span class="font-headline-sm text-headline-sm text-primary tracking-tight font-semibold leading-none truncate">Agragati</span><span class="font-eyebrow-accent text-eyebrow-accent text-secondary tracking-widest uppercase">Portal</span></div><div class="flex items-center gap-space-3xs text-on-surface-variant truncate"><span class="font-label-ui text-label-ui text-on-surface font-medium truncate">Genevieve Laurent</span><span class="text-outline font-body-sm text-body-sm">•</span><span class="font-data-mono text-data-mono text-on-surface-variant truncate">11-A IB</span></div></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button aria-label="Notifications" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface active:bg-surface-container transition-colors relative"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-20 bg-surface min-h-screen"><div class="flex flex-col w-full px-gutter-mobile gap-space-md">
+<!-- Term Status Bar -->
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center gap-space-2xs">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-eyebrow-accent text-eyebrow-accent text-secondary tracking-widest uppercase">Academic Ledger</span>
+</div>
+<span class="font-data-mono text-data-mono text-on-surface-variant">Validated: Nov 24, 2024</span>
+</div>
+<!-- Hero Credential Card (Deep Ink-Navy) -->
+<div class="relative overflow-hidden rounded-xl bg-primary-container text-on-primary shadow-xl p-space-lg">
+<!-- Subtle Gold Hexagonal Watermark Vector -->
+<svg class="absolute -right-8 -top-10 w-48 h-48 opacity-[0.06] text-secondary pointer-events-none" fill="currentColor" viewBox="0 0 100 100">
+<polygon fill="none" points="50 1 95 25 95 75 50 99 5 75 5 25" stroke="currentColor" stroke-width="1.5"></polygon>
+<polygon fill="none" points="50 15 82 32 82 68 50 85 18 68 18 32" stroke="currentColor" stroke-width="1"></polygon>
+<circle cx="50" cy="50" fill="currentColor" r="12"></circle>
+</svg>
+<svg class="absolute -left-12 -bottom-16 w-52 h-52 opacity-[0.04] text-secondary pointer-events-none" fill="currentColor" viewBox="0 0 100 100">
+<polygon fill="none" points="50 1 95 25 95 75 50 99 5 75 5 25" stroke="currentColor" stroke-width="1"></polygon>
+</svg>
+<div class="relative z-10 flex flex-col gap-space-md">
+<!-- Term & Badge Header -->
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center justify-between">
+<span class="font-eyebrow-accent text-eyebrow-accent text-secondary-fixed uppercase tracking-widest">Michaelmas Term 2024–2025</span>
+<span class="font-label-ui text-label-ui px-space-xs py-space-3xs rounded-full bg-secondary-container/20 text-secondary-fixed font-medium">Official Record</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-surface tracking-tight">Academic Standing</h1>
+</div>
+<!-- Honors Distinction Callout -->
+<div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-lg bg-surface/5 backdrop-blur-sm shadow-sm">
+<span class="material-symbols-outlined text-secondary-fixed text-[20px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span class="font-label-ui text-label-ui text-tertiary-fixed tracking-wide font-semibold">Provost Merit Scholar • Dean's First Honors</span>
+</div>
+<!-- KPI Numbers -->
+<div class="grid grid-cols-2 gap-space-sm pt-space-2xs">
+<div class="flex flex-col">
+<span class="font-eyebrow-accent text-eyebrow-accent text-on-primary-container uppercase tracking-wider">IB Predicted Points</span>
+<div class="flex items-baseline gap-space-3xs flex-wrap">
+<span class="font-kpi-metric-mobile text-kpi-metric-mobile text-surface font-semibold tracking-tight">43</span>
+<span class="font-headline-sm text-headline-sm text-on-primary-container">/ 45</span>
+</div>
+<span class="font-label-ui text-label-ui text-secondary-fixed mt-space-3xs flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">stars</span> Top 1.5% of Cohort
+          </span>
+</div>
+<div class="flex flex-col">
+<span class="font-eyebrow-accent text-eyebrow-accent text-on-primary-container uppercase tracking-wider">Cumulative GPA</span>
+<div class="flex items-baseline gap-space-3xs flex-wrap">
+<span class="font-kpi-metric-mobile text-kpi-metric-mobile text-surface font-semibold tracking-tight">3.94</span>
+<span class="font-headline-sm text-headline-sm text-on-primary-container">/ 4.00</span>
+</div>
+<span class="font-label-ui text-label-ui text-tertiary-fixed-dim mt-space-3xs flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +0.06 vs Form X
+          </span>
+</div>
+</div>
+<!-- Download Button -->
+<button class="w-full mt-space-2xs flex items-center justify-center gap-space-xs py-space-sm px-space-md rounded-lg bg-secondary-fixed text-on-secondary-fixed shadow-md active:scale-[0.99] transition-transform">
+<span class="material-symbols-outlined text-[20px] text-secondary font-bold">description</span>
+<span class="font-label-ui text-label-ui font-bold tracking-wide">Download Official Term Transcript (PDF)</span>
+</button>
+</div>
+</div>
+<!-- Term Filter / Switcher Horizontal Scroll -->
+<div class="flex flex-col gap-space-2xs">
+<span class="font-eyebrow-accent text-eyebrow-accent text-on-surface-variant uppercase tracking-wider">Historical Term View</span>
+<div class="flex items-center gap-space-xs overflow-x-auto pb-space-2xs -mx-gutter-mobile px-gutter-mobile no-scrollbar" id="term-pills">
+<button class="px-space-md py-space-xs rounded-full bg-primary text-on-primary font-label-ui text-label-ui font-semibold shadow-sm flex-shrink-0 flex items-center gap-space-2xs">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed"></span>
+        Michaelmas 2024 (Current Active)
+      </button>
+<button class="px-space-md py-space-xs rounded-full bg-surface-container-high text-on-surface-variant font-label-ui text-label-ui hover:text-on-surface font-medium flex-shrink-0 transition-colors">
+        Trinity 2024
+      </button>
+<button class="px-space-md py-space-xs rounded-full bg-surface-container-high text-on-surface-variant font-label-ui text-label-ui hover:text-on-surface font-medium flex-shrink-0 transition-colors">
+        Lent 2024
+      </button>
+</div>
+</div>
+<!-- Academic Faculty Overview Notice -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-low">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center flex-shrink-0 text-secondary">
+<span class="material-symbols-outlined text-[20px]">auto_stories</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-ui text-label-ui font-bold text-on-surface">5 Courses Assessed • Full IB Diploma Track</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Form Tutor: Dr. Julian Aris Thorne, Fellow of Cambridge</span>
+</div>
+</div>
+<!-- Subject-wise Performance Cards Stack -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface">Course Marks &amp; Evidence</span>
+<span class="font-label-ui text-label-ui text-secondary uppercase font-bold">Standard of Excellence</span>
+</div>
+<!-- 1. IB Chemistry HL -->
+<div class="flex flex-col p-space-md rounded-xl bg-surface-container-lowest shadow-md gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-primary truncate">IB Chemistry HL</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant truncate">Core 4 • Inorganic Kinetics</span>
+</div>
+<div class="flex items-center gap-space-xs flex-shrink-0">
+<div class="flex flex-col items-end">
+<span class="font-headline-md text-headline-md text-primary font-bold leading-none">7</span>
+<span class="font-label-ui text-[10px] text-on-surface-variant uppercase whitespace-nowrap">IB Grade</span>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="font-data-mono text-data-mono text-primary font-bold">94%</span>
+</div>
+</div>
+</div>
+<!-- Trend and Visual Bar -->
+<div class="flex items-center justify-between pt-space-2xs">
+<span class="font-label-ui text-label-ui px-space-xs py-space-3xs rounded-full bg-surface-container text-secondary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">north_east</span> +3 pts vs Mid-Term
+        </span>
+<span class="font-data-mono text-data-mono text-on-surface-variant">94 / 100</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full" style="width: 94%"></div>
+</div>
+<!-- Faculty Appraisal -->
+<div class="flex items-start gap-space-xs pt-space-xs bg-surface-container-low p-space-xs rounded-lg mt-space-2xs">
+<span class="material-symbols-outlined text-secondary text-[16px] flex-shrink-0 mt-0.5">format_quote</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">
+          "Exceptional experimental methodology and analytical precision."
+        </p>
+</div>
+</div>
+<!-- 2. Pure Mathematics HL -->
+<div class="flex flex-col p-space-md rounded-xl bg-surface-container-lowest shadow-md gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-primary truncate">Pure Mathematics HL</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant truncate">Analysis &amp; Approaches</span>
+</div>
+<div class="flex items-center gap-space-xs flex-shrink-0">
+<div class="flex flex-col items-end">
+<span class="font-headline-md text-headline-md text-primary font-bold leading-none">7</span>
+<span class="font-label-ui text-[10px] text-on-surface-variant uppercase whitespace-nowrap">IB Grade</span>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="font-data-mono text-data-mono text-primary font-bold">96%</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-2xs">
+<span class="font-label-ui text-label-ui px-space-xs py-space-3xs rounded-full bg-surface-container text-secondary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">north_east</span> +2 pts vs Mid-Term
+        </span>
+<span class="font-data-mono text-data-mono text-on-surface-variant">96 / 100</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full" style="width: 96%"></div>
+</div>
+<div class="flex items-start gap-space-xs pt-space-xs bg-surface-container-low p-space-xs rounded-lg mt-space-2xs">
+<span class="material-symbols-outlined text-secondary text-[16px] flex-shrink-0 mt-0.5">format_quote</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">
+          "Flawless proofs in multivariable calculus."
+        </p>
+</div>
+</div>
+<!-- 3. English Literature HL -->
+<div class="flex flex-col p-space-md rounded-xl bg-surface-container-lowest shadow-md gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-primary truncate">English Literature HL</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant truncate">Language A • Comparative Dramaturgy</span>
+</div>
+<div class="flex items-center gap-space-xs flex-shrink-0">
+<div class="flex flex-col items-end">
+<span class="font-headline-md text-headline-md text-primary font-bold leading-none">6</span>
+<span class="font-label-ui text-[10px] text-on-surface-variant uppercase whitespace-nowrap">IB Grade</span>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="font-data-mono text-data-mono text-primary font-bold">89%</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-2xs">
+<span class="font-label-ui text-label-ui px-space-xs py-space-3xs rounded-full bg-surface-container text-on-surface-variant font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">east</span> Consistent high band
+        </span>
+<span class="font-data-mono text-data-mono text-on-surface-variant">89 / 100</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full" style="width: 89%"></div>
+</div>
+<div class="flex items-start gap-space-xs pt-space-xs bg-surface-container-low p-space-xs rounded-lg mt-space-2xs">
+<span class="material-symbols-outlined text-secondary text-[16px] flex-shrink-0 mt-0.5">format_quote</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">
+          "Nuanced comparative critique of post-colonial dramatic narratives."
+        </p>
+</div>
+</div>
+<!-- 4. French Language B SL -->
+<div class="flex flex-col p-space-md rounded-xl bg-surface-container-lowest shadow-md gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-primary truncate">French Language B SL</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant truncate">Oral Fluency &amp; Discourse</span>
+</div>
+<div class="flex items-center gap-space-xs flex-shrink-0">
+<div class="flex flex-col items-end">
+<span class="font-headline-md text-headline-md text-primary font-bold leading-none">7</span>
+<span class="font-label-ui text-[10px] text-on-surface-variant uppercase whitespace-nowrap">IB Grade</span>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="font-data-mono text-data-mono text-primary font-bold">95%</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-2xs">
+<span class="font-label-ui text-label-ui px-space-xs py-space-3xs rounded-full bg-surface-container text-secondary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">north_east</span> +4 pts vs Mid-Term
+        </span>
+<span class="font-data-mono text-data-mono text-on-surface-variant">95 / 100</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full" style="width: 95%"></div>
+</div>
+</div>
+<!-- 5. History SL -->
+<div class="flex flex-col p-space-md rounded-xl bg-surface-container-lowest shadow-md gap-space-xs">
+<div class="flex items-start justify-between">
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-primary truncate">History SL</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant truncate">European Treaties &amp; Interwar Diplomacy</span>
+</div>
+<div class="flex items-center gap-space-xs flex-shrink-0">
+<div class="flex flex-col items-end">
+<span class="font-headline-md text-headline-md text-primary font-bold leading-none">7</span>
+<span class="font-label-ui text-[10px] text-on-surface-variant uppercase whitespace-nowrap">IB Grade</span>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="font-data-mono text-data-mono text-primary font-bold">92%</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-2xs">
+<span class="font-label-ui text-label-ui px-space-xs py-space-3xs rounded-full bg-surface-container text-on-surface-variant font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">east</span> Maintained top tier
+        </span>
+<span class="font-data-mono text-data-mono text-on-surface-variant">92 / 100</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-1.5 rounded-full" style="width: 92%"></div>
+</div>
+</div>
+</div>
+<!-- Student Growth Radar / Competency Highlights -->
+<div class="flex flex-col p-space-md rounded-xl bg-surface-container-lowest shadow-md gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-eyebrow-accent text-eyebrow-accent text-secondary uppercase tracking-widest">Cognitive Matrix</span>
+<h2 class="font-headline-sm text-headline-sm text-primary">Competency Attainment</h2>
+</div>
+<span class="material-symbols-outlined text-secondary text-[24px]">psychology</span>
+</div>
+<!-- Inline SVG Radar Visual Representation -->
+<div class="flex items-center justify-center py-space-xs">
+<div class="relative w-44 h-44 flex items-center justify-center">
+<svg class="w-full h-full overflow-visible" viewBox="0 0 100 100">
+<!-- Radar Guides -->
+<polygon fill="none" points="50,15 80,32 80,68 50,85 20,68 20,32" stroke="#e1e1ed" stroke-width="0.75"></polygon>
+<polygon fill="none" points="50,25 72,38 72,62 50,75 28,62 28,38" stroke="#e1e1ed" stroke-width="0.75"></polygon>
+<polygon fill="none" points="50,35 63,42 63,58 50,65 37,58 37,42" stroke="#e1e1ed" stroke-width="0.75"></polygon>
+<line stroke="#ededf8" stroke-width="0.75" x1="50" x2="50" y1="50" y2="15"></line>
+<line stroke="#ededf8" stroke-width="0.75" x1="50" x2="80" y1="50" y2="32"></line>
+<line stroke="#ededf8" stroke-width="0.75" x1="50" x2="80" y1="50" y2="68"></line>
+<line stroke="#ededf8" stroke-width="0.75" x1="50" x2="50" y1="50" y2="85"></line>
+<line stroke="#ededf8" stroke-width="0.75" x1="50" x2="20" y1="50" y2="68"></line>
+<line stroke="#ededf8" stroke-width="0.75" x1="50" x2="20" y1="50" y2="32"></line>
+<!-- Active Attainment Polygon -->
+<polygon fill="rgba(121, 89, 2, 0.15)" points="50,18 78,35 74,66 50,80 23,64 25,35" stroke="#795902" stroke-width="1.5"></polygon>
+<circle cx="50" cy="18" fill="#141f38" r="2.5"></circle>
+<circle cx="78" cy="35" fill="#141f38" r="2.5"></circle>
+<circle cx="74" cy="66" fill="#141f38" r="2.5"></circle>
+<circle cx="50" cy="80" fill="#141f38" r="2.5"></circle>
+<circle cx="23" cy="64" fill="#141f38" r="2.5"></circle>
+<circle cx="25" cy="35" fill="#141f38" r="2.5"></circle>
+</svg>
+</div>
+</div>
+<!-- Competency Badges List -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between p-space-xs rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+<span class="font-body-default text-body-default text-on-surface font-medium">Critical Inquiry</span>
+</div>
+<span class="px-space-xs py-space-3xs rounded-full bg-secondary-fixed text-on-secondary-fixed font-eyebrow-accent text-eyebrow-accent uppercase">Exemplary</span>
+</div>
+<div class="flex items-center justify-between p-space-xs rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]">functions</span>
+<span class="font-body-default text-body-default text-on-surface font-medium">Mathematical Modeling</span>
+</div>
+<span class="px-space-xs py-space-3xs rounded-full bg-secondary-fixed text-on-secondary-fixed font-eyebrow-accent text-eyebrow-accent uppercase">Mastery</span>
+</div>
+<div class="flex items-center justify-between p-space-xs rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]">account_balance</span>
+<span class="font-body-default text-body-default text-on-surface font-medium">Historiography</span>
+</div>
+<span class="px-space-xs py-space-3xs rounded-full bg-primary-fixed text-on-primary-fixed font-eyebrow-accent text-eyebrow-accent uppercase">Advanced</span>
+</div>
+</div>
+</div>
+<!-- Academic Dean's Commendation Note -->
+<div class="relative p-space-md rounded-xl bg-surface-container-high overflow-hidden">
+<div class="flex items-start gap-space-sm">
+<div class="w-11 h-11 rounded-full bg-primary flex items-center justify-center flex-shrink-0 text-secondary-fixed">
+<span class="material-symbols-outlined text-[22px]">military_tech</span>
+</div>
+<div class="flex flex-col gap-space-3xs min-w-0">
+<span class="font-eyebrow-accent text-eyebrow-accent text-secondary tracking-widest uppercase">Dean's Endorsement</span>
+<p class="font-body-default text-body-default text-on-surface leading-relaxed">
+          Genevieve demonstrates consummate intellectual leadership. Her sustained mastery across STEM and humanities positions her comfortably within the top percentile for early Oxford &amp; Ivy matriculation.
+        </p>
+<div class="flex items-center gap-space-xs mt-space-2xs">
+<span class="font-label-ui text-label-ui font-semibold text-primary">Prof. Alistair Sterling</span>
+<span class="text-outline text-body-sm">•</span>
+<span class="font-label-ui text-label-ui text-on-surface-variant">Dean of Academic Curricula</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Institutional Digital Verification Seal (SHA-256) -->
+<div class="flex flex-col items-center justify-center p-space-md rounded-xl bg-surface-container-lowest shadow-sm gap-space-2xs text-center my-space-xs">
+<div class="flex items-center gap-space-2xs text-secondary">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span class="font-eyebrow-accent text-eyebrow-accent tracking-widest uppercase text-on-surface">Institutional Ledger Cryptographic Seal</span>
+</div>
+<div class="flex flex-col items-center max-w-full">
+<code class="font-data-mono text-[11px] text-on-surface-variant break-all px-space-xs py-space-3xs bg-surface-container-low rounded">
+        SHA-256: 7e9b4a11c88d89e52e061803bf32dcba45118939c1f61f7e09efbb6012ea3954
+      </code>
+<span class="font-label-ui text-[11px] text-outline mt-space-2xs">
+        Issued under Agragati Board of Regents • Validated automatically via Inter-Collegiate Clearinghouse
+      </span>
+</div>
+<div class="flex items-center gap-space-md pt-space-2xs">
+<div class="flex items-center gap-space-3xs">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="font-label-ui text-[11px] text-on-surface font-medium">Tamper Evident</span>
+</div>
+<div class="flex items-center gap-space-3xs">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="font-label-ui text-[11px] text-on-surface font-medium">Time-Stamped RFC-3161</span>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    // Term switcher visual micro-interaction
+    const pillContainer = document.getElementById('term-pills');
+    if (pillContainer) {
+      const buttons = pillContainer.querySelectorAll('button');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => {
+            b.classList.remove('bg-primary', 'text-on-primary', 'font-semibold');
+            b.classList.add('bg-surface-container-high', 'text-on-surface-variant', 'font-medium');
+            const dot = b.querySelector('span.rounded-full');
+            if (dot) dot.remove();
+          });
+          btn.classList.add('bg-primary', 'text-on-primary', 'font-semibold');
+          btn.classList.remove('bg-surface-container-high', 'text-on-surface-variant', 'font-medium');
+          
+          const newDot = document.createElement('span');
+          newDot.className = 'w-1.5 h-1.5 rounded-full bg-secondary-fixed';
+          btn.prepend(newDot);
+        });
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/95 backdrop-blur-xl shadow-[0_-2px_12px_rgba(20,31,56,0.05)]" data-active-classes="text-secondary font-semibold fill-1"><div class="flex items-center justify-around h-16 px-space-xs"><a class="flex flex-col items-center justify-center gap-space-3xs w-14 h-14 rounded-lg text-on-surface-variant hover:text-on-surface transition-colors" data-path="home" href="#"><span class="material-symbols-outlined text-[22px]">dashboard</span><span class="font-label-ui text-[11px] leading-tight tracking-wide">Home</span></a><a class="flex flex-col items-center justify-center gap-space-3xs w-14 h-14 rounded-lg text-on-surface-variant hover:text-on-surface transition-colors" data-path="attendance" href="#"><span class="material-symbols-outlined text-[22px]">event_available</span><span class="font-label-ui text-[11px] leading-tight tracking-wide">Attendance</span></a><a class="flex flex-col items-center justify-center gap-space-3xs w-14 h-14 rounded-lg text-on-surface-variant hover:text-on-surface transition-colors" data-path="homework" href="#"><span class="material-symbols-outlined text-[22px]">menu_book</span><span class="font-label-ui text-[11px] leading-tight tracking-wide">Homework</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-space-3xs w-14 h-14 rounded-lg transition-colors text-secondary font-semibold fill-1" data-path="results" href="#"><span class="material-symbols-outlined text-[22px]">analytics</span><span class="font-label-ui text-[11px] leading-tight tracking-wide">Results</span></a><a class="flex flex-col items-center justify-center gap-space-3xs w-14 h-14 rounded-lg text-on-surface-variant hover:text-on-surface transition-colors" data-path="notices" href="#"><span class="material-symbols-outlined text-[22px]">campaign</span><span class="font-label-ui text-[11px] leading-tight tracking-wide">Notices</span></a></div></nav></body></html>
