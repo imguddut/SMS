@@ -83,7 +83,7 @@ export default function PlatformAdminSchoolDetailPage() {
 
   if (loading) {
     return (
-      <AppShell role="SUPER_ADMIN" userName="Eleanor Vance" userRoleTitle="Platform Lead & Super Admin">
+      <AppShell role="SUPER_ADMIN" userName="Mr. Rajesh Pillai" userRoleTitle="Platform Lead & Super Admin">
         <div className="py-20 text-center text-on-surface-variant font-sans">
           Scanning sovereign partition dossier...
         </div>
@@ -93,7 +93,7 @@ export default function PlatformAdminSchoolDetailPage() {
 
   if (!school) {
     return (
-      <AppShell role="SUPER_ADMIN" userName="Eleanor Vance" userRoleTitle="Platform Lead & Super Admin">
+      <AppShell role="SUPER_ADMIN" userName="Mr. Rajesh Pillai" userRoleTitle="Platform Lead & Super Admin">
         <div className="py-16 text-center space-y-4">
           <h2 className="font-serif text-2xl text-primary">School Node Not Found</h2>
           <p className="text-sm text-on-surface-variant">The requested institutional partition could not be located.</p>
@@ -114,7 +114,7 @@ export default function PlatformAdminSchoolDetailPage() {
   return (
     <AppShell
       role="SUPER_ADMIN"
-      userName="Eleanor Vance"
+      userName="Mr. Rajesh Pillai"
       userRoleTitle="Platform Lead & Super Admin"
       epochText="Multi-Tenant Sovereign Root • Cluster 01 Online"
     >

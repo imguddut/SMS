@@ -52,7 +52,7 @@ export interface PlatformAuditLog {
 }
 
 // Fallback seed data if DB is cold or offline
-const FALLBACK_SCHOOLS: SchoolWithDetails[] = [
+export const FALLBACK_SCHOOLS: SchoolWithDetails[] = [
   {
     id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
     legal_name: "Delhi Public School, R.K. Puram",

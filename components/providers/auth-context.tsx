@@ -101,7 +101,7 @@ const DEMO_PROFILES: Record<UserRole, Omit<AuthProfile, "auth_user_id"> & { auth
     auth_user_id: "a0000000-0000-0000-0000-000000000001",
     school_id: null,
     role: "SUPER_ADMIN",
-    full_name: "Eleanor Vance",
+    full_name: "Mr. Rajesh Pillai",
     email: "superadmin@agragati.edu",
     phone: null,
     avatar_url: null,

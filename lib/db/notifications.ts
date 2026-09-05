@@ -125,7 +125,7 @@ const CATEGORY_MAP: Record<string, NotificationItem["category"]> = {
  * Fetch notifications for a specific user from Supabase.
  */
 export async function fetchNotifications(
-  userProfileId: string,
+  userProfileId?: string,
   role?: UserRole
 ): Promise<NotificationItem[]> {
   try {
@@ -272,6 +272,25 @@ export async function fetchWebhookEvents(): Promise<WebhookEventItem[]> {
       timestamp: "10 mins ago",
     },
   ];
+}
+
+export async function fetchUserNotifications(role?: UserRole): Promise<{ notifications: NotificationItem[]; unreadCount: number }> {
+  const notifications = await fetchNotifications(undefined, role);
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  return { notifications, unreadCount };
+}
+
+export async function markNotificationAsRead(notificationId: string): Promise<void> {
+  return markNotificationRead(notificationId);
+}
+
+export async function markAllNotificationsAsRead(role?: UserRole): Promise<void> {
+  const notifications = await fetchNotifications(undefined, role);
+  for (const n of notifications) {
+    if (!n.isRead) {
+      await markNotificationRead(n.id);
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------

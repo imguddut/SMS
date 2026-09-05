@@ -23,14 +23,21 @@ export function AppShell({
   schoolName = "The King's College & Academy",
   campusName = "GENEVA CAMPUS",
   epochText = "Daily Schedule • Michaelmas Term 2024–2025",
-  userName = "Genevieve Laurent",
-  userRoleTitle = "SCHOLAR • FORM VI (GRADE 12-IB) • ROSEY MANOR",
+  userName,
+  userRoleTitle,
   children,
 }: AppShellProps) {
   const isMobilePortal = role === "PARENT" || role === "STUDENT";
+  const effectiveUserName = userName || (role === "SUPER_ADMIN" ? "Mr. Rajesh Pillai" : "Genevieve Laurent");
+  const effectiveUserTitle = userRoleTitle || (role === "SUPER_ADMIN" ? "Platform Lead & Super Admin" : "SCHOLAR • FORM VI (GRADE 12-IB) • ROSEY MANOR");
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] dark:bg-[#0c0f17] font-sans text-stone-900 dark:text-stone-100 antialiased selection:bg-amber-100 selection:text-amber-900 dark:selection:bg-amber-900/50 dark:selection:text-amber-200 transition-colors duration-200">
+    <div className={cn(
+      "min-h-screen font-sans antialiased selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900/50 dark:selection:text-blue-200 transition-colors duration-200",
+      role === "SUPER_ADMIN"
+        ? "bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-slate-100"
+        : "bg-[#FAF8F5] dark:bg-[#0c0f17] text-stone-900 dark:text-stone-100"
+    )}>
       {/* Impersonation Banner if active */}
       <ImpersonationBanner />
 
@@ -39,8 +46,8 @@ export function AppShell({
         <Sidebar
           role={role}
           schoolName={schoolName}
-          userName={userName}
-          userRoleTitle={userRoleTitle}
+          userName={effectiveUserName}
+          userRoleTitle={effectiveUserTitle}
         />
       </div>
 
@@ -53,8 +60,8 @@ export function AppShell({
             schoolName={schoolName}
             campusName={campusName}
             epochText={epochText}
-            userName={userName}
-            userTitle={userRoleTitle}
+            userName={effectiveUserName}
+            userTitle={effectiveUserTitle}
           />
         </div>
 
@@ -67,7 +74,7 @@ export function AppShell({
             </span>
           </div>
           <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 flex items-center justify-center font-bold text-xs shadow-xs border border-indigo-200/50 dark:border-indigo-800/50">
-            {userName.slice(0, 2).toUpperCase()}
+            {effectiveUserName.slice(0, 2).toUpperCase()}
           </div>
         </div>
 

@@ -80,7 +80,7 @@ export function Sidebar({
           section: "Platform Control",
           items: [
             {
-              title: "Platform Overview",
+              title: "Dashboard",
               href: "/platform-admin/overview",
               icon: <LayoutDashboard className="w-4 h-4" />,
             },
@@ -90,17 +90,17 @@ export function Sidebar({
               icon: <Building2 className="w-4 h-4" />,
             },
             {
-              title: "Billing & Subscriptions",
+              title: "Billing",
               href: "/platform-admin/billing",
               icon: <Receipt className="w-4 h-4" />,
             },
             {
-              title: "Platform Settings",
+              title: "Security & Settings",
               href: "/platform-admin/settings",
               icon: <Settings className="w-4 h-4" />,
             },
             {
-              title: "Support & Impersonation",
+              title: "Support",
               href: "/platform-admin/impersonate",
               icon: <ShieldAlert className="w-4 h-4" />,
             },
@@ -339,16 +339,18 @@ export function Sidebar({
 
   const navData = getNavItems();
   const effectiveUserName =
-    userName || (role === "PARENT" ? "Mr. Rajesh Sharma" : "Genevieve Laurent");
+    userName || (role === "SUPER_ADMIN" ? "Mr. Rajesh Pillai" : role === "PARENT" ? "Mr. Rajesh Sharma" : "Genevieve Laurent");
   const defaultRoleTitle =
     userRoleTitle ||
-    (role === "PARENT"
+    (role === "SUPER_ADMIN"
+      ? "Platform Lead & Super Admin"
+      : role === "PARENT"
       ? "Guardian • Aarav Sharma"
       : role === "STUDENT"
       ? "SCHOLAR • FORM VI (GRADE 12-IB)"
       : role.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()));
 
-  const isFinance = role === "ACCOUNTANT";
+  const isFinance = role === "ACCOUNTANT" || role === "SUPER_ADMIN";
 
   const isTeacher = role === "TEACHER";
 
@@ -414,7 +416,9 @@ export function Sidebar({
                     "group flex items-center justify-between px-3.5 py-2.5 rounded-xl font-sans text-xs transition-all duration-150",
                     isFinance
                       ? isActive
-                        ? "bg-[#965A20] text-white font-semibold shadow-sm"
+                        ? role === "SUPER_ADMIN" 
+                          ? "bg-[#2563EB] text-white font-semibold shadow-sm"
+                          : "bg-[#965A20] text-white font-semibold shadow-sm"
                         : "text-[#94A3B8] hover:bg-white/5 hover:text-white font-medium"
                       : isTeacher
                       ? isActive
@@ -472,7 +476,11 @@ export function Sidebar({
           <svg
             className={cn(
               "w-48 h-48",
-              isFinance ? "text-[#E6C687]" : "text-[#8B5E3C] dark:text-amber-500"
+              role === "ACCOUNTANT" 
+                ? "text-[#E6C687]" 
+                : role === "SUPER_ADMIN"
+                ? "text-slate-800"
+                : "text-[#8B5E3C] dark:text-amber-500"
             )}
             viewBox="0 0 200 200"
             fill="none"
@@ -512,7 +520,7 @@ export function Sidebar({
         </div>
 
         {/* Motto for Finance Bureau */}
-        {isFinance && (
+        {role === "ACCOUNTANT" && (
           <div className="text-center px-4 pb-3 relative z-10">
             <span className="font-serif italic text-xs font-bold text-slate-800 dark:text-stone-200 block leading-tight">
               Good Finances
@@ -537,7 +545,9 @@ export function Sidebar({
             <div
               className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-xs border",
-                isFinance
+                role === "SUPER_ADMIN"
+                  ? "bg-[#8B5CF6] text-white border-[#7C3AED]"
+                  : role === "ACCOUNTANT"
                   ? "bg-slate-200 text-[#0B1528] border-slate-300"
                   : "bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 border-indigo-200/50 dark:border-indigo-800/50"
               )}
