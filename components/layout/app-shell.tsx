@@ -28,9 +28,20 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const isMobilePortal = role === "PARENT" || role === "STUDENT";
+  const isPlatformAdmin = role === "SUPER_ADMIN";
+
+  const effectiveUserName = isPlatformAdmin && userName === "Genevieve Laurent" ? "Mr. Rajesh Pillai" : userName;
+  const effectiveUserTitle = isPlatformAdmin && userRoleTitle.includes("SCHOLAR") ? "Platform Lead & Super Admin" : userRoleTitle;
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] dark:bg-[#0c0f17] font-sans text-stone-900 dark:text-stone-100 antialiased selection:bg-amber-100 selection:text-amber-900 dark:selection:bg-amber-900/50 dark:selection:text-amber-200 transition-colors duration-200">
+    <div
+      className={cn(
+        "min-h-screen font-sans antialiased transition-colors duration-200",
+        isPlatformAdmin
+          ? "bg-[#F8FAFC] text-slate-900 selection:bg-blue-100 selection:text-blue-900"
+          : "bg-[#FAF8F5] dark:bg-[#0c0f17] text-stone-900 dark:text-stone-100 selection:bg-amber-100 selection:text-amber-900 dark:selection:bg-amber-900/50 dark:selection:text-amber-200"
+      )}
+    >
       {/* Impersonation Banner if active */}
       <ImpersonationBanner />
 
@@ -39,8 +50,8 @@ export function AppShell({
         <Sidebar
           role={role}
           schoolName={schoolName}
-          userName={userName}
-          userRoleTitle={userRoleTitle}
+          userName={effectiveUserName}
+          userRoleTitle={effectiveUserTitle}
         />
       </div>
 
@@ -53,8 +64,8 @@ export function AppShell({
             schoolName={schoolName}
             campusName={campusName}
             epochText={epochText}
-            userName={userName}
-            userTitle={userRoleTitle}
+            userName={effectiveUserName}
+            userTitle={effectiveUserTitle}
           />
         </div>
 

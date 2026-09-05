@@ -4,6 +4,7 @@ import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/app-shell";
+import { PlatformAdminFooter } from "@/components/layout/platform-admin-footer";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -595,6 +596,8 @@ export default function PlatformAdminSchoolDetailPage() {
             </div>
           </Card>
         )}
+
+        <PlatformAdminFooter />
       </div>
     </AppShell>
   );

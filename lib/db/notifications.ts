@@ -247,8 +247,6 @@ export async function createNotification(params: {
       category: params.category,
       title: params.title,
       message: params.message,
-      link_url: params.linkUrl || null,
-      action_text: params.actionText || null,
       priority: params.priority || "NORMAL",
       source_table: params.sourceTable || null,
       source_id: params.sourceId || null,
@@ -256,6 +254,22 @@ export async function createNotification(params: {
   } catch (err) {
     console.warn("createNotification failed:", err);
   }
+}
+
+export async function fetchUserNotifications(
+  role?: UserRole
+): Promise<{ notifications: NotificationItem[]; unreadCount: number }> {
+  const items = await fetchNotifications("default-user", role);
+  const unreadCount = items.filter((n) => !n.isRead).length;
+  return { notifications: items, unreadCount };
+}
+
+export async function markNotificationAsRead(id: string): Promise<void> {
+  return markNotificationRead(id);
+}
+
+export async function markAllNotificationsAsRead(userProfileId?: string): Promise<void> {
+  return markAllRead(userProfileId || "default-user");
 }
 
 // Webhook events (still mock for now, planned for future)

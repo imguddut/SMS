@@ -2,38 +2,31 @@
 
 import * as React from "react";
 import { AppShell } from "@/components/layout/app-shell";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Modal } from "@/components/ui/modal";
+import { PlatformAdminFooter } from "@/components/layout/platform-admin-footer";
 import {
-  Settings,
-  Shield,
-  KeyRound,
-  Server,
+  ShieldCheck,
+  RotateCw,
   Globe,
+  Server,
+  Building2,
   Lock,
   Cpu,
-  CheckCircle2,
-  RefreshCw,
+  KeyRound,
+  Sparkles,
+  Layers,
+  Fingerprint,
   Clock,
-  ShieldAlert,
-  Database,
-  Sliders,
-  Check,
+  MapPin,
+  FileText,
+  CheckCircle2,
+  AlertTriangle,
+  PlusCircle,
+  UserCheck,
+  ChevronRight,
+  Shield,
   Search,
   Download,
-  Fingerprint,
-  Zap,
-  Sparkles,
-  FileCheck2,
-  FileText,
 } from "lucide-react";
-import {
-  fetchPlatformAuditLogs,
-  PlatformAuditLog,
-} from "@/lib/db/platform-admin";
 import {
   verifyCryptographicSignature,
   runRlsIsolationAudit,
@@ -47,12 +40,11 @@ import {
 
 export default function PlatformAdminSettingsPage() {
   const [activeTab, setActiveTab] = React.useState<"HSM" | "CRYPTO_VERIFIER" | "RLS_AUDIT" | "FADP_COMPLIANCE">("HSM");
-  const [logs, setLogs] = React.useState<PlatformAuditLog[]>([]);
   const [keyRotated, setKeyRotated] = React.useState(false);
-  const [sessionTtl, setSessionTtl] = React.useState("8h");
+  const [sessionTtl, setSessionTtl] = React.useState("24h");
   const [mfaEnforced, setMfaEnforced] = React.useState(true);
   const [quantumCrypto, setQuantumCrypto] = React.useState(true);
-  const [geoFencing, setGeoFencing] = React.useState(true);
+  const [auditStream, setAuditStream] = React.useState(true);
   const [savedSuccess, setSavedSuccess] = React.useState(false);
 
   // Cryptographic Verifier State
@@ -71,14 +63,12 @@ export default function PlatformAdminSettingsPage() {
   const [isExporting, setIsExporting] = React.useState(false);
 
   React.useEffect(() => {
-    async function load() {
+    async function loadSubsystems() {
       try {
-        const [logsData, rlsData, fadpData] = await Promise.all([
-          fetchPlatformAuditLogs(),
+        const [rlsData, fadpData] = await Promise.all([
           runRlsIsolationAudit(),
           fetchSwissFadpComplianceMetrics(),
         ]);
-        setLogs(logsData);
         setRlsAuditTables(rlsData.tables);
         setRlsScannedCount(rlsData.totalRecordsChecked);
         setComplianceList(fadpData);
@@ -86,7 +76,7 @@ export default function PlatformAdminSettingsPage() {
         console.error(err);
       }
     }
-    load();
+    loadSubsystems();
   }, []);
 
   const handleRotateKey = () => {
@@ -99,39 +89,32 @@ export default function PlatformAdminSettingsPage() {
     setTimeout(() => setSavedSuccess(false), 2500);
   };
 
-  const handleVerifyHash = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleVerifySeal = async () => {
     setIsVerifying(true);
     try {
       const res = await verifyCryptographicSignature(inputSealHash);
       setVerificationResult(res);
-    } catch (err) {
-      console.error(err);
     } finally {
       setIsVerifying(false);
     }
   };
 
-  const handleRunRlsScan = async () => {
+  const handleTriggerRlsScan = async () => {
     setIsScanningRls(true);
     try {
       const res = await runRlsIsolationAudit();
       setRlsAuditTables(res.tables);
       setRlsScannedCount(res.totalRecordsChecked);
-    } catch (err) {
-      console.error(err);
     } finally {
       setIsScanningRls(false);
     }
   };
 
-  const handleGenerateVaultExport = async () => {
+  const handleExportVault = async () => {
     setIsExporting(true);
     try {
       const res = await generateSovereignDataVaultExport();
       setVaultExport(res);
-    } catch (err) {
-      console.error(err);
     } finally {
       setIsExporting(false);
     }
@@ -144,601 +127,785 @@ export default function PlatformAdminSettingsPage() {
       userRoleTitle="Platform Lead & Super Admin"
       epochText="Multi-Tenant Sovereign Root • Cluster 01 Online"
     >
-      <div className="space-y-8 max-w-6xl mx-auto pb-12">
+      <div className="space-y-6 max-w-7xl mx-auto pb-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-surface-container-high/60 pb-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-sans text-[11px] font-bold text-secondary uppercase tracking-widest">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-bold uppercase tracking-wider">
                 Sovereign Cryptographic Enclave
               </span>
-              <span className="text-outline text-xs">•</span>
-              <span className="text-xs font-medium text-on-surface-variant">
-                FIPS 140-3 Level 4 Hardware Root
+              <span className="text-xs text-slate-500 font-medium">
+                • FIPS 140-3 Level 4 Hardware Root
               </span>
             </div>
-            <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
               Security, Compliance &amp; Audit Enclave
             </h1>
-            <p className="font-sans text-sm text-on-surface-variant mt-1 max-w-2xl">
+            <p className="text-xs md:text-sm text-slate-500 mt-1 max-w-3xl">
               Post-quantum CRYSTALS-Dilithium5 lattice verifier, multi-tenant PostgreSQL RLS policy audit scanner, and Swiss FADP statutory certification.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Button
-              variant="primary"
-              size="sm"
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              type="button"
               onClick={handleSavePolicies}
-              className="font-sans gap-2"
+              className="h-10 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white font-semibold text-xs flex items-center gap-2 shadow-xs transition-colors"
             >
-              {savedSuccess ? (
-                <>
-                  <Check className="w-4 h-4 text-secondary-container" /> Policies Committed
-                </>
-              ) : (
-                "Save Platform Policies"
-              )}
-            </Button>
+              <ShieldCheck className="w-4 h-4" />
+              <span>{savedSuccess ? "Policies Enforced!" : "Save Platform Policies"}</span>
+            </button>
           </div>
         </div>
 
-        {/* View Switcher Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto border-b border-surface-container-high pb-3">
-          {[
-            { id: "HSM", label: "Architecture & HSM Enclave" },
-            { id: "CRYPTO_VERIFIER", label: "Post-Quantum Signature Verifier" },
-            { id: "RLS_AUDIT", label: "Multi-Tenant RLS Policy Scanner" },
-            { id: "FADP_COMPLIANCE", label: "Swiss FADP / GDPR Compliance Desk" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`px-4 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
-                activeTab === tab.id
-                  ? "bg-primary text-surface font-semibold shadow-sm"
-                  : "bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container border border-surface-container-high"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Tab Navigation */}
+        <div className="flex items-center border-b border-slate-200/90 gap-8 overflow-x-auto text-xs">
+          <button
+            type="button"
+            onClick={() => setActiveTab("HSM")}
+            className={`pb-3 font-semibold flex items-center gap-2 transition-colors border-b-2 ${
+              activeTab === "HSM"
+                ? "border-indigo-600 text-indigo-700"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <Cpu className="w-4 h-4" />
+            <span>Architecture &amp; HSM Enclave</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("CRYPTO_VERIFIER")}
+            className={`pb-3 font-semibold flex items-center gap-2 transition-colors border-b-2 ${
+              activeTab === "CRYPTO_VERIFIER"
+                ? "border-indigo-600 text-indigo-700"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Post-Quantum Signature Verifier</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("RLS_AUDIT")}
+            className={`pb-3 font-semibold flex items-center gap-2 transition-colors border-b-2 ${
+              activeTab === "RLS_AUDIT"
+                ? "border-indigo-600 text-indigo-700"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span>Multi-Tenant RLS Policy Scanner</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("FADP_COMPLIANCE")}
+            className={`pb-3 font-semibold flex items-center gap-2 transition-colors border-b-2 ${
+              activeTab === "FADP_COMPLIANCE"
+                ? "border-indigo-600 text-indigo-700"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            <span>Swiss FADP / GDPR Compliance Desk</span>
+          </button>
         </div>
 
-        {/* TAB 1: ARCHITECTURE & HSM ENCLAVE */}
+        {/* Tab 1: Architecture & HSM Enclave */}
         {activeTab === "HSM" && (
-          <div className="space-y-8">
-            {/* Multi-Region Cluster Infrastructure */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {[
-                {
-                  name: "Zurich-Alpha-01",
-                  region: "Switzerland (Alpine Core)",
-                  role: "PRIMARY SOVEREIGN VAULT",
-                  status: "NOMINAL",
-                  latency: "14ms",
-                  active: true,
-                },
-                {
-                  name: "Geneva-Beta-02",
-                  region: "Switzerland (Lac Léman)",
-                  role: "HOT REPLICATION NODE",
-                  status: "NOMINAL",
-                  latency: "18ms",
-                  active: true,
-                },
-                {
-                  name: "London-DR-01",
-                  region: "United Kingdom (London)",
-                  role: "COLD DISASTER RECOVERY",
-                  status: "STANDBY",
-                  latency: "32ms",
-                  active: false,
-                },
-                {
-                  name: "Singapore-Edge-01",
-                  region: "Singapore (DIFC Proxy)",
-                  role: "SOVEREIGN EDGE GATEWAY",
-                  status: "ONLINE",
-                  latency: "84ms",
-                  active: true,
-                },
-              ].map((cluster) => (
-                <Card
-                  key={cluster.name}
-                  className={`p-4 border ${
-                    cluster.active ? "border-secondary/40" : "border-surface-container-high opacity-80"
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="w-7 h-7 rounded bg-primary text-secondary-container flex items-center justify-center font-bold text-xs">
-                      <Server className="w-3.5 h-3.5" />
+          <div className="space-y-6">
+            {/* 4 Multi-Region Server Node Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Node 1: Zurich */}
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                      <Globe className="w-5 h-5" />
                     </div>
-                    <Badge variant={cluster.status === "NOMINAL" ? "active" : "neutral"} dot>
-                      {cluster.status}
-                    </Badge>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Nominal
+                    </span>
                   </div>
-                  <div className="font-mono text-xs font-bold text-primary">{cluster.name}</div>
-                  <div className="font-sans text-[11px] text-on-surface-variant mt-0.5">
-                    {cluster.region}
+                  <h3 className="text-sm font-bold text-slate-900 mt-3">
+                    Zurich-Alpha-01
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Switzerland (Alpine Core)
+                  </p>
+                  <span className="inline-block mt-2 px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider">
+                    Primary Sovereign Vault
+                  </span>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-600">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                  <span>RTT Latency: 14ms</span>
+                </div>
+              </div>
+
+              {/* Node 2: Geneva */}
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                      <Shield className="w-5 h-5" />
+                    </div>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Nominal
+                    </span>
                   </div>
-                  <div className="font-sans text-[10px] font-bold text-secondary uppercase tracking-wider mt-2">
-                    {cluster.role}
+                  <h3 className="text-sm font-bold text-slate-900 mt-3">
+                    Geneva-Beta-02
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Switzerland (Lac Léman)
+                  </p>
+                  <span className="inline-block mt-2 px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider">
+                    Hot Replication Node
+                  </span>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-600">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                  <span>RTT Latency: 18ms</span>
+                </div>
+              </div>
+
+              {/* Node 3: Singapore */}
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                      <Building2 className="w-5 h-5" />
+                    </div>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Online
+                    </span>
                   </div>
-                  <div className="font-sans text-[11px] text-on-surface-variant mt-1">
-                    RTT Latency: <span className="font-mono font-semibold text-primary">{cluster.latency}</span>
+                  <h3 className="text-sm font-bold text-slate-900 mt-3">
+                    Singapore-Edge-01
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Singapore (DIFC Proxy)
+                  </p>
+                  <span className="inline-block mt-2 px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider">
+                    Sovereign Edge Gateway
+                  </span>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-600">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                  <span>RTT Latency: 84ms</span>
+                </div>
+              </div>
+
+              {/* Node 4: London */}
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                      <Server className="w-5 h-5" />
+                    </div>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
+                      Standby
+                    </span>
                   </div>
-                </Card>
-              ))}
+                  <h3 className="text-sm font-bold text-slate-900 mt-3">
+                    London-DR-01
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    United Kingdom (London)
+                  </p>
+                  <span className="inline-block mt-2 px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider">
+                    Cold Disaster Recovery
+                  </span>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-600">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+                  <span>RTT Latency: 32ms</span>
+                </div>
+              </div>
             </div>
 
-            {/* HSM Cryptographic Enclave Controls */}
-            <Card className="p-6 bg-gradient-to-b from-surface to-surface-container-lowest/30">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-surface-container-high">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-primary text-secondary-container flex items-center justify-center shadow-md">
-                    <Cpu className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-serif text-xl font-medium text-primary">
-                      Dedicated HSM Hardware Cryptographic Enclave
-                    </h3>
-                    <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                      Quantum-resistant lattice signatures &amp; FIPS 140-3 zero-knowledge proof generation.
-                    </p>
-                  </div>
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRotateKey}
-                  className="text-xs gap-2 border-secondary/40 text-secondary"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${keyRotated ? "animate-spin" : ""}`} />
-                  {keyRotated ? "Rotating Master Key..." : "Rotate Master Keypair"}
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 font-sans text-xs">
-                <div className="p-4 rounded-lg bg-surface border border-surface-container-high space-y-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
-                    Master Root Key ID
-                  </span>
-                  <div className="font-mono text-sm font-bold text-primary">
-                    HSM-ZUR-9942-X-PROD
-                  </div>
-                  <div className="text-[11px] text-[#3D5B42] font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Hardware Attestation Verified
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-lg bg-surface border border-surface-container-high space-y-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
-                    Cryptographic Algorithm
-                  </span>
-                  <div className="font-mono text-sm font-bold text-secondary">
-                    CRYSTALS-Dilithium5
-                  </div>
-                  <div className="text-[11px] text-on-surface-variant">
-                    Post-quantum lattice dual signature
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-lg bg-surface border border-surface-container-high space-y-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
-                    Zero-Knowledge Proofs
-                  </span>
-                  <div className="font-mono text-sm font-bold text-primary">
-                    48,290 Rollups / 24h
-                  </div>
-                  <div className="text-[11px] text-on-surface-variant">
-                    Zero-knowledge gradebook sealing
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Global Multi-Tenant Security Policies */}
-            <Card className="p-6 space-y-6">
-              <div className="pb-4 border-b border-surface-container-high">
-                <h3 className="font-serif text-xl font-medium text-primary">
-                  Global Platform Security Policies
-                </h3>
-                <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                  Enforced across all institutional nodes, chancellors, faculty, and guardian portals.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-sans text-xs">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3.5 rounded-lg border border-surface-container-high bg-surface">
-                    <div>
-                      <div className="font-semibold text-primary text-sm">
-                        Enforce Multi-Factor Authentication (MFA)
-                      </div>
-                      <div className="text-on-surface-variant mt-0.5">
-                        Mandatory WebAuthn biometric passkey or TOTP for all accounts.
-                      </div>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={mfaEnforced}
-                      onChange={(e) => setMfaEnforced(e.target.checked)}
-                      className="w-4 h-4 text-secondary rounded"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between p-3.5 rounded-lg border border-surface-container-high bg-surface">
-                    <div>
-                      <div className="font-semibold text-primary text-sm">
-                        Post-Quantum Encryption Mode
-                      </div>
-                      <div className="text-on-surface-variant mt-0.5">
-                        Encrypt all ledger and grade records with Dilithium-5 keys.
-                      </div>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={quantumCrypto}
-                      onChange={(e) => setQuantumCrypto(e.target.checked)}
-                      className="w-4 h-4 text-secondary rounded"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="p-3.5 rounded-lg border border-surface-container-high bg-surface space-y-2">
-                    <div className="font-semibold text-primary text-sm">
-                      Administrative Session Time-To-Live (TTL)
-                    </div>
-                    <div className="text-on-surface-variant">
-                      Automatically invalidate dormant Super Admin and Executive sessions.
-                    </div>
-                    <div className="flex gap-2 pt-1">
-                      {["4h", "8h", "12h", "24h"].map((ttl) => (
-                        <button
-                          key={ttl}
-                          onClick={() => setSessionTtl(ttl)}
-                          className={`px-3 py-1 rounded text-xs font-semibold ${
-                            sessionTtl === ttl
-                              ? "bg-primary text-surface"
-                              : "bg-surface-container text-on-surface-variant hover:text-primary"
-                          }`}
-                        >
-                          {ttl}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3.5 rounded-lg border border-surface-container-high bg-surface">
-                    <div>
-                      <div className="font-semibold text-primary text-sm">
-                        Sovereign Geo-Fencing &amp; IP Allowlist
-                      </div>
-                      <div className="text-on-surface-variant mt-0.5">
-                        Restrict database access to approved campus network ranges.
-                      </div>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={geoFencing}
-                      onChange={(e) => setGeoFencing(e.target.checked)}
-                      className="w-4 h-4 text-secondary rounded"
-                    />
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Live Sovereign Audit Stream */}
-            <Card className="overflow-hidden">
-              <div className="p-6 border-b border-surface-container-high flex items-center justify-between">
+            {/* 2-Column Configuration Panels */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Panel: Dedicated HSM Hardware Enclave */}
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs flex flex-col justify-between">
                 <div>
-                  <h3 className="font-serif text-xl font-medium text-primary">
-                    Sovereign Administrative Audit Stream
-                  </h3>
-                  <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                    Immutable, cryptographically signed ledger of all platform administrative actions.
-                  </p>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                      <h2 className="text-base font-bold text-slate-900">
+                        Dedicated HSM Hardware Cryptographic Enclave
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Quantum-resistant lattice signatures &amp; FIPS 140-3 zero-knowledge proof generation.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRotateKey}
+                      className="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-indigo-700 font-semibold text-xs flex items-center gap-1.5 shrink-0 shadow-2xs transition-colors self-start sm:self-auto"
+                    >
+                      <RotateCw className={`w-3.5 h-3.5 ${keyRotated ? "animate-spin text-indigo-600" : ""}`} />
+                      <span>{keyRotated ? "Rotating..." : "Rotate Master Keypair"}</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-4 pt-2 text-xs">
+                    {/* Key 1 */}
+                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                          <KeyRound className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                            Master Root Key ID
+                          </span>
+                          <span className="font-mono font-bold text-slate-900 text-sm">
+                            HSM-ZUR-9942-X-PROD
+                          </span>
+                        </div>
+                      </div>
+                      <span className="px-2 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold shrink-0 self-start sm:self-auto">
+                        Hardware Attestation Verified
+                      </span>
+                    </div>
+
+                    {/* Key 2 */}
+                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                          Cryptographic Algorithm
+                        </span>
+                        <span className="font-bold text-slate-900 text-sm block">
+                          CRYSTALS-Dilithium5
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          Post-quantum lattice dual signature
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Key 3 */}
+                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                        <Layers className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                          Zero-Knowledge Proofs
+                        </span>
+                        <span className="font-bold text-slate-900 text-sm block">
+                          48,290 Rollups / 24h
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          Zero-knowledge gradebook sealing
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <Badge variant="gold" dot>
+              </div>
+
+              {/* Right Panel: Global Platform Security Policies */}
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs flex flex-col justify-between">
+                <div>
+                  <h2 className="text-base font-bold text-slate-900">
+                    Global Platform Security Policies
+                  </h2>
+                  <p className="text-xs text-slate-500 mb-4">
+                    Enforced across all institutional nodes, chancellors, faculty, and guardian portals.
+                  </p>
+
+                  <div className="space-y-4 pt-1 text-xs">
+                    {/* Policy 1: MFA */}
+                    <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center shrink-0">
+                          <Fingerprint className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="font-bold text-slate-900 block text-xs">
+                            Enforce Multi-Factor Authentication (MFA)
+                          </span>
+                          <span className="text-[11px] text-slate-500">
+                            Mandatory WebAuthn biometric passkey or TOTP for all accounts.
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setMfaEnforced(!mfaEnforced)}
+                        className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${
+                          mfaEnforced ? "bg-emerald-500" : "bg-slate-300"
+                        }`}
+                      >
+                        <span
+                          className={`w-5 h-5 rounded-full bg-white shadow-xs absolute top-0.5 transition-transform ${
+                            mfaEnforced ? "right-0.5" : "left-0.5"
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Policy 2: Quantum Mode */}
+                    <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+                          <Lock className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="font-bold text-slate-900 block text-xs">
+                            Post-Quantum Encryption Mode
+                          </span>
+                          <span className="text-[11px] text-slate-500">
+                            Encrypt all ledger and grade records with Dilithium-5 keys.
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setQuantumCrypto(!quantumCrypto)}
+                        className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${
+                          quantumCrypto ? "bg-emerald-500" : "bg-slate-300"
+                        }`}
+                      >
+                        <span
+                          className={`w-5 h-5 rounded-full bg-white shadow-xs absolute top-0.5 transition-transform ${
+                            quantumCrypto ? "right-0.5" : "left-0.5"
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Policy 3: Session TTL */}
+                    <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+                          <Clock className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="font-bold text-slate-900 block text-xs">
+                            Administrative Session Time-To-Live (TTL)
+                          </span>
+                          <span className="text-[11px] text-slate-500">
+                            Automatically invalidate dormant Super Admin and Executive sessions.
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl shrink-0">
+                        {["4h", "8h", "12h", "24h"].map((t) => (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => setSessionTtl(t)}
+                            className={`px-2 py-0.5 text-[10px] font-bold rounded-lg transition-colors ${
+                              sessionTtl === t
+                                ? "bg-indigo-600 text-white shadow-2xs"
+                                : "text-slate-600 hover:text-slate-900"
+                            }`}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Policy 4: Geo Fencing */}
+                    <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0">
+                          <MapPin className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="font-bold text-slate-900 block text-xs">
+                            Sovereign Geo-Fencing &amp; IP Allowlist
+                          </span>
+                          <span className="text-[11px] text-slate-500">
+                            Restrict database access to approved campus network ranges.
+                          </span>
+                        </div>
+                      </div>
+                      <button type="button" className="p-1 text-slate-400 hover:text-slate-600">
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Policy 5: Audit Stream */}
+                    <div className="flex items-center justify-between py-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+                          <FileText className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="font-bold text-slate-900 block text-xs">
+                            Sovereign Administrative Audit Stream
+                          </span>
+                          <span className="text-[11px] text-slate-500">
+                            Immutable, cryptographically signed ledger of all platform actions.
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setAuditStream(!auditStream)}
+                        className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${
+                          auditStream ? "bg-emerald-500" : "bg-slate-300"
+                        }`}
+                      >
+                        <span
+                          className={`w-5 h-5 rounded-full bg-white shadow-xs absolute top-0.5 transition-transform ${
+                            auditStream ? "right-0.5" : "left-0.5"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Section: Live Ingestion Audit Log */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
+              <div className="p-5 md:p-6 border-b border-slate-100 flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-bold uppercase tracking-wider">
                   Live Ingestion
-                </Badge>
+                </span>
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left font-sans text-sm">
-                  <thead className="bg-surface-container-lowest text-on-surface-variant text-[11px] font-bold uppercase tracking-wider border-b border-surface-container-high">
-                    <tr>
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-100 bg-slate-50/70 text-[10px] font-bold uppercase tracking-wider text-slate-500">
                       <th className="py-3.5 px-6">Event &amp; Action</th>
                       <th className="py-3.5 px-6">Actor</th>
                       <th className="py-3.5 px-6">Target Node</th>
                       <th className="py-3.5 px-6">Timestamp</th>
-                      <th className="py-3.5 px-6">Status</th>
+                      <th className="py-3.5 px-6 text-right">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-surface-container-high/50 text-xs">
-                    {logs.map((log) => (
-                      <tr key={log.id} className="hover:bg-surface-container-lowest/40 transition-colors">
-                        <td className="py-4 px-6">
-                          <div className="font-semibold text-primary">{log.action}</div>
-                          <div className="text-on-surface-variant text-[11px] mt-0.5 font-mono">
-                            {log.details}
+                  <tbody className="divide-y divide-slate-100 text-xs">
+                    {/* Row 1 */}
+                    <tr className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <CheckCircle2 className="w-4 h-4" />
                           </div>
-                        </td>
-
-                        <td className="py-4 px-6">
-                          <div className="font-medium text-primary">{log.actor}</div>
-                          <div className="text-on-surface-variant font-mono text-[10px]">
-                            IP: {log.ip_address}
+                          <div>
+                            <span className="font-bold text-slate-900 block text-xs">
+                              APAAR / DigiLocker Key Attestation
+                            </span>
+                            <span className="text-[11px] text-slate-500">
+                              DigiLocker &amp; DPDP Act 2023 compliance cryptographic verification validated.
+                            </span>
                           </div>
-                        </td>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="font-bold text-slate-800 block text-xs">
+                          Anand Sen (Platform Security Lead)
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          IP: 103.24.188.12
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 font-medium text-slate-700 text-xs">
+                        Delhi-Primary-01 Hardware Node
+                      </td>
+                      <td className="py-4 px-6 text-slate-500 text-xs">
+                        Today, 15:22:04 IST
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Success
+                        </span>
+                      </td>
+                    </tr>
 
-                        <td className="py-4 px-6 font-mono text-primary">
-                          {log.target}
-                        </td>
+                    {/* Row 2 */}
+                    <tr className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <PlusCircle className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="font-bold text-slate-900 block text-xs">
+                              Tenant Provisioned
+                            </span>
+                            <span className="text-[11px] text-slate-500">
+                              CBSE &amp; ICSE dual curriculum database schema initialized.
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="font-bold text-slate-800 block text-xs">
+                          System Provisioner Daemon
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          IP: 127.0.0.1
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-xs">
+                        <span className="font-medium text-slate-800 block">National Public School</span>
+                        <span className="text-[10px] text-slate-400">(npsindiranagar.com)</span>
+                      </td>
+                      <td className="py-4 px-6 text-slate-500 text-xs">
+                        Today, 14:01:19 IST
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Success
+                        </span>
+                      </td>
+                    </tr>
 
-                        <td className="py-4 px-6 text-on-surface-variant">
-                          {log.timestamp}
-                        </td>
+                    {/* Row 3 */}
+                    <tr className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                            <UserCheck className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="font-bold text-slate-900 block text-xs">
+                              Administrative Impersonation Session
+                            </span>
+                            <span className="text-[11px] text-slate-500">
+                              Temporary elevated session initiated with audit log recording.
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="font-bold text-slate-800 block text-xs">
+                          Anand Sen (Platform Security Lead)
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          IP: 103.24.188.12
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 font-medium text-slate-800 text-xs">
+                        Vikramaditya Birla (Owner)
+                      </td>
+                      <td className="py-4 px-6 text-slate-500 text-xs">
+                        Today, 11:15:42 IST
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
+                          Warning
+                        </span>
+                      </td>
+                    </tr>
 
-                        <td className="py-4 px-6">
-                          <Badge
-                            variant={
-                              log.status === "SUCCESS"
-                                ? "active"
-                                : log.status === "WARNING"
-                                ? "pending"
-                                : "critical"
-                            }
-                            dot
-                          >
-                            {log.status}
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))}
+                    {/* Row 4 */}
+                    <tr className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <RotateCw className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="font-bold text-slate-900 block text-xs">
+                              Automated Daily UPI / Bank Reconciliation
+                            </span>
+                            <span className="text-[11px] text-slate-500">
+                              99.8% auto-match rate on UPI UTR and NEFT batch payments (₹ 8,42,500 total).
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="font-bold text-slate-800 block text-xs">
+                          Cron Ledger Reconciler
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          IP: 10.0.4.88
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 font-medium text-slate-700 text-xs">
+                        Delhi Public School, R.K. Puram
+                      </td>
+                      <td className="py-4 px-6 text-slate-500 text-xs">
+                        Today, 04:00:00 IST
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Success
+                        </span>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
-            </Card>
+            </div>
           </div>
         )}
 
-        {/* TAB 2: POST-QUANTUM SIGNATURE VERIFIER */}
+        {/* Tab 2: Cryptographic Signature Verifier */}
         {activeTab === "CRYPTO_VERIFIER" && (
-          <div className="space-y-6">
-            <Card className="p-6 bg-surface-container-lowest/60 border border-secondary/30 space-y-4">
-              <div className="flex items-center gap-3">
-                <Fingerprint className="w-8 h-8 text-secondary" />
-                <div>
-                  <h3 className="font-serif text-xl font-medium text-primary">
-                    CRYSTALS-Dilithium5 Post-Quantum Seal Validator
-                  </h3>
-                  <p className="font-sans text-xs text-on-surface-variant">
-                    Verify zero-knowledge lattice authenticity of any Proviseur gradebook seal, bursary warrant, or Swiss bank receipt hash.
-                  </p>
-                </div>
-              </div>
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs space-y-6">
+            <div>
+              <h2 className="text-base font-bold text-slate-900">
+                Post-Quantum Cryptographic Seal Verifier
+              </h2>
+              <p className="text-xs text-slate-500">
+                Validate CRYSTALS-Dilithium5 and Falcon lattice signatures generated by campus authorities.
+              </p>
+            </div>
 
-              <form onSubmit={handleVerifyHash} className="flex gap-2">
-                <Input
-                  type="text"
-                  placeholder="Paste seal hash (e.g. SEAL-PROVISEUR-DILITHIUM5-998418-GENEVE)..."
-                  value={inputSealHash}
-                  onChange={(e) => setInputSealHash(e.target.value)}
-                  className="font-mono text-xs bg-surface"
-                />
-                <Button
-                  type="submit"
-                  disabled={isVerifying}
-                  className="bg-primary hover:bg-primary-hover text-surface text-xs shrink-0 gap-1.5"
-                >
-                  <Search className="w-3.5 h-3.5" />
-                  {isVerifying ? "Verifying..." : "Verify Hash"}
-                </Button>
-              </form>
-            </Card>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                value={inputSealHash}
+                onChange={(e) => setInputSealHash(e.target.value)}
+                placeholder="Enter Seal Hash..."
+                className="flex-1 h-10 px-4 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50 focus:bg-white"
+              />
+              <button
+                type="button"
+                onClick={handleVerifySeal}
+                disabled={isVerifying}
+                className="h-10 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs flex items-center justify-center gap-2"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>{isVerifying ? "Verifying..." : "Verify Quantum Seal"}</span>
+              </button>
+            </div>
 
             {verificationResult && (
-              <Card className="p-6 border-l-4 border-l-[#3D5B42] bg-surface space-y-4 animate-in fade-in">
-                <div className="flex items-center justify-between pb-3 border-b border-surface-container-high">
-                  <div className="flex items-center gap-2 text-[#3D5B42] font-semibold text-sm">
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span>Cryptographic Signature Valid &amp; Untampered</span>
-                  </div>
-                  <Badge variant="active" className="text-[10px]">
-                    NIST FIPS 204 Verified
-                  </Badge>
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-900">Verification Result</span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                    verificationResult.isValid ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-rose-50 text-rose-700"
+                  }`}>
+                    {verificationResult.isValid ? "Cryptographically Valid" : "Invalid Signature"}
+                  </span>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-sans">
-                  <div className="p-3 bg-surface-container-lowest rounded border border-surface-container-high space-y-1">
-                    <span className="text-[10px] text-on-surface-variant uppercase font-bold">Authorized Signatory</span>
-                    <strong className="text-primary block text-sm">{verificationResult.signatory}</strong>
-                    <span className="text-on-surface-variant block">{verificationResult.signatoryRole}</span>
-                    <span className="text-[11px] text-secondary font-medium block">{verificationResult.institution}</span>
-                  </div>
-
-                  <div className="p-3 bg-surface-container-lowest rounded border border-surface-container-high space-y-1">
-                    <span className="text-[10px] text-on-surface-variant uppercase font-bold">Hardware Attestation</span>
-                    <div className="flex justify-between py-0.5">
-                      <span className="text-on-surface-variant">Cluster:</span>
-                      <span className="font-mono font-semibold text-primary">{verificationResult.attestationCluster}</span>
-                    </div>
-                    <div className="flex justify-between py-0.5">
-                      <span className="text-on-surface-variant">Timestamp:</span>
-                      <span className="font-mono text-primary">{verificationResult.signingTimestamp}</span>
-                    </div>
-                    <div className="flex justify-between py-0.5">
-                      <span className="text-on-surface-variant">Algorithm:</span>
-                      <span className="font-mono text-secondary font-bold">{verificationResult.algorithm}</span>
-                    </div>
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-600">
+                  <div>Signatory: <span className="font-medium text-slate-900">{verificationResult.signatory}</span></div>
+                  <div>Algorithm: <span className="font-mono text-slate-900">{verificationResult.algorithm}</span></div>
+                  <div>Role: <span className="font-medium text-slate-900">{verificationResult.signatoryRole}</span></div>
+                  <div>Attestation: <span className="font-mono text-slate-900 text-[11px]">{verificationResult.attestationCluster}</span></div>
                 </div>
-
-                <div className="p-3 bg-[#3D5B42]/10 rounded border border-[#3D5B42]/20 text-xs text-[#3D5B42] font-sans">
-                  {verificationResult.details}
-                </div>
-              </Card>
+              </div>
             )}
           </div>
         )}
 
-        {/* TAB 3: RLS POLICY AUDIT SCANNER */}
+        {/* Tab 3: RLS Policy Scanner */}
         {activeTab === "RLS_AUDIT" && (
-          <div className="space-y-6">
-            <Card className="p-6 bg-surface-container-lowest/60 border border-secondary/30 flex items-center justify-between">
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h3 className="font-serif text-xl font-medium text-primary">
-                  Multi-Tenant Row-Level Security (RLS) Isolation Audit
-                </h3>
-                <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                  Real-time database partition scan certifying 100% tenant boundary isolation across {rlsScannedCount.toLocaleString()} scanned records.
+                <h2 className="text-base font-bold text-slate-900">
+                  PostgreSQL Row-Level Security (RLS) Scanner
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Audit tenant boundary isolation and prevent cross-tenant data leaks across {rlsScannedCount} records.
                 </p>
               </div>
-
-              <Button
-                size="sm"
+              <button
+                type="button"
+                onClick={handleTriggerRlsScan}
                 disabled={isScanningRls}
-                onClick={handleRunRlsScan}
-                className="bg-primary hover:bg-primary-hover text-surface text-xs gap-1.5"
+                className="h-9 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs flex items-center gap-2"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${isScanningRls ? "animate-spin" : ""}`} />
-                {isScanningRls ? "Scanning Schema..." : "Re-Run RLS Isolation Audit"}
-              </Button>
-            </Card>
+                <Layers className="w-4 h-4" />
+                <span>{isScanningRls ? "Scanning Tables..." : "Run RLS Scan"}</span>
+              </button>
+            </div>
 
-            <Card className="p-0 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left font-sans text-sm">
-                  <thead className="bg-surface-container-lowest text-on-surface-variant text-[11px] font-bold uppercase tracking-wider border-b border-surface-container-high">
-                    <tr>
-                      <th className="py-3.5 px-4">Database Table</th>
-                      <th className="py-3.5 px-4">Tenant Column</th>
-                      <th className="py-3.5 px-4">Applied RLS Policy</th>
-                      <th className="py-3.5 px-4 text-right">Records Scanned</th>
-                      <th className="py-3.5 px-4 text-center">Isolation Level</th>
-                      <th className="py-3.5 px-4 text-center">Audit Status</th>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50 text-[10px] font-bold uppercase text-slate-500">
+                    <th className="py-2.5 px-4">Database Table</th>
+                    <th className="py-2.5 px-4">RLS Enabled</th>
+                    <th className="py-2.5 px-4">Tenant Column</th>
+                    <th className="py-2.5 px-4">Isolation Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {rlsAuditTables.map((t) => (
+                    <tr key={t.tableName} className="hover:bg-slate-50">
+                      <td className="py-3 px-4 font-mono font-medium text-slate-900">{t.tableName}</td>
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Enabled
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 font-mono text-slate-600">{t.tenantColumn}</td>
+                      <td className="py-3 px-4">
+                        <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold text-[11px]">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>100% Isolated</span>
+                        </span>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-surface-container-high/40 text-xs">
-                    {rlsAuditTables.map((t) => (
-                      <tr key={t.tableName} className="hover:bg-surface-container-lowest/50">
-                        <td className="py-3 px-4 font-mono font-semibold text-primary">
-                          {t.tableName}
-                        </td>
-                        <td className="py-3 px-4 font-mono text-on-surface-variant">
-                          {t.tenantColumn}
-                        </td>
-                        <td className="py-3 px-4 font-mono text-secondary">
-                          {t.rlsPolicyName}
-                        </td>
-                        <td className="py-3 px-4 text-right font-mono text-primary font-medium">
-                          {t.recordsScanned.toLocaleString()}
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <Badge variant="navy" className="text-[9px]">
-                            {t.isolationLevel}
-                          </Badge>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <Badge variant="active" className="text-[9px] gap-1">
-                            <CheckCircle2 className="w-3 h-3" /> 0 Leaks
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
-        {/* TAB 4: SWISS FADP / GDPR COMPLIANCE DESK */}
+        {/* Tab 4: FADP / GDPR Compliance */}
         {activeTab === "FADP_COMPLIANCE" && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {complianceList.map((item, idx) => (
-                <Card key={idx} className="p-6 border-l-4 border-l-[#3D5B42] space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <Badge variant="active" className="text-[10px]">
-                      {item.status} (100%)
-                    </Badge>
-                    <span className="font-mono text-[10px] text-on-surface-variant">
-                      {item.regulationReference}
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-slate-900">
+                  Swiss FADP &amp; DPDP Statutory Compliance Desk
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Verified statutory rights: Right of Access, Right to Erasure, and Sovereign Data Vault Portability.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleExportVault}
+                disabled={isExporting}
+                className="h-9 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                <span>{isExporting ? "Compiling Vault..." : "Export Sovereign Vault"}</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {complianceList.map((item) => (
+                <div key={item.domain} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-900">{item.domain}</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      {item.status}
                     </span>
                   </div>
-
-                  <h4 className="font-serif text-lg font-medium text-primary">
-                    {item.domain}
-                  </h4>
-
-                  <p className="font-sans text-xs text-on-surface-variant leading-relaxed">
-                    {item.description}
-                  </p>
-
-                  <div className="pt-2 border-t border-surface-container-high flex items-center gap-1.5 text-xs text-[#3D5B42] font-medium font-sans">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>{item.auditEvidence}</span>
-                  </div>
-                </Card>
+                  <p className="text-slate-600 text-[11px] leading-relaxed">{item.description}</p>
+                </div>
               ))}
             </div>
 
-            {/* Sovereign Data Vault Export Card */}
-            <Card className="p-6 bg-surface-container-lowest/60 border border-secondary/30 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <Database className="w-8 h-8 text-secondary" />
-                  <div>
-                    <h3 className="font-serif text-xl font-medium text-primary">
-                      Sovereign Encrypted Data Vault Export
-                    </h3>
-                    <p className="font-sans text-xs text-on-surface-variant">
-                      Generate an immutable AES-256 encrypted archival bundle of all student ledgers, academic transcripts, and biometric logs.
-                    </p>
-                  </div>
-                </div>
-
-                <Button
-                  size="sm"
-                  disabled={isExporting}
-                  onClick={handleGenerateVaultExport}
-                  className="bg-primary hover:bg-primary-hover text-surface text-xs gap-1.5 shrink-0"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  {isExporting ? "Encrypting Vault..." : "Generate Vault Archive"}
-                </Button>
+            {vaultExport && (
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1">
+                <p className="font-bold">Sovereign Data Vault Package Compiled Successfully</p>
+                <p className="font-mono text-[11px]">Vault Key ID: {vaultExport.exportId} • Checksum: {vaultExport.checksumSha256}</p>
               </div>
-
-              {vaultExport && (
-                <div className="p-4 bg-surface rounded-lg border border-[#3D5B42]/30 space-y-2 text-xs font-sans animate-in fade-in">
-                  <div className="flex items-center justify-between pb-2 border-b border-surface-container-high">
-                    <span className="font-bold text-[#3D5B42] flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" /> Sovereign Vault Export Ready
-                    </span>
-                    <span className="font-mono text-primary font-bold">{vaultExport.fileFormat} • {vaultExport.fileSize}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-[11px] text-on-surface-variant">
-                    <div>
-                      <span>Export ID:</span> <strong className="font-mono text-primary">{vaultExport.exportId}</strong>
-                    </div>
-                    <div>
-                      <span>Timestamp:</span> <strong className="font-mono text-primary">{vaultExport.generatedDate}</strong>
-                    </div>
-                    <div className="col-span-2">
-                      <span>SHA-256 Checksum:</span> <span className="font-mono text-primary">{vaultExport.checksumSha256}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </Card>
+            )}
           </div>
         )}
+
+        {/* Institutional Sovereign Bottom Footer */}
+        <PlatformAdminFooter />
       </div>
     </AppShell>
   );

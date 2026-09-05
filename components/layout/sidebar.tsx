@@ -349,14 +349,16 @@ export function Sidebar({
       : role.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()));
 
   const isFinance = role === "ACCOUNTANT";
-
+  const isPlatformAdmin = role === "SUPER_ADMIN";
   const isTeacher = role === "TEACHER";
 
   return (
     <aside
       className={cn(
         "fixed left-0 top-0 h-full w-sidebar-w border-r z-50 flex flex-col justify-between shadow-[0_2px_12px_rgba(0,0,0,0.03)] select-none transition-colors duration-200",
-        isFinance
+        isPlatformAdmin
+          ? "bg-[#080E1E] border-[#131F37] text-slate-100"
+          : isFinance
           ? "bg-[#0B1528] border-[#182742] text-slate-100"
           : "bg-white dark:bg-[#12161f] border-stone-200/80 dark:border-stone-800"
       )}
@@ -366,29 +368,60 @@ export function Sidebar({
         <div
           className={cn(
             "h-20 px-6 flex flex-col justify-center border-b",
-            isFinance ? "border-[#182742]" : "border-stone-100 dark:border-stone-800/80"
+            isPlatformAdmin
+              ? "border-[#131F37]"
+              : isFinance
+              ? "border-[#182742]"
+              : "border-stone-100 dark:border-stone-800/80"
           )}
         >
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
+          {isPlatformAdmin ? (
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm shrink-0">
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-sans text-base font-bold text-white tracking-wide leading-none">
+                  AGRAGATI
+                </span>
+                <span className="font-sans text-[8px] font-bold text-slate-400 tracking-wider uppercase mt-1">
+                  ACADEMIC INTELLIGENCE OS
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    "font-serif text-2xl font-bold tracking-tight leading-none",
+                    isFinance ? "text-white" : "text-stone-900 dark:text-stone-100"
+                  )}
+                >
+                  Agragati
+                </span>
+              </div>
               <span
                 className={cn(
-                  "font-serif text-2xl font-bold tracking-tight leading-none",
-                  isFinance ? "text-white" : "text-stone-900 dark:text-stone-100"
+                  "font-sans text-[9px] font-bold uppercase tracking-widest mt-1.5",
+                  isFinance ? "text-[#94A3B8]" : "text-stone-400 dark:text-stone-500"
                 )}
               >
-                Agragati
+                ACADEMIC INTELLIGENCE OS
               </span>
             </div>
-            <span
-              className={cn(
-                "font-sans text-[9px] font-bold uppercase tracking-widest mt-1.5",
-                isFinance ? "text-[#94A3B8]" : "text-stone-400 dark:text-stone-500"
-              )}
-            >
-              ACADEMIC INTELLIGENCE OS
-            </span>
-          </div>
+          )}
         </div>
 
         {/* Navigation Section */}
@@ -396,10 +429,14 @@ export function Sidebar({
           <div
             className={cn(
               "px-3 pb-2.5 font-sans text-[10px] font-bold uppercase tracking-widest",
-              isFinance ? "text-[#94A3B8]" : "text-stone-500 dark:text-stone-400"
+              isPlatformAdmin
+                ? "text-slate-400"
+                : isFinance
+                ? "text-[#94A3B8]"
+                : "text-stone-500 dark:text-stone-400"
             )}
           >
-            {navData.section}
+            {isPlatformAdmin ? "PLATFORM CONTROL" : navData.section}
           </div>
           <nav className="flex flex-col gap-1">
             {navData.items.map((item) => {
@@ -412,7 +449,11 @@ export function Sidebar({
                   href={item.href}
                   className={cn(
                     "group flex items-center justify-between px-3.5 py-2.5 rounded-xl font-sans text-xs transition-all duration-150",
-                    isFinance
+                    isPlatformAdmin
+                      ? isActive
+                        ? "bg-[#2563EB] text-white font-medium shadow-sm"
+                        : "text-slate-300 hover:bg-white/5 hover:text-white font-medium"
+                      : isFinance
                       ? isActive
                         ? "bg-[#965A20] text-white font-semibold shadow-sm"
                         : "text-[#94A3B8] hover:bg-white/5 hover:text-white font-medium"
@@ -429,7 +470,11 @@ export function Sidebar({
                     <span
                       className={cn(
                         "transition-colors",
-                        isFinance
+                        isPlatformAdmin
+                          ? isActive
+                            ? "text-white"
+                            : "text-slate-400 group-hover:text-white"
+                          : isFinance
                           ? isActive
                             ? "text-white"
                             : "text-[#94A3B8] group-hover:text-white"
@@ -465,51 +510,46 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* Bottom Area: Architectural Engraving Watermark, User Profile Pill, Logout & Footer */}
+      {/* Bottom Area: User Profile Pill, Logout & Footer */}
       <div className="relative flex flex-col justify-end pt-8">
-        {/* Delicate Academy Tower Architectural Engraving Watermark */}
-        <div className="absolute bottom-24 left-2 right-2 pointer-events-none opacity-[0.22] dark:opacity-[0.14] overflow-hidden flex justify-center">
-          <svg
-            className={cn(
-              "w-48 h-48",
-              isFinance ? "text-[#E6C687]" : "text-[#8B5E3C] dark:text-amber-500"
-            )}
-            viewBox="0 0 200 200"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="0.75"
-          >
-            {/* Cathedral / Academy Tower Vector Art */}
-            <path d="M100 20 L100 50 M95 30 L105 30" strokeWidth="1" />
-            <polygon points="100,25 90,60 110,60" fill="currentColor" fillOpacity="0.05" />
-            <rect x="85" y="60" width="30" height="40" />
-            <path d="M92 75 Q100 68 108 75 L108 95 L92 95 Z" />
-            <circle cx="100" cy="85" r="4" />
-            {/* Left Wing */}
-            <rect x="50" y="90" width="35" height="70" />
-            <polygon points="50,90 67.5,70 85,90" />
-            <path d="M58 105 Q67.5 98 77 105 L77 130 L58 130 Z" />
-            <line x1="50" y1="120" x2="85" y2="120" />
-            <line x1="50" y1="140" x2="85" y2="140" />
-            {/* Right Wing */}
-            <rect x="115" y="90" width="35" height="70" />
-            <polygon points="115,90 132.5,70 150,90" />
-            <path d="M123 105 Q132.5 98 142 105 L142 130 L123 130 Z" />
-            <line x1="115" y1="120" x2="150" y2="120" />
-            <line x1="115" y1="140" x2="150" y2="140" />
-            {/* Main Center Base */}
-            <rect x="85" y="100" width="30" height="60" />
-            <path d="M92 120 Q100 112 108 120 L108 160 L92 160 Z" />
-            {/* Outer Columns */}
-            <rect x="30" y="110" width="20" height="50" />
-            <polygon points="30,110 40,98 50,110" />
-            <rect x="150" y="110" width="20" height="50" />
-            <polygon points="150,110 160,98 170,110" />
-            {/* Ground Line */}
-            <line x1="20" y1="160" x2="180" y2="160" strokeWidth="1.2" />
-            <line x1="10" y1="163" x2="190" y2="163" strokeWidth="0.6" />
-          </svg>
-        </div>
+        {!isPlatformAdmin && (
+          <div className="absolute bottom-24 left-2 right-2 pointer-events-none opacity-[0.22] dark:opacity-[0.14] overflow-hidden flex justify-center">
+            <svg
+              className={cn(
+                "w-48 h-48",
+                isFinance ? "text-[#E6C687]" : "text-[#8B5E3C] dark:text-amber-500"
+              )}
+              viewBox="0 0 200 200"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.75"
+            >
+              <path d="M100 20 L100 50 M95 30 L105 30" strokeWidth="1" />
+              <polygon points="100,25 90,60 110,60" fill="currentColor" fillOpacity="0.05" />
+              <rect x="85" y="60" width="30" height="40" />
+              <path d="M92 75 Q100 68 108 75 L108 95 L92 95 Z" />
+              <circle cx="100" cy="85" r="4" />
+              <rect x="50" y="90" width="35" height="70" />
+              <polygon points="50,90 67.5,70 85,90" />
+              <path d="M58 105 Q67.5 98 77 105 L77 130 L58 130 Z" />
+              <line x1="50" y1="120" x2="85" y2="120" />
+              <line x1="50" y1="140" x2="85" y2="140" />
+              <rect x="115" y="90" width="35" height="70" />
+              <polygon points="115,90 132.5,70 150,90" />
+              <path d="M123 105 Q132.5 98 142 105 L142 130 L123 130 Z" />
+              <line x1="115" y1="120" x2="150" y2="120" />
+              <line x1="115" y1="140" x2="150" y2="140" />
+              <rect x="85" y="100" width="30" height="60" />
+              <path d="M92 120 Q100 112 108 120 L108 160 L92 160 Z" />
+              <rect x="30" y="110" width="20" height="50" />
+              <polygon points="30,110 40,98 50,110" />
+              <rect x="150" y="110" width="20" height="50" />
+              <polygon points="150,110 160,98 170,110" />
+              <line x1="20" y1="160" x2="180" y2="160" strokeWidth="1.2" />
+              <line x1="10" y1="163" x2="190" y2="163" strokeWidth="0.6" />
+            </svg>
+          </div>
+        )}
 
         {/* Motto for Finance Bureau */}
         {isFinance && (
@@ -527,8 +567,10 @@ export function Sidebar({
         {/* User Profile Pill */}
         <div
           className={cn(
-            "mx-3 mb-2 p-2.5 rounded-2xl shadow-xs flex items-center justify-between border",
-            isFinance
+            "mx-3 mb-2 p-2.5 rounded-xl shadow-xs flex items-center justify-between border",
+            isPlatformAdmin
+              ? "bg-[#0F1A34] border-[#1E2E4A] text-white"
+              : isFinance
               ? "bg-[#111F36] border-[#1E2E4A] text-white"
               : "bg-stone-50 dark:bg-stone-800/60 border-stone-200/70 dark:border-stone-700/60"
           )}
@@ -536,10 +578,12 @@ export function Sidebar({
           <div className="flex items-center gap-2.5 min-w-0">
             <div
               className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-xs border",
-                isFinance
-                  ? "bg-slate-200 text-[#0B1528] border-slate-300"
-                  : "bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 border-indigo-200/50 dark:border-indigo-800/50"
+                "w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-xs",
+                isPlatformAdmin
+                  ? "bg-[#7C3AED] text-white"
+                  : isFinance
+                  ? "bg-slate-200 text-[#0B1528] border border-slate-300"
+                  : "bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 border border-indigo-200/50 dark:border-indigo-800/50"
               )}
             >
               {effectiveUserName
@@ -551,16 +595,16 @@ export function Sidebar({
             <div className="flex flex-col min-w-0">
               <span
                 className={cn(
-                  "font-sans text-xs font-bold truncate",
-                  isFinance ? "text-white" : "text-stone-900 dark:text-stone-100"
+                  "font-sans text-xs font-semibold truncate",
+                  isPlatformAdmin || isFinance ? "text-white" : "text-stone-900 dark:text-stone-100"
                 )}
               >
                 {effectiveUserName}
               </span>
               <span
                 className={cn(
-                  "font-sans text-[9px] font-semibold tracking-tight truncate",
-                  isFinance ? "text-slate-400" : "text-stone-500 dark:text-stone-400"
+                  "font-sans text-[9px] font-medium tracking-tight truncate",
+                  isPlatformAdmin || isFinance ? "text-slate-400" : "text-stone-500 dark:text-stone-400"
                 )}
               >
                 {defaultRoleTitle}
@@ -570,7 +614,7 @@ export function Sidebar({
           <ChevronRight
             className={cn(
               "w-3.5 h-3.5 shrink-0",
-              isFinance ? "text-slate-500" : "text-stone-400 dark:text-stone-500"
+              isPlatformAdmin || isFinance ? "text-slate-400" : "text-stone-400 dark:text-stone-500"
             )}
           />
         </div>
@@ -580,7 +624,7 @@ export function Sidebar({
           onClick={handleSignOut}
           className={cn(
             "mx-3 mb-3 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2",
-            isFinance
+            isPlatformAdmin || isFinance
               ? "text-slate-400 hover:text-white hover:bg-white/5"
               : "text-stone-600 dark:text-stone-400 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-rose-50/80 dark:hover:bg-rose-950/30"
           )}
@@ -590,32 +634,60 @@ export function Sidebar({
         </button>
 
         {/* Copyright Footer */}
-        <div
-          className={cn(
-            "px-4 pb-4 text-[10px] leading-tight",
-            isFinance ? "text-slate-500" : "text-stone-400 dark:text-stone-500"
-          )}
-        >
-          <p className={isFinance ? "font-medium text-slate-400" : "font-medium text-stone-500 dark:text-stone-400"}>
-            © The King&apos;s College &amp; Academy
-          </p>
-          <p
+        {isPlatformAdmin ? (
+          <div className="px-4 pb-4 border-t border-[#131F37] pt-3 flex items-center gap-3">
+            <div className="w-7 h-7 rounded bg-white/10 flex items-center justify-center shrink-0">
+              <svg
+                className="w-4 h-4 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+              >
+                <path d="M12 2L3 7v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V7l-9-5z" />
+                <path d="M12 7v10M8 11h8" />
+              </svg>
+            </div>
+            <div className="flex flex-col min-w-0 text-[9px] leading-tight text-slate-400">
+              <span className="font-bold text-white tracking-wider uppercase truncate">
+                The King&apos;s College &amp; Academy
+              </span>
+              <span className="text-[8px] text-slate-400 uppercase tracking-wider">
+                GENEVA CAMPUS
+              </span>
+              <span className="text-[8px] text-slate-500 mt-0.5">
+                © All rights reserved.
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div
             className={cn(
-              "text-[9px] uppercase tracking-wider mt-0.5",
+              "px-4 pb-4 text-[10px] leading-tight",
               isFinance ? "text-slate-500" : "text-stone-400 dark:text-stone-500"
             )}
           >
-            GENEVA CAMPUS
-          </p>
-          <p
-            className={cn(
-              "text-[9px] mt-0.5",
-              isFinance ? "text-slate-500" : "text-stone-400 dark:text-stone-500"
-            )}
-          >
-            Scholar Portal • Agragati
-          </p>
-        </div>
+            <p className={isFinance ? "font-medium text-slate-400" : "font-medium text-stone-500 dark:text-stone-400"}>
+              © The King&apos;s College &amp; Academy
+            </p>
+            <p
+              className={cn(
+                "text-[9px] uppercase tracking-wider mt-0.5",
+                isFinance ? "text-slate-500" : "text-stone-400 dark:text-stone-500"
+              )}
+            >
+              GENEVA CAMPUS
+            </p>
+            <p
+              className={cn(
+                "text-[9px] mt-0.5",
+                isFinance ? "text-slate-500" : "text-stone-400 dark:text-stone-500"
+              )}
+            >
+              Scholar Portal • Agragati
+            </p>
+          </div>
+        )}
       </div>
     </aside>
   );
