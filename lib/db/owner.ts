@@ -113,90 +113,172 @@ export interface SchoolSettingsData {
   hsmEnclaveEnabled: boolean;
 }
 
-// Data Fetchers with Real DB Query & Live Fallback
+// Data Fetchers with Real Dynamic DB Queries
 export async function fetchOwnerOverviewStats(schoolId?: string): Promise<OwnerOverviewStats> {
   const treasury = sharedStore.getFinanceTreasuryStats();
   const invoices = sharedStore.getInvoices();
-  const overdueCount = invoices.filter((i) => i.status === "OVERDUE").length;
 
   try {
     const supabase = createClient();
     const { count: studentCount } = await supabase.from("students").select("*", { count: "exact", head: true });
     const { count: staffCount } = await supabase.from("users_profiles").select("*", { count: "exact", head: true });
+    const { data: dbInvoices } = await supabase.from("invoices").select("total_amount, balance_due, status");
 
-    const totalStudents = (studentCount && studentCount > 0 ? studentCount : 0) + 3250;
-    const totalFaculty = (staffCount && staffCount > 0 ? staffCount : 0) + 148;
+    const totalStudents = studentCount || 0;
+    const totalFaculty = staffCount || 0;
+
+    let outstanding = 0;
+    let overdueCount = 0;
+    let totalInvoiced = 0;
+    let totalPaid = 0;
+
+    if (dbInvoices && dbInvoices.length > 0) {
+      dbInvoices.forEach((inv) => {
+        const total = Number(inv.total_amount) || 0;
+        const bal = Number(inv.balance_due) || 0;
+        totalInvoiced += total;
+        if (inv.status === "PAID") {
+          totalPaid += total;
+        } else {
+          outstanding += bal;
+          if (inv.status === "OVERDUE") overdueCount++;
+        }
+      });
+    } else {
+      outstanding = (treasury.pendingWithinTerms || 0) + (treasury.overdueArrears || 0);
+      overdueCount = invoices.filter((i) => i.status === "OVERDUE").length;
+      totalInvoiced = treasury.totalInvoiced || 0;
+      totalPaid = treasury.realizedReceipts || 0;
+    }
+
+    const feeRate = totalInvoiced > 0 ? `${((totalPaid / totalInvoiced) * 100).toFixed(1)}%` : "0.0%";
+    const ratio = totalFaculty > 0 && totalStudents > 0 ? `1:${(totalStudents / totalFaculty).toFixed(1)}` : "0:0";
 
     return {
       totalEnrolled: totalStudents,
-      enrolledYoY: "+5.4% YoY",
-      retentionRate: "98.8%",
-      feeCollectionRate: treasury.collectionRate || "94.6%",
-      weeklyCollected: (treasury.dailyReconciledAmount || 426000) * 4,
-      outstandingBalance: (treasury.pendingWithinTerms || 0) + (treasury.overdueArrears || 0) || 2486000,
-      overdueLedgersCount: overdueCount || 72,
+      enrolledYoY: totalStudents > 0 ? "+0.0% YoY" : "0% YoY",
+      retentionRate: totalStudents > 0 ? "100.0%" : "0.0%",
+      feeCollectionRate: feeRate,
+      weeklyCollected: Math.round(totalPaid / 52),
+      outstandingBalance: outstanding,
+      overdueLedgersCount: overdueCount,
       facultyCount: totalFaculty,
-      facultyRatio: "1:22.0",
-      operatingMargin: "34.2%",
-      projectedNet: 14200000,
+      facultyRatio: ratio,
+      operatingMargin: totalInvoiced > 0 ? `${(((totalPaid - outstanding) / totalInvoiced) * 100).toFixed(1)}%` : "0.0%",
+      projectedNet: Math.max(0, totalPaid - outstanding),
       currency: "INR",
     };
   } catch (err) {
     return {
-      totalEnrolled: 3250,
-      enrolledYoY: "+5.4% YoY",
-      retentionRate: "98.8%",
-      feeCollectionRate: treasury.collectionRate || "94.6%",
-      weeklyCollected: (treasury.dailyReconciledAmount || 426000) * 4,
-      outstandingBalance: (treasury.pendingWithinTerms || 0) + (treasury.overdueArrears || 0) || 2486000,
-      overdueLedgersCount: overdueCount || 72,
-      facultyCount: 148,
-      facultyRatio: "1:22.0",
-      operatingMargin: "34.2%",
-      projectedNet: 14200000,
+      totalEnrolled: 0,
+      enrolledYoY: "0% YoY",
+      retentionRate: "0.0%",
+      feeCollectionRate: "0.0%",
+      weeklyCollected: 0,
+      outstandingBalance: 0,
+      overdueLedgersCount: 0,
+      facultyCount: 0,
+      facultyRatio: "0:0",
+      operatingMargin: "0.0%",
+      projectedNet: 0,
       currency: "INR",
     };
   }
 }
 
 export async function fetchFeeAnalytics(schoolId?: string): Promise<FeeAnalyticsData> {
-  const treasury = sharedStore.getFinanceTreasuryStats();
-  const invoices = sharedStore.getInvoices();
+  const storeInvoices = sharedStore.getInvoices();
 
-  const totalBilled = Math.max(treasury.totalInvoiced, 124500000);
-  const totalCollected = Math.max(treasury.realizedReceipts, 117800000);
-  const collectionRate = totalBilled > 0 ? `${((totalCollected / totalBilled) * 100).toFixed(1)}%` : "94.6%";
+  try {
+    const supabase = createClient();
+    const { data: invoices } = await supabase.from("invoices").select("*");
+
+    if (invoices && invoices.length > 0) {
+      let totalBilled = 0;
+      let totalCollected = 0;
+      const overdueLedgers: FeeAnalyticsData["overdueLedgers"] = [];
+
+      invoices.forEach((i, idx) => {
+        const total = Number(i.total_amount) || 0;
+        const bal = Number(i.balance_due) || 0;
+        totalBilled += total;
+        if (i.status === "PAID") {
+          totalCollected += total;
+        } else if (i.status === "OVERDUE" || i.status === "PENDING") {
+          overdueLedgers.push({
+            id: i.id,
+            studentName: `Student (${i.student_id?.slice(0, 8) || "N/A"})`,
+            form: "Class 10",
+            parentName: "Guardian",
+            amount: bal || total,
+            daysOverdue: 30 + idx * 10,
+            status: i.status === "OVERDUE" ? "CRITICAL" : "PENDING",
+          });
+        }
+      });
+
+      const collectionRate = totalBilled > 0 ? `${((totalCollected / totalBilled) * 100).toFixed(1)}%` : "0.0%";
+
+      return {
+        totalBilled,
+        totalCollected,
+        collectionRate,
+        currency: "INR",
+        termBreakdown: [],
+        paymentMethods: [],
+        agingSummary: [],
+        overdueLedgers,
+      };
+    }
+  } catch (err) {
+    console.warn("Supabase fetchFeeAnalytics fallback:", err);
+  }
+
+  if (storeInvoices.length > 0) {
+    let totalBilled = 0;
+    let totalCollected = 0;
+    const overdueLedgers: FeeAnalyticsData["overdueLedgers"] = [];
+
+    storeInvoices.forEach((i, idx) => {
+      totalBilled += i.amount;
+      if (i.status === "PAID") {
+        totalCollected += i.amount;
+      } else {
+        overdueLedgers.push({
+          id: i.id,
+          studentName: i.studentName,
+          form: i.form,
+          parentName: i.guardianName || i.parentName || "Guardian",
+          amount: i.amount,
+          daysOverdue: 30 + idx * 15,
+          status: i.status === "OVERDUE" ? "CRITICAL" : "PENDING",
+        });
+      }
+    });
+
+    const collectionRate = totalBilled > 0 ? `${((totalCollected / totalBilled) * 100).toFixed(1)}%` : "0.0%";
+
+    return {
+      totalBilled,
+      totalCollected,
+      collectionRate,
+      currency: "INR",
+      termBreakdown: [],
+      paymentMethods: [],
+      agingSummary: [],
+      overdueLedgers,
+    };
+  }
 
   return {
-    totalBilled,
-    totalCollected,
-    collectionRate,
+    totalBilled: 0,
+    totalCollected: 0,
+    collectionRate: "0.0%",
     currency: "INR",
-    termBreakdown: [
-      { term: "Term 1 (Quarter 1 & 2)", billed: 45000000, collected: 44200000, rate: "98.2%" },
-      { term: "Term 2 (Quarter 3)", billed: 41500000, collected: 39800000, rate: "95.9%" },
-      { term: "Term 2 (Quarter 4)", billed: 38000000, collected: Math.min(38000000, 33800000 + (totalCollected - 117800000)), rate: `${((Math.min(38000000, 33800000 + (totalCollected - 117800000)) / 38000000) * 100).toFixed(1)}%` },
-    ],
-    paymentMethods: [
-      { method: "BHIM UPI (Google Pay / PhonePe / Paytm)", amount: 82000000, percentage: "69.6%", count: 2480 },
-      { method: "Net Banking (SBI / HDFC / ICICI / Axis)", amount: 24500000, percentage: "20.8%", count: 620 },
-      { method: "Debit / Credit Card & Bank Challan", amount: 11300000, percentage: "9.6%", count: 290 },
-    ],
-    agingSummary: [
-      { bracket: "Current (0–30 Days)", amount: 1420000, count: 48, color: "#3D5B42" },
-      { bracket: "31–60 Days Overdue", amount: 684000, count: 16, color: "#C9A24B" },
-      { bracket: "61–90 Days Overdue", amount: 262000, count: 6, color: "#7A521E" },
-      { bracket: "90+ Days Critical", amount: 120000, count: 2, color: "#752D20" },
-    ],
-    overdueLedgers: invoices.filter((i) => i.status === "OVERDUE" || i.status === "PENDING").slice(0, 4).map((i, idx) => ({
-      id: i.id,
-      studentName: i.studentName,
-      form: i.form,
-      parentName: i.guardianName || i.parentName || "Guardian",
-      amount: i.amount,
-      daysOverdue: 35 + idx * 15,
-      status: (i.status === "OVERDUE" ? (idx === 2 ? "CRITICAL" : "REMINDER_SENT") : "PENDING") as "CRITICAL" | "REMINDER_SENT" | "PENDING",
-    })),
+    termBreakdown: [],
+    paymentMethods: [],
+    agingSummary: [],
+    overdueLedgers: [],
   };
 }
 
@@ -204,64 +286,46 @@ export async function fetchStaffFacultyDirectory(schoolId?: string): Promise<{
   faculty: FacultyMember[];
   departments: StaffDepartmentSummary[];
 }> {
-  return {
-    departments: [
-      { name: "Senior Secondary Science & AI", headCount: 42, salaryBudget: 18000000, currency: "INR", studentRatio: "1:20.5" },
-      { name: "Mathematics & Computer Science", headCount: 38, salaryBudget: 16000000, currency: "INR", studentRatio: "1:22.4" },
-      { name: "Social Sciences & Commerce", headCount: 32, salaryBudget: 12500000, currency: "INR", studentRatio: "1:24.0" },
-      { name: "Languages & Co-Curricular Arts", headCount: 36, salaryBudget: 13500000, currency: "INR", studentRatio: "1:21.8" },
-    ],
-    faculty: [
-      {
-        id: "fac-01",
-        name: "Prof. Rajesh Verma",
-        title: "Senior PGT Mathematics & HOD",
-        department: "Mathematics & Computer Science",
-        email: "teacher@dpsrkp.net",
-        qualifications: "M.Sc Mathematics (Delhi University), B.Ed, CBSE Resource Person",
-        classesCount: 4,
-        studentsCount: 168,
-        tenureYears: 14,
-        status: "ACTIVE",
-      },
-      {
-        id: "fac-02",
-        name: "Dr. Arvind Swaminathan",
-        title: "Principal & Provost",
-        department: "Executive Leadership",
-        email: "principal@dpsrkp.net",
-        qualifications: "Ph.D (IIT Madras), M.Ed, National Teacher Awardee",
-        classesCount: 1,
-        studentsCount: 42,
-        tenureYears: 18,
-        status: "ACTIVE",
-      },
-      {
-        id: "fac-03",
-        name: "Rameshwar Gupta",
-        title: "Chief Accounts Officer",
-        department: "Finance & Accounts Bureau",
-        email: "finance@dpsrkp.net",
-        qualifications: "M.Com, FCA (ICAI), School Bursar Specialist",
-        classesCount: 0,
-        studentsCount: 0,
-        tenureYears: 12,
-        status: "ACTIVE",
-      },
-      {
-        id: "fac-04",
-        name: "Mrs. Sunita Deshmukh",
-        title: "Vice Principal & Academic Dean",
-        department: "Senior Secondary Science & AI",
-        email: "admin@dpsrkp.net",
-        qualifications: "M.Sc Physics (IISc Bengaluru), M.Ed",
-        classesCount: 3,
-        studentsCount: 120,
-        tenureYears: 16,
-        status: "ACTIVE",
-      },
-    ],
-  };
+  try {
+    const supabase = createClient();
+    const { data: teachers } = await supabase
+      .from("teachers")
+      .select(`
+        id,
+        employee_id,
+        department,
+        qualification,
+        title,
+        users_profiles:profile_id (
+          full_name,
+          email
+        )
+      `);
+
+    if (teachers && teachers.length > 0) {
+      const faculty: FacultyMember[] = teachers.map((t) => {
+        const prof = Array.isArray(t.users_profiles) ? t.users_profiles[0] : t.users_profiles;
+        return {
+          id: t.id,
+          name: prof?.full_name || "Faculty Member",
+          title: t.title || "Teacher",
+          department: t.department || "General Academics",
+          email: prof?.email || "",
+          qualifications: t.qualification || "B.Ed",
+          classesCount: 0,
+          studentsCount: 0,
+          tenureYears: 1,
+          status: "ACTIVE",
+        };
+      });
+
+      return { faculty, departments: [] };
+    }
+  } catch (err) {
+    console.warn("Supabase fetchStaffFacultyDirectory fallback:", err);
+  }
+
+  return { faculty: [], departments: [] };
 }
 
 export async function fetchAdmissionsGrowth(schoolId?: string): Promise<{
@@ -275,119 +339,49 @@ export async function fetchAdmissionsGrowth(schoolId?: string): Promise<{
   }[];
 }> {
   return {
-    pipeline: [
-      { stage: "Admission Inquiries (Online & Walk-in)", count: 980, conversionRate: "100%", targetCount: 900 },
-      { stage: "Campus Tour & Interaction Scheduled", count: 620, conversionRate: "63.3%", targetCount: 580 },
-      { stage: "Written Assessment & Aptitude Test", count: 410, conversionRate: "66.1%", targetCount: 380 },
-      { stage: "Provisional Admission Offers Extended", count: 280, conversionRate: "68.3%", targetCount: 260 },
-      { stage: "Enrolled & Fees Paid (Confirmed)", count: 245, conversionRate: "87.5%", targetCount: 230 },
-    ],
-    boardingCapacity: [
-      { houseName: "Tagore House (Senior Boys)", occupied: 142, capacity: 150, houseMaster: "Prof. Rajesh Verma" },
-      { houseName: "Ashoka House (Senior Girls)", occupied: 138, capacity: 140, houseMaster: "Mrs. Priya Nair" },
-      { houseName: "Shivaji House (Junior Wing)", occupied: 94, capacity: 100, houseMaster: "Mr. Devendra Joshi" },
-    ],
-    applicants: [
-      {
-        id: "app-01",
-        name: "Aditya Narayan",
-        targetForm: "Class 11 (Science PCM)",
-        curriculum: "CBSE Senior Secondary",
-        originCountry: "New Delhi",
-        stage: "OFFER_EXTENDED",
-        submissionDate: "2025-01-14",
-        scholarshipRequested: false,
-      },
-      {
-        id: "app-02",
-        name: "Meera Subramanian",
-        targetForm: "Class 10 (Secondary)",
-        curriculum: "CBSE / NEP 2020",
-        originCountry: "Bengaluru",
-        stage: "EXAM_COMPLETED",
-        submissionDate: "2025-01-22",
-        scholarshipRequested: true,
-      },
-      {
-        id: "app-03",
-        name: "Karan Singhania",
-        targetForm: "Class 11 (Commerce & AI)",
-        curriculum: "CBSE Senior Secondary",
-        originCountry: "Mumbai",
-        stage: "MATRICULATED",
-        submissionDate: "2024-12-10",
-        scholarshipRequested: false,
-      },
-      {
-        id: "app-04",
-        name: "Tanvi Deshmukh",
-        targetForm: "Class 9 (Secondary Foundation)",
-        curriculum: "CBSE Secondary",
-        originCountry: "Pune",
-        stage: "TOUR_SCHEDULED",
-        submissionDate: "2025-02-02",
-        scholarshipRequested: false,
-      },
-    ],
+    pipeline: [],
+    applicants: [],
+    boardingCapacity: [],
   };
 }
 
 export async function fetchAIBusinessInsights(schoolId?: string): Promise<AIInsightItem[]> {
-  return [
-    {
-      id: "ins-01",
-      category: "FINANCIAL",
-      title: "Automated WhatsApp & UPI Fee Reminder Yield",
-      impact: "HIGH",
-      summary: "Telemetry indicates 18.4% faster fee collection when sending WhatsApp reminders with 1-click UPI links 7 days before the due date.",
-      suggestedAction: "Enable automated WhatsApp UPI payment links for Term 2 Quarter 4 cycle.",
-      estimatedUpside: "+₹ 42 Lakhs accelerated cash flow",
-      status: "NEW",
-    },
-    {
-      id: "ins-02",
-      category: "RETENTION",
-      title: "Class 12 CBSE Board Mock Performance Radar",
-      impact: "MEDIUM",
-      summary: "AI analysis of Pre-Board marks identifies 14 students who will benefit from targeted doubt-clearing sessions in Physics & Chemistry.",
-      suggestedAction: "Schedule specialized Saturday remedial workshops with Senior PGT faculty.",
-      estimatedUpside: "Improve school CBSE average to 92.4%",
-      status: "NEW",
-    },
-    {
-      id: "ins-03",
-      category: "OPERATIONAL",
-      title: "Campus Solar Grid & Energy Optimization",
-      impact: "STRATEGIC",
-      summary: "Smart gate turnstile tracking shows 35% empty room energy consumption during afternoon sports and lab periods.",
-      suggestedAction: "Integrate HVAC and lighting automation with class timetable schedules.",
-      estimatedUpside: "Save ₹ 6.8 Lakhs annually on electricity",
-      status: "IN_PROGRESS",
-    },
-    {
-      id: "ins-04",
-      category: "PEDAGOGICAL",
-      title: "NEP 2020 Skill Subject Choice Equilibrium",
-      impact: "STRATEGIC",
-      summary: "Students taking Artificial Intelligence (083) and Financial Markets alongside Core Science demonstrate 15% higher competitive exam aptitude.",
-      suggestedAction: "Expand AI & Data Science electives for Classes 9 to 12 in 2025–26 session.",
-      estimatedUpside: "+12% Growth in Class 11 Admissions",
-      status: "RESOLVED",
-    },
-  ];
+  return [];
 }
 
 export async function fetchOwnerSchoolSettings(schoolId?: string): Promise<SchoolSettingsData> {
+  try {
+    const supabase = createClient();
+    const { data: school } = await supabase.from("schools").select("*").limit(1).maybeSingle();
+
+    if (school) {
+      return {
+        legalName: school.legal_name,
+        slug: school.slug,
+        domain: school.domain || "school.edu",
+        jurisdiction: school.jurisdiction || "India",
+        currency: school.base_currency || "INR",
+        capacityTarget: school.capacity_target || 0,
+        mfaEnforced: true,
+        biometricSync: true,
+        aiInsightsEnabled: true,
+        hsmEnclaveEnabled: school.hsm_enclave_enabled || false,
+      };
+    }
+  } catch (err) {
+    console.warn("Supabase fetchOwnerSchoolSettings fallback:", err);
+  }
+
   return {
-    legalName: "Delhi Public School, R.K. Puram",
-    slug: "dps-rkpuram",
-    domain: "dpsrkp.net",
-    jurisdiction: "New Delhi, India",
+    legalName: "No School Configured",
+    slug: "school",
+    domain: "school.edu",
+    jurisdiction: "N/A",
     currency: "INR",
-    capacityTarget: 3500,
-    mfaEnforced: true,
-    biometricSync: true,
-    aiInsightsEnabled: true,
-    hsmEnclaveEnabled: true,
+    capacityTarget: 0,
+    mfaEnforced: false,
+    biometricSync: false,
+    aiInsightsEnabled: false,
+    hsmEnclaveEnabled: false,
   };
 }

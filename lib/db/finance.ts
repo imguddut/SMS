@@ -125,6 +125,8 @@ export async function fetchFinanceDashboardStats(schoolId?: string): Promise<Fin
   const supabase = createClient();
   try {
     const { data: invoices } = await supabase.from("invoices").select("total_amount, status");
+    const { count: studentCount } = await supabase.from("students").select("*", { count: "exact", head: true });
+
     if (invoices && invoices.length > 0) {
       const totalInvoiced = invoices.reduce((acc, inv) => acc + (Number(inv.total_amount) || 0), 0);
       const paidInvoices = invoices.filter((i) => i.status === "PAID");
@@ -133,7 +135,7 @@ export async function fetchFinanceDashboardStats(schoolId?: string): Promise<Fin
       const pendingWithinTerms = pendingInvoices.reduce((acc, inv) => acc + (Number(inv.total_amount) || 0), 0);
       const overdueInvoices = invoices.filter((i) => i.status === "OVERDUE");
       const overdueArrears = overdueInvoices.reduce((acc, inv) => acc + (Number(inv.total_amount) || 0), 0);
-      const rate = totalInvoiced > 0 ? ((realizedReceipts / totalInvoiced) * 100).toFixed(1) : "94.6";
+      const rate = totalInvoiced > 0 ? ((realizedReceipts / totalInvoiced) * 100).toFixed(1) : "0.0";
 
       return {
         totalInvoiced: Math.max(totalInvoiced, storeStats.totalInvoiced),
@@ -142,16 +144,21 @@ export async function fetchFinanceDashboardStats(schoolId?: string): Promise<Fin
         pendingWithinTerms: pendingWithinTerms || storeStats.pendingWithinTerms,
         overdueArrears: overdueArrears || storeStats.overdueArrears,
         currency: "INR",
-        billableScholars: 1842,
-        dailyReconciledAmount: 426000,
-        autoMatchRate: "99.8%",
+        billableScholars: studentCount || 0,
+        dailyReconciledAmount: 0,
+        autoMatchRate: `${rate}%`,
       };
     }
   } catch (err) {
     console.warn("Supabase query fallback for fetchFinanceDashboardStats:", err);
   }
 
-  return storeStats;
+  return {
+    ...storeStats,
+    billableScholars: storeStats.totalInvoiced > 0 ? 1 : 0,
+    dailyReconciledAmount: 0,
+    autoMatchRate: storeStats.collectionRate || "0.0%",
+  };
 }
 
 // READ: Fee Structures Directory
@@ -174,7 +181,7 @@ export async function fetchFeeStructures(): Promise<FeeStructureItem[]> {
     if (!error && data && data.length > 0) {
       const dbItems: FeeStructureItem[] = data.map((fs, idx) => {
         const categories = Array.isArray(fs.fee_categories) ? fs.fee_categories : [];
-        const annualFee = categories.reduce((sum, c) => sum + (Number(c.default_amount) || 0), 0) || (145000 - idx * 20000);
+        const annualFee = categories.reduce((sum, c) => sum + (Number(c.default_amount) || 0), 0);
         return {
           id: fs.id,
           name: fs.name,
@@ -185,9 +192,9 @@ export async function fetchFeeStructures(): Promise<FeeStructureItem[]> {
           currency: fs.currency || "INR",
           tuitionComponents: categories.map((c) => ({
             name: c.name,
-            amount: Number(c.default_amount) || 50000,
+            amount: Number(c.default_amount) || 0,
           })),
-          activeScholarsCount: 280 + idx * 30,
+          activeScholarsCount: 0,
         };
       });
 
@@ -197,69 +204,7 @@ export async function fetchFeeStructures(): Promise<FeeStructureItem[]> {
     console.warn("Supabase query fallback for fetchFeeStructures:", err);
   }
 
-  const baseStructures: FeeStructureItem[] = [
-    {
-      id: "fee-01",
-      name: "Class 12 Senior Secondary (CBSE Science & AI Stream)",
-      tierCategory: "SENIOR_BOARDING",
-      formTarget: "Class 12 (Science)",
-      annualFee: 145000,
-      termFee: 36250,
-      currency: "INR",
-      tuitionComponents: [
-        { name: "Academic Tuition & Advanced Science Labs", amount: 95000 },
-        { name: "Smart Classroom, STEM & AI Lab Access", amount: 30000 },
-        { name: "Sports, Co-Curricular & Examination Charges", amount: 20000 },
-      ],
-      activeScholarsCount: 280,
-    },
-    {
-      id: "fee-02",
-      name: "Class 11 Senior Secondary (CBSE Commerce & Humanities)",
-      tierCategory: "SENIOR_BOARDING",
-      formTarget: "Class 11 (Commerce & Arts)",
-      annualFee: 125000,
-      termFee: 31250,
-      currency: "INR",
-      tuitionComponents: [
-        { name: "Academic Tuition & Business Lab Seminars", amount: 85000 },
-        { name: "Digital Learning & Library Charges", amount: 25000 },
-        { name: "Co-Curricular & Student Development Fee", amount: 15000 },
-      ],
-      activeScholarsCount: 310,
-    },
-    {
-      id: "fee-03",
-      name: "Secondary School Foundation (Classes 9 & 10 CBSE)",
-      tierCategory: "JUNIOR_BOARDING",
-      formTarget: "Classes 9–10 (Secondary)",
-      annualFee: 95000,
-      termFee: 23750,
-      currency: "INR",
-      tuitionComponents: [
-        { name: "Core Curriculum Tuition", amount: 65000 },
-        { name: "Composite Science & Computer Labs", amount: 18000 },
-        { name: "Physical Education & Arts Fee", amount: 12000 },
-      ],
-      activeScholarsCount: 420,
-    },
-    {
-      id: "fee-04",
-      name: "Primary & Middle Wing (Classes 1 to 8 Day Scholar)",
-      tierCategory: "DAY_SCHOOL",
-      formTarget: "Classes 1–8 (Foundational & Preparatory)",
-      annualFee: 65000,
-      termFee: 16250,
-      currency: "INR",
-      tuitionComponents: [
-        { name: "Tuition, Activity & Language Lab", amount: 50000 },
-        { name: "Sports Facilities & Midday Refreshment", amount: 15000 },
-      ],
-      activeScholarsCount: 832,
-    },
-  ];
-
-  return [...memoryFeeStructures, ...baseStructures];
+  return memoryFeeStructures;
 }
 
 // CREATE: Create Fee Structure

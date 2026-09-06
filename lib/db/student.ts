@@ -141,20 +141,20 @@ export async function fetchStudentProfile(studentId?: string): Promise<StudentPr
   }
 
   return {
-    id: "std-01",
-    name: "Aarav Sharma",
-    rollNumber: "ADM-2024-001",
-    form: "Class 12-A",
-    grade: "Class 12 (CBSE Science & AI)",
-    house: "Tagore House",
-    housemaster: "Prof. Rajesh Verma, Senior PGT",
-    avatar: "AS",
-    honorsTitle: "Head Boy Nominee • Inter-School Science & Debate Captain",
-    housePoints: 142,
-    attendanceRate: liveAttendanceRate,
-    consecutiveStreakDays: 24,
-    ibPredictedPoints: result?.weightedTotal ? Math.round(result.weightedTotal * 5) : 482,
-    termGpa: result ? `${result.weightedTotal}% (Pre-Board)` : "98.4% (Pre-Board)",
+    id: "",
+    name: "Student Profile",
+    rollNumber: "N/A",
+    form: "N/A",
+    grade: "N/A",
+    house: "N/A",
+    housemaster: "N/A",
+    avatar: "ST",
+    honorsTitle: "Student",
+    housePoints: 0,
+    attendanceRate: liveAttendanceRate || "0.0%",
+    consecutiveStreakDays: 0,
+    ibPredictedPoints: 0,
+    termGpa: "0.0%",
   };
 }
 
@@ -203,52 +203,7 @@ export async function fetchStudentSchedule(): Promise<StudentSessionItem[]> {
     console.warn("Supabase query fallback for fetchStudentSchedule:", err);
   }
 
-  return [
-    {
-      id: "sess-01",
-      period: "Period 1",
-      time: "08:30 – 10:00",
-      subject: "Senior Mathematics (CBSE 041)",
-      code: "MATH-041",
-      room: "Physics Wing Rm 301",
-      teacher: "Prof. Rajesh Verma",
-      status: "COMPLETED",
-      topic: "Vectors & Three-Dimensional Geometry (Unit 4)",
-    },
-    {
-      id: "sess-02",
-      period: "Period 2",
-      time: "10:15 – 11:45",
-      subject: "Physics & Wave Optics (CBSE 042)",
-      code: "PHYS-042",
-      room: "Composite Science Lab Rm 304",
-      teacher: "Mrs. Sunita Deshmukh",
-      status: "ACTIVE",
-      topic: "Wave Optics, Single-Slit Diffraction & Polarisation",
-    },
-    {
-      id: "sess-03",
-      period: "Period 3",
-      time: "13:00 – 14:00",
-      subject: "Computer Science & AI Lab (CBSE 083)",
-      code: "CS-083",
-      room: "ATL Innovation Lab East Annex",
-      teacher: "Mr. Anand Sen",
-      status: "UPCOMING",
-      topic: "Python Socket Programming & MySQL Database Integration",
-    },
-    {
-      id: "sess-04",
-      period: "Period 4",
-      time: "14:15 – 15:45",
-      subject: "Chemistry & Organic Synthesis (CBSE 043)",
-      code: "CHEM-043",
-      room: "Chemistry Lab Rm 102",
-      teacher: "Dr. Arvind Swaminathan",
-      status: "UPCOMING",
-      topic: "Aldehydes, Ketones & Carboxylic Acids Mechanisms",
-    },
-  ];
+  return [];
 }
 
 export async function fetchStudentAttendanceRadar(studentId: string = "std-01"): Promise<StudentAttendanceEntry[]> {

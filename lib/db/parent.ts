@@ -152,44 +152,7 @@ export async function fetchEnrolledWards(): Promise<ParentWardProfile[]> {
   } catch (err) {
     console.warn("Supabase query fallback for fetchEnrolledWards:", err);
   }
-
-  const d1 = sharedStore.getParentDigest("ward-01");
-  const d2 = sharedStore.getParentDigest("ward-02");
-  const r1 = sharedStore.getStudentResult("std-01");
-  const r2 = sharedStore.getStudentResult("std-02");
-
-  return [
-    {
-      id: "ward-01",
-      name: "Aarav Sharma",
-      rollNumber: "ADM-2024-001",
-      form: "Class 12-A",
-      grade: "Class 12 (CBSE Science & AI)",
-      house: "Tagore House",
-      housemaster: "Prof. Rajesh Verma, Senior PGT",
-      avatar: "AS",
-      attendanceRate: d1.attendanceRate,
-      termGpa: r1 ? `${r1.weightedTotal}% (Pre-Board)` : "98.4% (Pre-Board)",
-      predictedIbPoints: r1?.weightedTotal ? Math.round(r1.weightedTotal * 5) : 482,
-      unsettledFees: d1.unpaidBalance,
-      currency: "INR",
-    },
-    {
-      id: "ward-02",
-      name: "Ananya Sharma",
-      rollNumber: "ADM-2024-042",
-      form: "Class 10-B",
-      grade: "Class 10 (CBSE Secondary)",
-      house: "Ashoka House",
-      housemaster: "Mrs. Priya Nair",
-      avatar: "AS",
-      attendanceRate: d2.attendanceRate,
-      termGpa: r2 ? `${r2.weightedTotal}% (Pre-Board)` : "94.2% (Pre-Board)",
-      predictedIbPoints: r2?.weightedTotal ? Math.round(r2.weightedTotal * 5) : 470,
-      unsettledFees: d2.unpaidBalance,
-      currency: "INR",
-    },
-  ];
+  return [];
 }
 
 export async function fetchParentDigest(wardId: string): Promise<ParentDigestStats> {
