@@ -212,18 +212,18 @@ export async function triggerClientDownload(
     doc.setDrawColor(226, 232, 240);
     doc.roundedRect(margin, currentY, maxContentWidth, 18, 2, 2, "S");
 
-    const sName = studentMeta?.name || "Aarav Sharma";
-    const sForm = studentMeta?.form || "Class 12-A";
-    const sRoll = studentMeta?.rollNumber || "ADM-2024-001 (CBSE: 12104928)";
-    const sHouse = studentMeta?.house || "Tagore House (Senior Lyceum)";
+    const sName = studentMeta?.name || "Student";
+    const sForm = studentMeta?.form || "";
+    const sRoll = studentMeta?.rollNumber || "";
+    const sHouse = studentMeta?.house || "";
 
     doc.setTextColor(71, 85, 105);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.text(`Student: ${sName} (${sForm})`, margin + 4, currentY + 6);
-    doc.text(`Roll Number: ${sRoll}`, margin + 4, currentY + 12);
+    doc.text(`Student: ${sName}${sForm ? ` (${sForm})` : ""}`, margin + 4, currentY + 6);
+    doc.text(`Roll Number: ${sRoll || "N/A"}`, margin + 4, currentY + 12);
 
-    doc.text(`House: ${sHouse}`, margin + 95, currentY + 6);
+    doc.text(`House: ${sHouse || "N/A"}`, margin + 95, currentY + 6);
     doc.text(`Generated: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST`, margin + 95, currentY + 12);
 
     currentY += 25;
@@ -231,16 +231,10 @@ export async function triggerClientDownload(
     // 4. Body Content
     const rawContent =
       content ||
-      `OFFICIAL RECORD & VERIFIED TRANSCRIPT
-Document Reference: AGR-DOC-${Date.now()}
-Candidate: Aarav Sharma
-Class: Class 12-A Senior Secondary (Science & Artificial Intelligence)
-House: Tagore House
-
-This official document certifies academic performance, coursework submissions, and institutional verification from Agragati Academy.
-
-Verification Hash: SEAL-PRINCIPAL-APAAR-998418-CBSE
-Authorized by Principal & Headmaster Dr. V. K. Malhotra.`;
+      `OFFICIAL RECORD
+Document Reference: DOC-${Date.now()}
+Candidate: ${sName}
+Generated on: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST`;
 
     const cleanedLines = rawContent
       .replace(/^%PDF-[\d\.]+\s*/i, "")

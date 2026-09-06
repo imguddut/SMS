@@ -56,8 +56,8 @@ export interface SidebarProps {
 
 export function Sidebar({
   role,
-  schoolName = "The King's College & Academy",
-  userName = "Genevieve Laurent",
+  schoolName = "School Administration",
+  userName = "User",
   userRoleTitle,
   userAvatar,
 }: SidebarProps) {
@@ -572,10 +572,10 @@ export function Sidebar({
           </div>
           <div className="flex flex-col min-w-0 text-[9px] leading-tight text-slate-400">
             <span className="font-bold text-white tracking-wider uppercase truncate">
-              The King&apos;s College &amp; Academy
+              {schoolName}
             </span>
             <span className="text-[8px] text-slate-400 uppercase tracking-wider">
-              {schoolName || "GENEVA CAMPUS"}
+              Campus Operations
             </span>
             <span className="text-[8px] text-slate-500 mt-0.5">
               © All rights reserved.

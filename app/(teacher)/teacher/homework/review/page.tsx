@@ -27,14 +27,13 @@ import {
 } from "@/lib/db/teacher";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
 import { TeacherQuoteBanner } from "@/components/ui/teacher-quote-banner";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function TeacherHomeworkReviewPage() {
+  const { profile, currentSchool } = useAuth();
   const [submissions, setSubmissions] = React.useState<StudentHomeworkSubmission[]>([]);
   const [grades, setGrades] = React.useState<Record<string, { marks: number; feedback: string }>>({});
-  const [savedGrades, setSavedGrades] = React.useState<Record<string, { saved: boolean; date?: string }>>({
-    "sub-01": { saved: true, date: "2025-01-27" },
-    "sub-02": { saved: true, date: "2025-01-28" },
-  });
+  const [savedGrades, setSavedGrades] = React.useState<Record<string, { saved: boolean; date?: string }>>({});
   const [loading, setLoading] = React.useState(true);
   const [activeTab, setActiveTab] = React.useState<"ALL" | "PENDING" | "GRADED" | "LATE">("ALL");
   const [previewOpen, setPreviewOpen] = React.useState(false);
@@ -58,84 +57,21 @@ export default function TeacherHomeworkReviewPage() {
     async function load() {
       try {
         const data = await fetchHomeworkSubmissions();
-        // Custom dataset matching Image 5:
-        const enrichedData: StudentHomeworkSubmission[] = [
-          {
-            id: "sub-01",
-            homeworkId: "hw-01",
-            homeworkTitle: "Tensor Calculus & Riemannian Metrics — Problem Set 4",
-            studentId: "std-01",
-            studentName: "Aarav Sharma",
-            form: "Class 12-A",
-            submittedAt: "2025-01-26, 21:42 IST",
-            isLate: false,
-            fileName: "Aarav_Sharma_Math_3DGeometry_PS5.pdf",
-            fileSize: "2.8 MB",
-            marksAwarded: 49,
-            maxMarks: 50,
-            feedback: "Exceptional mathematical clarity. Skew line distance derivation was step-by-step and cleanly formatted.",
-            status: "GRADED",
-          },
-          {
-            id: "sub-02",
-            homeworkId: "hw-01",
-            homeworkTitle: "Tensor Calculus & Riemannian Metrics — Problem Set 4",
-            studentId: "std-02",
-            studentName: "Ananya Iyer",
-            form: "Class 12-A",
-            submittedAt: "2025-01-27, 16:50 IST",
-            isLate: false,
-            fileName: "Ananya_Iyer_Vectors_PS5.pdf",
-            fileSize: "2.4 MB",
-            marksAwarded: 48,
-            maxMarks: 50,
-            feedback: "Flawless vector cross-product application. Very neat presentation.",
-            status: "GRADED",
-          },
-          {
-            id: "sub-03",
-            homeworkId: "hw-01",
-            homeworkTitle: "Tensor Calculus & Riemannian Metrics — Problem Set 4",
-            studentId: "std-03",
-            studentName: "Rohan Singhania",
-            form: "Class 12-A",
-            submittedAt: "2025-01-27, 17:35 IST",
-            isLate: true,
-            fileName: "Rohan_Singhania_ProblemSet5.pdf",
-            fileSize: "3.2 MB",
-            marksAwarded: 45,
-            maxMarks: 50,
-            feedback: "Good analytical reasoning demonstrated throughout the derivations.",
-            status: "SUBMITTED",
-          },
-          {
-            id: "sub-04",
-            homeworkId: "hw-01",
-            homeworkTitle: "Tensor Calculus & Riemannian Metrics — Problem Set 4",
-            studentId: "std-04",
-            studentName: "Devansh Gupta",
-            form: "Class 12-A",
-            submittedAt: "2025-01-27, 14:10 IST",
-            isLate: false,
-            fileName: "Devansh_Gupta_Math_PS5.pdf",
-            fileSize: "2.1 MB",
-            marksAwarded: 45,
-            maxMarks: 50,
-            feedback: "Good analytical reasoning demonstrated throughout the derivations.",
-            status: "SUBMITTED",
-          },
-        ];
-
-        setSubmissions(enrichedData);
+        setSubmissions(data || []);
 
         const initialGrades: Record<string, { marks: number; feedback: string }> = {};
-        enrichedData.forEach((sub) => {
+        const initialSaved: Record<string, { saved: boolean; date?: string }> = {};
+        (data || []).forEach((sub) => {
           initialGrades[sub.id] = {
-            marks: sub.marksAwarded ?? 45,
-            feedback: sub.feedback,
+            marks: sub.marksAwarded ?? sub.maxMarks,
+            feedback: sub.feedback || "",
           };
+          if (sub.status === "GRADED") {
+            initialSaved[sub.id] = { saved: true, date: sub.submittedAt };
+          }
         });
         setGrades(initialGrades);
+        setSavedGrades(initialSaved);
       } catch (e) {
         console.error(e);
       } finally {
@@ -166,71 +102,60 @@ export default function TeacherHomeworkReviewPage() {
   };
 
   const handleExportEvaluationReport = () => {
-    const text = `DELHI PUBLIC SCHOOL, R.K. PURAM
+    const schoolName = currentSchool?.name || currentSchool?.legal_name || "School Administration";
+    const text = `${schoolName}
 OFFICIAL HOMEWORK EVALUATION & SUBMISSIONS REPORT
-Academic Session: 2024–2025 • Term 2 (CBSE Senior Secondary)
 
 ASSIGNMENT DETAILS:
-Assignment: Tensor Calculus & Riemannian Metrics (PS4)
-Class & Section: Class 12-A — Senior Secondary Mathematics
-Subject: Mathematics (041) • Max Marks: 50 Marks
-Evaluator: Dr. Alistair Finch / Prof. Rajesh Verma (Senior Faculty Coordinator)
+Assignment: Homework Review Report
+Evaluator: ${profile?.full_name || "Faculty Evaluator"}
 Report Date: ${new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
 
 SUMMARY EVALUATION METRICS:
-Total Enrolled: 38 Scholars
 Submissions Evaluated: ${submissions.length} Scripts
-Cohort Average Score: 46.8 / 50 Marks (93.6%)
 On-Time Submissions: ${submissions.filter((s) => !s.isLate).length}
 Late Exceptions: ${submissions.filter((s) => s.isLate).length}
 
 STUDENT SUBMISSION EVALUATION LOG:
 ================================================================================
-${submissions
+${submissions.length > 0 ? submissions
   .map((s, idx) => {
-    const g = grades[s.id] || { marks: s.marksAwarded ?? 45, feedback: s.feedback };
+    const g = grades[s.id] || { marks: s.marksAwarded ?? 0, feedback: s.feedback };
     const saved = savedGrades[s.id]?.saved;
     return `${idx + 1}. SCHOLAR: ${s.studentName} (${s.studentId.toUpperCase()})
    Form: ${s.form} • File: ${s.fileName} (${s.fileSize})
    Submission Timestamp: ${s.submittedAt} (${s.isLate ? "Late Submission" : "On-Time"})
    Status: ${saved ? "Grade Published" : "Evaluation In Progress"}
    Marks Awarded: ${g.marks} / ${s.maxMarks} Marks (${Math.round((g.marks / s.maxMarks) * 100)}%)
-   Qualitative Feedback: ${g.feedback || "Good analytical presentation."}`;
+   Qualitative Feedback: ${g.feedback || "Work evaluated."}`;
   })
-  .join("\n\n")}
+  .join("\n\n") : "No submissions recorded."}
 ================================================================================
 
-EVALUATION RUBRIC COMPLIANCE:
-All answer scripts evaluated against official CBSE Senior Secondary marking scheme.
-1. Tensor Transformation Rules & Coordinate Metrics (15 Marks)
-2. Christoffel Symbols & Geodesic Equations (20 Marks)
-3. Curvature Tensor Contraction & Notation Accuracy (15 Marks)
-
-Verification Hash: DPS-RKP-EVAL-REPORT-2025-SEAL
-Official Evaluator Signature: Senior Mathematics Faculty Coordinator`;
+Verification Hash: OFFICIAL-EVAL-REPORT-VERIFIED
+Official Evaluator Signature: ${profile?.full_name || "Faculty Evaluator"}`;
 
     setPreviewData({
       title: "Homework Submissions Evaluation Report",
-      fileName: "Class12A_TensorCalculus_Evaluation_Report.pdf",
+      fileName: "Homework_Evaluation_Report.pdf",
       content: text,
-      studentName: "Class 12-A Cohort",
-      studentId: "ADM-2024-MATH",
-      form: "Class 12-A",
+      studentName: "Cohort",
+      studentId: "COHORT",
+      form: "Class",
     });
     setPreviewOpen(true);
   };
 
   const handlePreviewStudentScript = (sub: StudentHomeworkSubmission) => {
-    const g = grades[sub.id] || { marks: sub.marksAwarded ?? 45, feedback: sub.feedback };
-    const text = `DELHI PUBLIC SCHOOL, R.K. PURAM
+    const schoolName = currentSchool?.name || currentSchool?.legal_name || "School Administration";
+    const g = grades[sub.id] || { marks: sub.marksAwarded ?? 0, feedback: sub.feedback };
+    const text = `${schoolName}
 OFFICIAL STUDENT HOMEWORK SCRIPT EVALUATION
-Academic Session: 2024–2025 • Term 2 (CBSE Senior Secondary)
 
 STUDENT SPECIFICATIONS:
 Scholar Name: ${sub.studentName}
-Student ID / Roll: ${sub.studentId.toUpperCase()} (CBSE Reg: 12104928)
-Class & Section: ${sub.form} (Senior Secondary Mathematics)
-Subject: Mathematics (041) — Tensor Calculus & Riemannian Metrics
+Student ID / Roll: ${sub.studentId.toUpperCase()}
+Class & Section: ${sub.form}
 
 SUBMISSION RECORD:
 Assignment Title: ${sub.homeworkTitle}
@@ -238,27 +163,18 @@ Submitted File: ${sub.fileName} (${sub.fileSize})
 Submission Timestamp: ${sub.submittedAt}
 Punctuality Status: ${sub.isLate ? "Late Submission" : "On-Time Submission"}
 
-EVALUATION BREAKDOWN & MARKS:
-================================================================================
-Section A: Tensor Transformations & Invariant Properties: 15 / 15 Marks
-Section B: Metric Tensor & Christoffel Derivations: 19 / 20 Marks
-Section C: Geodesics & Curvature Tensor Contraction: 15 / 15 Marks
---------------------------------------------------------------------------------
 TOTAL MARKS AWARDED: ${g.marks} / ${sub.maxMarks} Marks (${Math.round((g.marks / sub.maxMarks) * 100)}%)
 ================================================================================
 
-SENIOR MASTER QUALITATIVE FEEDBACK & MENTORSHIP:
-"${g.feedback || "Exceptional mathematical clarity. Proofs are step-by-step with impeccable vector notation."}"
+FEEDBACK & MENTORSHIP:
+"${g.feedback || "Evaluated by course faculty."}"
 
-ACADEMIC DIRECTIVE:
-The awarded score has been synced to the Central Gradebook and reflected in the Parent/Student Portal ledger.
-
-Digital Hash: DPS-RKP-SCRIPT-${sub.studentId.toUpperCase()}-2025
-Verified by Evaluator: Senior Mathematics Faculty Coordinator`;
+Digital Hash: SCRIPT-EVAL-${sub.studentId.toUpperCase()}
+Verified by Evaluator: ${profile?.full_name || "Faculty Evaluator"}`;
 
     setPreviewData({
       title: `${sub.studentName} — Homework Script Evaluation`,
-      fileName: `${sub.studentName.replace(/\s+/g, "_")}_Math_PS5_Evaluation.pdf`,
+      fileName: `${sub.studentName.replace(/\s+/g, "_")}_Evaluation.pdf`,
       content: text,
       studentName: sub.studentName,
       studentId: sub.studentId.toUpperCase(),
@@ -281,9 +197,9 @@ Verified by Evaluator: Senior Mathematics Faculty Coordinator`;
   return (
     <AppShell
       role="TEACHER"
-      userName="Dr. Alistair Finch"
-      userRoleTitle="Senior Master in Classical Humanities"
-      epochText="Michaelmas Term 3 • Academic Year 2024–2025"
+      userName={profile?.full_name || "Teacher"}
+      userRoleTitle={currentSchool?.name ? `Faculty • ${currentSchool.name}` : "Faculty Teacher"}
+      epochText="Homework Review & Evaluation"
     >
       <div className="space-y-6 max-w-6xl mx-auto pb-12 font-sans">
         {/* Breadcrumb Header */}

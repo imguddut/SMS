@@ -46,12 +46,16 @@ import {
 } from "lucide-react";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
 import { useRealtimeEvent } from "@/components/providers/realtime-provider";
+import { useAuth } from "@/components/providers/auth-context";
+import { fetchStudentSchedule, StudentSessionItem } from "@/lib/db/student";
 
 export default function ParentHomePage() {
+  const { profile, currentSchool } = useAuth();
   const [wards, setWards] = React.useState<ParentWardProfile[]>([]);
-  const [selectedWardId, setSelectedWardId] = React.useState<string>("ward-01");
+  const [selectedWardId, setSelectedWardId] = React.useState<string>("");
   const [digest, setDigest] = React.useState<ParentDigestStats | null>(null);
   const [homework, setHomework] = React.useState<WardHomeworkItem[]>([]);
+  const [schedule, setSchedule] = React.useState<StudentSessionItem[]>([]);
   const [bulletins, setBulletins] = React.useState<ParentNoticeItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [previewDoc, setPreviewDoc] = React.useState<{
@@ -85,14 +89,16 @@ export default function ParentHomePage() {
         setWards(wardsData);
         if (wardsData.length > 0) {
           const activeId = selectedWardId || wardsData[0].id;
-          const [digestData, hwData, noticesData] = await Promise.all([
+          const [digestData, hwData, noticesData, schedData] = await Promise.all([
             fetchParentDigest(activeId),
             fetchWardHomework(activeId),
             fetchParentBulletins(),
+            fetchStudentSchedule(),
           ]);
           setDigest(digestData);
           setHomework(hwData);
           setBulletins(noticesData);
+          setSchedule(schedData);
         }
       } catch (err) {
         console.error("Failed to load parent portal digest", err);
@@ -106,14 +112,16 @@ export default function ParentHomePage() {
   const refreshWardData = React.useCallback(async () => {
     if (!selectedWardId) return;
     try {
-      const [digestData, hwData, bullData] = await Promise.all([
+      const [digestData, hwData, bullData, schedData] = await Promise.all([
         fetchParentDigest(selectedWardId),
         fetchWardHomework(selectedWardId),
         fetchParentBulletins(),
+        fetchStudentSchedule(),
       ]);
       setDigest(digestData);
       setHomework(hwData);
       setBulletins(bullData);
+      setSchedule(schedData);
     } catch (err) {
       console.error("Realtime refresh error:", err);
     }
@@ -149,22 +157,22 @@ export default function ParentHomePage() {
   };
 
   const handleDownloadLeaveReceipt = () => {
-    const studentName = activeWard?.name || "Aarav Sharma";
-    const studentForm = activeWard?.form || "Class 12-A";
-    const studentRoll = activeWard?.rollNumber || "ADM-2024-001";
-    const studentHouse = activeWard?.house || "Tagore House";
+    const studentName = activeWard?.name || "Student";
+    const studentForm = activeWard?.form || "Class";
+    const studentRoll = activeWard?.rollNumber || "N/A";
+    const studentHouse = activeWard?.house || "N/A";
 
     const content = `OFFICIAL PARENTAL ABSENCE EXCUSE & LEAVE SLIP
 Application Reference: LEAVE-REC-${Date.now().toString().slice(-6)}
 Submission Date: ${new Date().toLocaleDateString("en-IN")}
-Status: SUBMITTED (Pending Class Teacher Approval)
+Status: SUBMITTED (Pending Faculty Approval)
 
 STUDENT DETAILS:
 Name: ${studentName}
 Class & Section: ${studentForm}
 Admission / Roll No: ${studentRoll}
 House: ${studentHouse}
-Parent / Guardian: Mr. Rajesh Sharma
+Parent / Guardian: ${profile?.full_name || "Parent"}
 
 LEAVE APPLICATION PARTICULARS:
 Start Date: ${leaveData.startDate}
@@ -172,12 +180,11 @@ End Date: ${leaveData.endDate}
 Reason for Absence: ${leaveData.reason}
 Doctor Certificate: Not Required / Standard Parental Leave Note
 
-CLASS TEACHER & ACADEMIC ROUTING:
-Class Teacher: Prof. Rajesh Verma (Senior PGT)
-Housemaster: Prof. Rajesh Verma (Tagore House)
+CLASS FACULTY & ACADEMIC ROUTING:
+Class Coordinator: Faculty In-Charge
 Attendance Status: Recorded in School ERP Portal
 
-This document serves as proof of electronic leave submission by registered parent/guardian Mr. Rajesh Sharma via Agragati School OS.`;
+This document serves as proof of electronic leave submission by registered parent/guardian ${profile?.full_name || "Parent"} via School OS.`;
 
     setPreviewDoc({
       isOpen: true,
@@ -211,15 +218,14 @@ This document serves as proof of electronic leave submission by registered paren
   };
 
   const handleDownloadConsentForm = () => {
-    const studentName = activeWard?.name || "Aarav Sharma";
-    const studentForm = activeWard?.form || "Class 12-A";
-    const studentRoll = activeWard?.rollNumber || "ADM-2024-001";
-    const studentHouse = activeWard?.house || "Tagore House";
+    const studentName = activeWard?.name || "Student";
+    const studentForm = activeWard?.form || "Class";
+    const studentRoll = activeWard?.rollNumber || "N/A";
+    const studentHouse = activeWard?.house || "N/A";
 
     const content = `OFFICIAL PARENTAL PERMISSION & CONSENT SLIP
-Activity: Educational Visit to ISRO Space Applications Centre
-Dates: February 12 to 15, 2025
-Tour Coordinator: Dr. K. Radhakrishnan (HOD Science)
+Activity: School Authorized Activity
+Date of Acknowledgment: ${new Date().toLocaleDateString("en-IN")}
 
 STUDENT PARTICULARS:
 Student Name: ${studentName}
@@ -228,17 +234,14 @@ Admission Roll No: ${studentRoll}
 House: ${studentHouse}
 
 PARENT / GUARDIAN ACKNOWLEDGEMENT:
-Parent Name: Mr. Rajesh Sharma
-Registered Contact: +91 98100 54321
+Parent Name: ${profile?.full_name || "Parent"}
 Consent Status: GRANTED & DIGITALLY VERIFIED
-Declaration: I hereby confirm that I have reviewed the tour schedule, itinerary, and safety regulations. I give full consent for my ward ${studentName} to participate in the educational tour under the supervision of authorized school faculty.
-
-Institutional Verification: SEAL-APAAR-CBSE-TOUR-2025`;
+Declaration: I hereby confirm that I have reviewed the activity guidelines. I give full consent for my ward ${studentName} to participate under the supervision of authorized school faculty.`;
 
     setPreviewDoc({
       isOpen: true,
-      title: "ISRO Study Tour Parental Consent Form",
-      fileName: `Parent_Consent_ISRO_Tour_${studentName.replace(/\s+/g, "_")}.pdf`,
+      title: "Parental Consent Form",
+      fileName: `Parent_Consent_${studentName.replace(/\s+/g, "_")}.pdf`,
       content,
       studentMeta: {
         name: studentName,
@@ -250,10 +253,10 @@ Institutional Verification: SEAL-APAAR-CBSE-TOUR-2025`;
   };
 
   const handleDownloadHomeworkTask = (taskTitle: string, subject: string, teacher: string, due: string, maxMarks: number) => {
-    const studentName = activeWard?.name || "Aarav Sharma";
-    const studentForm = activeWard?.form || "Class 12-A";
-    const studentRoll = activeWard?.rollNumber || "ADM-2024-001";
-    const studentHouse = activeWard?.house || "Tagore House";
+    const studentName = activeWard?.name || "Student";
+    const studentForm = activeWard?.form || "Class";
+    const studentRoll = activeWard?.rollNumber || "N/A";
+    const studentHouse = activeWard?.house || "N/A";
 
     const content = `OFFICIAL HOMEWORK WORKSHEET & INSTRUCTIONS
 Subject: ${subject}
@@ -269,12 +272,8 @@ Roll No: ${studentRoll}
 House: ${studentHouse}
 
 ASSIGNMENT INSTRUCTIONS & GUIDELINES:
-1. Complete all numerical and theoretical problem sets in the designated homework register.
-2. Provide step-by-step vector algebra derivations and diagrams where specified.
-3. Reference NCERT Class 12 Exemplar problems for supplementary practice.
-4. Submit the completed physical register or upload PDF scan by 04:00 PM on ${due}.
-
-Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness & steps (30%).`;
+1. Complete all assigned sets in the designated homework register.
+2. Submit completed work or upload by the due date.`;
 
     setPreviewDoc({
       isOpen: true,
@@ -293,9 +292,9 @@ Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness 
   return (
     <AppShell
       role="PARENT"
-      userName="Mr. Rajesh Sharma"
-      userRoleTitle={`Parent • ${activeWard ? activeWard.name : "Aarav Sharma"}`}
-      epochText="Academic Year 2024–2025 • Term 2 (CBSE Board)"
+      userName={profile?.full_name || "Parent"}
+      userRoleTitle={`Parent${activeWard?.name ? ` • ${activeWard.name}` : ""}`}
+      epochText="Academic Overview"
     >
       <div className="space-y-6">
         {/* Child Profile Switcher Hero Card */}
@@ -312,14 +311,16 @@ Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness 
             <div>
               <div className="flex flex-wrap items-center gap-2.5">
                 <h1 className="font-serif text-2xl md:text-3xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
-                  {activeWard?.name || "Aarav Sharma"}
+                  {activeWard?.name || "Student"}
                 </h1>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#EEF2FF] dark:bg-indigo-950/50 text-[#3730A3] dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/50 font-sans text-[10px] font-bold uppercase tracking-wider">
-                  {activeWard?.form || "CLASS 12-A"}
-                </span>
+                {activeWard?.form && (
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#EEF2FF] dark:bg-indigo-950/50 text-[#3730A3] dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/50 font-sans text-[10px] font-bold uppercase tracking-wider">
+                    {activeWard.form}
+                  </span>
+                )}
               </div>
               <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-1">
-                {activeWard?.grade || "Class 12 (CBSE Science & AI)"} • {activeWard?.house || "Tagore House"} • Roll No: {activeWard?.rollNumber || "ADM-2024-001"}
+                {activeWard?.grade || "Enrolled Scholar"} {activeWard?.house ? `• ${activeWard.house}` : ""} {activeWard?.rollNumber ? `• Roll No: ${activeWard.rollNumber}` : ""}
               </p>
             </div>
           </div>
@@ -488,117 +489,48 @@ Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness 
                       Today&apos;s Class Schedule
                     </h2>
                     <span className="font-sans text-xs text-stone-500 dark:text-stone-400">
-                      Term 2 (CBSE) • Tuesday
+                      {new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
                     </span>
                   </div>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-sky-100 dark:bg-sky-950/50 text-sky-800 dark:text-sky-300 text-[10px] font-bold tracking-wider uppercase flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-sky-600 animate-ping" />
-                  ONGOING: PERIOD 2
-                </span>
+                {schedule.length > 0 && (
+                  <span className="px-2.5 py-1 rounded-full bg-sky-100 dark:bg-sky-950/50 text-sky-800 dark:text-sky-300 text-[10px] font-bold tracking-wider uppercase">
+                    {schedule.length} Periods Scheduled
+                  </span>
+                )}
               </div>
 
               {/* Schedule Timeline Items */}
-              <div className="mt-4 space-y-3 relative before:absolute before:left-[108px] before:top-4 before:bottom-4 before:w-0.5 before:bg-stone-200 dark:before:bg-stone-800 hidden sm:block">
-                {/* Period 1: Completed */}
-                <div className="relative flex items-center justify-between p-3 rounded-xl bg-stone-50/70 dark:bg-stone-900/40 border border-stone-200/60 dark:border-stone-800 border-l-4 border-l-emerald-500 hover:bg-stone-50 transition-colors">
-                  <div className="flex items-center gap-6 min-w-0">
-                    <div className="flex items-center gap-2.5 w-24 shrink-0">
-                      <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] z-10 shadow-xs">
-                        ✓
+              <div className="mt-4 space-y-3">
+                {schedule.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-stone-500 dark:text-stone-400">
+                    No scheduled periods found for today.
+                  </div>
+                ) : (
+                  schedule.map((item) => (
+                    <div
+                      key={item.id}
+                      className="relative flex items-center justify-between p-3 rounded-xl bg-stone-50/70 dark:bg-stone-900/40 border border-stone-200/60 dark:border-stone-800 border-l-4 border-l-sky-500 hover:bg-stone-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="w-24 shrink-0 text-xs font-bold text-stone-800 dark:text-stone-200">
+                          {item.time || item.period}
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="font-sans text-xs font-bold text-stone-900 dark:text-stone-100 leading-tight">
+                            {item.subject}
+                          </h4>
+                          <p className="font-sans text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 truncate">
+                            {item.teacher} {item.room ? `• ${item.room}` : ""}
+                          </p>
+                        </div>
                       </div>
-                      <span className="font-sans text-xs font-bold text-stone-800 dark:text-stone-200">
-                        08:30 – 10:00
+                      <span className="px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/50 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800 text-[10px] font-bold uppercase tracking-wider shrink-0">
+                        {item.status}
                       </span>
                     </div>
-                    <div className="min-w-0">
-                      <h4 className="font-sans text-xs font-bold text-stone-900 dark:text-stone-100 leading-tight">
-                        Mathematics (CBSE 041 - Vector Algebra)
-                      </h4>
-                      <p className="font-sans text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 truncate">
-                        Prof. Rajesh Verma • Room 301
-                      </p>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[10px] font-bold uppercase tracking-wider shrink-0">
-                    COMPLETED
-                  </span>
-                </div>
-
-                {/* Period 2: In Progress */}
-                <div className="relative flex items-center justify-between p-3 rounded-xl bg-sky-50/50 dark:bg-sky-950/20 border border-sky-200/70 dark:border-sky-800/40 border-l-4 border-l-sky-500 hover:bg-sky-50 transition-colors">
-                  <div className="flex items-center gap-6 min-w-0">
-                    <div className="flex items-center gap-2.5 w-24 shrink-0">
-                      <div className="w-5 h-5 rounded-full bg-sky-500 text-white flex items-center justify-center text-[10px] z-10 ring-4 ring-sky-100 dark:ring-sky-900/40 shadow-xs">
-                        ●
-                      </div>
-                      <span className="font-sans text-xs font-bold text-stone-800 dark:text-stone-200">
-                        10:15 – 11:45
-                      </span>
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="font-sans text-xs font-bold text-stone-900 dark:text-stone-100 leading-tight">
-                        Physics (CBSE 042 - Lab Practical)
-                      </h4>
-                      <p className="font-sans text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 truncate">
-                        Mrs. Sunita Deshmukh • Physics Lab 304
-                      </p>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/50 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800 text-[10px] font-bold uppercase tracking-wider shrink-0">
-                    ONGOING
-                  </span>
-                </div>
-
-                {/* Period 3: Upcoming */}
-                <div className="relative flex items-center justify-between p-3 rounded-xl bg-white dark:bg-stone-900/20 border border-stone-200/70 dark:border-stone-800 border-l-4 border-l-stone-300 hover:bg-stone-50/50 transition-colors">
-                  <div className="flex items-center gap-6 min-w-0">
-                    <div className="flex items-center gap-2.5 w-24 shrink-0">
-                      <div className="w-5 h-5 rounded-full bg-stone-200 dark:bg-stone-700 text-stone-500 flex items-center justify-center text-[10px] z-10">
-                        ○
-                      </div>
-                      <span className="font-sans text-xs font-semibold text-stone-600 dark:text-stone-400">
-                        13:00 – 14:00
-                      </span>
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="font-sans text-xs font-bold text-stone-900 dark:text-stone-100 leading-tight">
-                        Computer Science (Python &amp; SQL Lab)
-                      </h4>
-                      <p className="font-sans text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 truncate">
-                        Mr. Anand Sen • Computer Lab 2
-                      </p>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 text-[10px] font-bold uppercase tracking-wider shrink-0">
-                    UPCOMING
-                  </span>
-                </div>
-
-                {/* Period 4: Upcoming */}
-                <div className="relative flex items-center justify-between p-3 rounded-xl bg-white dark:bg-stone-900/20 border border-stone-200/70 dark:border-stone-800 border-l-4 border-l-stone-300 hover:bg-stone-50/50 transition-colors">
-                  <div className="flex items-center gap-6 min-w-0">
-                    <div className="flex items-center gap-2.5 w-24 shrink-0">
-                      <div className="w-5 h-5 rounded-full bg-stone-200 dark:bg-stone-700 text-stone-500 flex items-center justify-center text-[10px] z-10">
-                        ○
-                      </div>
-                      <span className="font-sans text-xs font-semibold text-stone-600 dark:text-stone-400">
-                        14:15 – 15:45
-                      </span>
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="font-sans text-xs font-bold text-stone-900 dark:text-stone-100 leading-tight">
-                        English Core &amp; Reading Comprehension
-                      </h4>
-                      <p className="font-sans text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 truncate">
-                        Mrs. Priya Nair • Room 102
-                      </p>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 text-[10px] font-bold uppercase tracking-wider shrink-0">
-                    UPCOMING
-                  </span>
-                </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -615,7 +547,7 @@ Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness 
                       Pending Homework &amp; Assignments
                     </h2>
                     <span className="font-sans text-xs text-stone-500 dark:text-stone-400">
-                      Assigned to {activeWard?.name.split(" ")[0] || "Aarav"}
+                      Assigned to {activeWard?.name ? activeWard.name.split(" ")[0] : "Student"}
                     </span>
                   </div>
                 </div>
@@ -629,101 +561,72 @@ Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness 
 
               {/* Homework List Cards */}
               <div className="mt-4 space-y-3">
-                {/* Task 1: Mathematics */}
-                <div className="p-4 rounded-xl border border-stone-200/80 dark:border-stone-800 hover:border-amber-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex items-start gap-3.5 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-100 dark:border-purple-800 flex items-center justify-center font-serif font-bold text-lg shrink-0 mt-0.5">
-                      Σ
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="px-2 py-0.5 rounded bg-purple-100/80 dark:bg-purple-950/50 text-purple-800 dark:text-purple-300 text-[9px] font-bold uppercase tracking-wider">
-                          MATHEMATICS (CBSE 041)
-                        </span>
-                        <span className="text-stone-400 text-xs">•</span>
-                        <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
-                          By Prof. Rajesh Verma
-                        </span>
-                      </div>
-                      <h4 className="font-sans text-xs font-bold text-stone-900 dark:text-stone-100 leading-snug">
-                        Problem Set 5: Three-Dimensional Geometry &amp; Vector Algebra
-                      </h4>
-                      <p className="font-sans text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">
-                        Shortest distance between skew lines and plane equations in vector form...
-                      </p>
-                    </div>
+                {homework.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-stone-500 dark:text-stone-400">
+                    No pending homework assignments found.
                   </div>
-
-                  <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-stone-100 dark:border-stone-800">
-                    <div className="flex flex-col md:items-end">
-                      <span className="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-[10px] font-bold flex items-center gap-1">
-                        📅 Due: 27 Jan 2025
-                      </span>
-                      <span className="text-[10px] text-stone-400 mt-0.5">
-                        Total Marks: 50
-                      </span>
-                    </div>
-                    <Link
-                      href="/parent/homework"
-                      className="p-1.5 rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 transition-colors"
+                ) : (
+                  homework.map((hw) => (
+                    <div
+                      key={hw.id}
+                      className="p-4 rounded-xl border border-stone-200/80 dark:border-stone-800 hover:border-amber-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
                     >
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Task 2: Physics */}
-                <div className="p-4 rounded-xl border border-stone-200/80 dark:border-stone-800 hover:border-amber-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex items-start gap-3.5 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-100 dark:border-rose-800 flex items-center justify-center font-serif font-bold text-lg shrink-0 mt-0.5">
-                      ⚛
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="px-2 py-0.5 rounded bg-rose-100/80 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300 text-[9px] font-bold uppercase tracking-wider">
-                          PHYSICS (CBSE 042)
-                        </span>
-                        <span className="text-stone-400 text-xs">•</span>
-                        <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
-                          By Mrs. Sunita Deshmukh
-                        </span>
+                      <div className="flex items-start gap-3.5 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-100 dark:border-purple-800 flex items-center justify-center font-serif font-bold text-lg shrink-0 mt-0.5">
+                          {hw.subject.slice(0, 1)}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <span className="px-2 py-0.5 rounded bg-purple-100/80 dark:bg-purple-950/50 text-purple-800 dark:text-purple-300 text-[9px] font-bold uppercase tracking-wider">
+                              {hw.subject}
+                            </span>
+                            {hw.teacherName && (
+                              <>
+                                <span className="text-stone-400 text-xs">•</span>
+                                <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
+                                  By {hw.teacherName}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          <h4 className="font-sans text-xs font-bold text-stone-900 dark:text-stone-100 leading-snug">
+                            {hw.title}
+                          </h4>
+                          <p className="font-sans text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">
+                            {hw.description}
+                          </p>
+                        </div>
                       </div>
-                      <h4 className="font-sans text-xs font-bold text-stone-900 dark:text-stone-100 leading-snug">
-                        CBSE Investigatory Project: Electromagnetic Induction
-                      </h4>
-                      <p className="font-sans text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">
-                        Transformer working model and self/mutual induction project report...
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-stone-100 dark:border-stone-800">
-                    <div className="flex flex-col md:items-end">
-                      <span className="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-[10px] font-bold flex items-center gap-1">
-                        📅 Due: 28 Jan 2025
-                      </span>
-                      <span className="text-[10px] text-stone-400 mt-0.5">
-                        Total Marks: 30
-                      </span>
+                      <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-stone-100 dark:border-stone-800">
+                        <div className="flex flex-col md:items-end">
+                          <span className="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-[10px] font-bold flex items-center gap-1">
+                            📅 Due: {hw.dueDate}
+                          </span>
+                          <span className="text-[10px] text-stone-400 mt-0.5">
+                            Total Marks: {hw.maxMarks}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadHomeworkTask(hw.title, hw.subject, hw.teacherName || "Faculty", hw.dueDate, hw.maxMarks)}
+                            title="Download Assignment Worksheet (PDF)"
+                            className="p-1.5 rounded-lg text-[#8C6D27] dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 transition-colors"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                          <Link
+                            href="/parent/homework"
+                            className="p-1.5 rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 transition-colors"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => handleDownloadHomeworkTask("CBSE Investigatory Project: Electromagnetic Induction", "Physics (CBSE 042)", "Mrs. Sunita Deshmukh", "28 Jan 2025", 30)}
-                        title="Download Assignment Worksheet (PDF)"
-                        className="p-1.5 rounded-lg text-[#8C6D27] dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 transition-colors"
-                      >
-                        <Download className="w-4 h-4" />
-                      </button>
-                      <Link
-                        href="/parent/homework"
-                        className="p-1.5 rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 transition-colors"
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -838,7 +741,7 @@ Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness 
             </div>
             <div>
               <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100 tracking-tight">
-                Supporting {activeWard?.name.split(" ")[0] || "Aarav"}&apos;s Learning Journey
+                Supporting {activeWard?.name ? activeWard.name.split(" ")[0] : "your child"}&apos;s Learning Journey
               </h3>
               <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-0.5">
                 Your daily support and encouragement make a big difference.
@@ -862,7 +765,7 @@ Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness 
         isOpen={isLeaveModalOpen}
         onClose={() => setIsLeaveModalOpen(false)}
         title="Apply for Leave"
-        description={`Submit a leave application for ${activeWard?.name} (${activeWard?.form}).`}
+        description={`Submit a leave application for ${activeWard?.name || "your child"}${activeWard?.form ? ` (${activeWard.form})` : ""}.`}
         maxWidth="md"
       >
         <form onSubmit={handleLeaveSubmit} className="space-y-4 mt-2">
@@ -873,7 +776,7 @@ Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness 
                 Leave Application Submitted!
               </p>
               <p className="text-xs text-stone-500 dark:text-stone-400">
-                Class Teacher Prof. Rajesh Verma will review and update the attendance record.
+                Authorized faculty will review and update the attendance record.
               </p>
               <div className="pt-2">
                 <button
@@ -964,7 +867,7 @@ Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness 
         isOpen={isConsentModalOpen}
         onClose={() => setIsConsentModalOpen(false)}
         title="Parent Permission Form (Consent Slip)"
-        description="ISRO Space Applications Centre Educational Tour"
+        description="Institutional Activity & Educational Event"
         maxWidth="lg"
       >
         <div className="space-y-4 mt-2">
@@ -992,13 +895,10 @@ Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness 
             <>
               <div className="p-4 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 text-xs text-stone-700 dark:text-stone-300 space-y-2 leading-relaxed font-sans">
                 <p>
-                  <strong>Activity:</strong> Educational Visit to ISRO Space Applications Centre
+                  <strong>Activity:</strong> School Authorized Educational Activity
                 </p>
                 <p>
-                  <strong>Dates:</strong> February 12 to 15, 2025
-                </p>
-                <p>
-                  <strong>Accompanying Teachers:</strong> Dr. K. Radhakrishnan &amp; Science Department Faculty
+                  <strong>Supervisors:</strong> School Department Faculty
                 </p>
                 <p className="text-[11px] text-stone-500 dark:text-stone-400 pt-2 border-t border-amber-200 dark:border-amber-800">
                   By ticking the checkbox below, you grant permission for your child to participate in the educational visit.
@@ -1013,7 +913,7 @@ Evaluation Criteria: Conceptual clarity (40%), Formula accuracy (30%), Neatness 
                   className="mt-0.5 rounded border-stone-300 text-[#8C6D27] focus:ring-[#8C6D27]"
                 />
                 <span className="text-xs text-stone-800 dark:text-stone-200 leading-snug">
-                  I, <strong>Mr. Rajesh Sharma</strong>, confirm that I have read the tour guidelines and grant permission for my child ({activeWard?.name}).
+                  I, <strong>{profile?.full_name || "Parent/Guardian"}</strong>, confirm that I have read the guidelines and grant permission for my child ({activeWard?.name || "Student"}).
                 </span>
               </label>
 

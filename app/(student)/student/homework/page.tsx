@@ -148,7 +148,7 @@ export default function StudentHomeworkPage() {
 
   const handleDownloadWorksheet = (task: StudentHomeworkTask) => {
     const safeTitle = task.title.replace(/[^a-zA-Z0-9]/g, "_");
-    const content = `=== ${school?.name || "AGRAGATI ACADEMY"} • COURSEWORK WORKSHEET ===\nSubject: ${task.subject}\nTitle: ${task.title}\nInstructor: ${task.teacherName}\nAssigned Date: ${task.assignedDate}\nDue Date: ${task.dueDate}\nMaximum Marks: ${task.maxScore}\n\nRUBRIC CRITERIA & INSTRUCTIONS:\n${task.rubricSummary}\n\nInstructions for Submission:\n1. Show all step-by-step mathematical derivations or routines.\n2. Compile work into a clean PDF document.\n3. Submit prior to the deadline on the Student Portal.`;
+    const content = `=== ${school?.name || "ACADEMY"} • COURSEWORK WORKSHEET ===\nSubject: ${task.subject}\nTitle: ${task.title}\nInstructor: ${task.teacherName}\nAssigned Date: ${task.assignedDate}\nDue Date: ${task.dueDate}\nMaximum Marks: ${task.maxScore}\n\nRUBRIC CRITERIA & INSTRUCTIONS:\n${task.rubricSummary}\n\nInstructions for Submission:\n1. Show all step-by-step mathematical derivations or routines.\n2. Compile work into a clean PDF document.\n3. Submit prior to the deadline on the Student Portal.`;
 
     const stName = profile?.full_name || studentProfile?.name || "Student";
     setPreviewDoc({
@@ -161,7 +161,7 @@ export default function StudentHomeworkPage() {
         classSection: studentProfile?.form || "",
         rollNumber: studentProfile?.rollNumber || "",
         academicSession: "2024-2025",
-        institutionName: school?.name || "AGRAGATI MODERN ACADEMY",
+        institutionName: school?.name || "",
       },
     });
   };
@@ -169,7 +169,7 @@ export default function StudentHomeworkPage() {
   const handleDownloadGradedScript = (task: StudentHomeworkTask) => {
     const safeTitle = task.title.replace(/[^a-zA-Z0-9]/g, "_");
     const stName = profile?.full_name || studentProfile?.name || "Student";
-    const content = `=== ${school?.name || "AGRAGATI ACADEMY"} • EVALUATED SCRIPT & FACULTY FEEDBACK ===\nStudent: ${stName} (${studentProfile?.form || ""})\nSubject: ${task.subject}\nCoursework: ${task.title}\nEvaluator: ${task.teacherName}\nScore Awarded: ${task.score ?? task.maxScore} / ${task.maxScore} Marks (${Math.round(((task.score ?? task.maxScore) / task.maxScore) * 100)}%)\n\nFEEDBACK:\n"${task.teacherFeedback || "Evaluated on schedule."}"`;
+    const content = `=== ${school?.name || "ACADEMY"} • EVALUATED SCRIPT & FACULTY FEEDBACK ===\nStudent: ${stName} (${studentProfile?.form || ""})\nSubject: ${task.subject}\nCoursework: ${task.title}\nEvaluator: ${task.teacherName}\nScore Awarded: ${task.score ?? task.maxScore} / ${task.maxScore} Marks (${Math.round(((task.score ?? task.maxScore) / task.maxScore) * 100)}%)\n\nFEEDBACK:\n"${task.teacherFeedback || "Evaluated on schedule."}"`;
 
     setPreviewDoc({
       isOpen: true,
@@ -181,14 +181,14 @@ export default function StudentHomeworkPage() {
         classSection: studentProfile?.form || "",
         rollNumber: studentProfile?.rollNumber || "",
         academicSession: "2024-2025",
-        institutionName: school?.name || "AGRAGATI MODERN ACADEMY",
+        institutionName: school?.name || "",
       },
     });
   };
 
   const handleDownloadReceipt = (task: StudentHomeworkTask, scriptFileName: string) => {
     const stName = profile?.full_name || studentProfile?.name || "Student";
-    const content = `=== ${school?.name || "AGRAGATI ACADEMY"} • DIGITAL SUBMISSION RECEIPT ===\nReceipt Ref: SUB-${Date.now()}\nStudent: ${stName} (${studentProfile?.form || ""})\nSubject: ${task.subject}\nAssignment: ${task.title}\nUploaded File: ${scriptFileName}\nTimestamp: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST\nServer Verification: Confirmed by Evaluation Desk`;
+    const content = `=== ${school?.name || "ACADEMY"} • DIGITAL SUBMISSION RECEIPT ===\nReceipt Ref: SUB-${Date.now()}\nStudent: ${stName} (${studentProfile?.form || ""})\nSubject: ${task.subject}\nAssignment: ${task.title}\nUploaded File: ${scriptFileName}\nTimestamp: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST\nServer Verification: Confirmed by Evaluation Desk`;
 
     setPreviewDoc({
       isOpen: true,
@@ -200,7 +200,7 @@ export default function StudentHomeworkPage() {
         classSection: studentProfile?.form || "",
         rollNumber: studentProfile?.rollNumber || "",
         academicSession: "2024-2025",
-        institutionName: school?.name || "AGRAGATI MODERN ACADEMY",
+        institutionName: school?.name || "",
       },
     });
   };
@@ -220,13 +220,18 @@ export default function StudentHomeworkPage() {
 
   const pendingCount = tasks.filter((t) => t.status === "PENDING").length;
   const gradedCount = tasks.filter((t) => t.status === "GRADED").length;
+  const gradedTasks = tasks.filter((t) => t.status === "GRADED" && t.score != null);
+  const avgGrade = gradedTasks.length > 0
+    ? Math.round((gradedTasks.reduce((acc, t) => acc + ((t.score || 0) / t.maxScore) * 100, 0)) / gradedTasks.length)
+    : 0;
+  const nextPending = tasks.find((t) => t.status === "PENDING");
 
   return (
     <AppShell
       role="STUDENT"
       userName={profile?.full_name || studentProfile?.name || "Student"}
       userRoleTitle={studentProfile?.form ? `SCHOLAR • ${studentProfile.form.toUpperCase()}` : "STUDENT"}
-      epochText="Academic Submissions • CBSE Board Term II (2024–2025)"
+      epochText="Academic Submissions"
     >
       <div className="space-y-6">
         {/* Toast Alert Feedback */}
@@ -246,7 +251,7 @@ export default function StudentHomeworkPage() {
               </span>
               <span className="text-stone-300 text-xs">•</span>
               <span className="font-sans text-[10px] font-medium text-stone-500">
-                Class 12 Senior Secondary • CBSE &amp; Science Stream
+                {studentProfile?.form ? `Form ${studentProfile.form}` : "Enrolled Scholar"}
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-stone-900">
@@ -267,7 +272,7 @@ export default function StudentHomeworkPage() {
                 &ldquo;Discipline in your work today builds the scholar you become tomorrow.&rdquo;
               </p>
               <span className="font-sans text-[10px] text-stone-400 block mt-0.5">
-                — Tagore House Master Motto
+                — Academic Honor Code
               </span>
             </div>
           </div>
@@ -288,7 +293,7 @@ export default function StudentHomeworkPage() {
                 {pendingCount} Tasks
               </div>
               <p className="font-sans text-xs text-stone-500 mt-0.5">
-                Next: Math PS5 (Jan 27)
+                {nextPending ? `Next: ${nextPending.subject} (${nextPending.dueDate})` : "All coursework up to date"}
               </p>
             </div>
           </div>
@@ -303,13 +308,15 @@ export default function StudentHomeworkPage() {
                 EVALUATED SUBMISSIONS
               </span>
               <div className="font-serif text-2xl md:text-3xl font-bold text-amber-900 mt-0.5">
-                {gradedCount} Graded (98.0% Avg)
+                {gradedCount} Graded {gradedCount > 0 ? `(${avgGrade}% Avg)` : ""}
               </div>
-              <div className="mt-1">
-                <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/70 font-sans text-[10px] font-bold inline-flex items-center gap-1">
-                  ⭐ High Distinction Awarded
-                </span>
-              </div>
+              {gradedCount > 0 && (
+                <div className="mt-1">
+                  <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/70 font-sans text-[10px] font-bold inline-flex items-center gap-1">
+                    ⭐ Evaluated
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

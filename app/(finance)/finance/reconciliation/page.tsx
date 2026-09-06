@@ -120,6 +120,10 @@ export default function BankReconciliationPage() {
 
   const reconciledCount = feedItems.filter((f) => f.status === "RECONCILED").length;
   const unmatchedCount = feedItems.filter((f) => f.status === "UNMATCHED").length;
+  const dailyVolume = feedItems.reduce((acc, f) => acc + (f.amount || 0), 0);
+  const reconciledVolume = feedItems
+    .filter((f) => f.status === "RECONCILED")
+    .reduce((acc, f) => acc + (f.amount || 0), 0);
 
   const filteredFeed = feedItems.filter((item) => {
     const matchesFilter =
@@ -209,7 +213,7 @@ AUDIT CERTIFICATION & GOVERNANCE:
 2. Unmatched credits are held in Treasury Suspense A/C pending guardian identity verification.
 
 Accounts Officer / Bursar
-${instName} • Agragati School Management OS`;
+${instName} • School Management OS`;
 
     setPreviewDoc({
       isOpen: true,
@@ -265,7 +269,7 @@ ${instName} • Agragati School Management OS`;
       role="ACCOUNTANT"
       userName={profile?.full_name || "Accounts Officer"}
       userRoleTitle="Accounts Officer & Bursar"
-      epochText="Term 2 (CBSE) • Academic Year 2024–2025"
+      epochText="Bank Feed &amp; Reconciliation Engine"
     >
       <div className="space-y-6">
         {/* Header */}
@@ -280,7 +284,7 @@ ${instName} • Agragati School Management OS`;
               Bank Reconciliation Desk
             </h1>
             <p className="font-sans text-xs md:text-sm text-[#64748B] dark:text-stone-400 mt-1 max-w-2xl">
-              Automatic matching of incoming BHIM UPI payments, 12-digit UTR numbers, and NEFT/RTGS credits against open student fee demands with 99.8% precision across SBI, HDFC Bank, and ICICI Bank.
+              Automatic matching of incoming BHIM UPI payments, 12-digit UTR numbers, and NEFT/RTGS credits against open student fee demands across clearance accounts.
             </p>
           </div>
 
@@ -294,7 +298,7 @@ ${instName} • Agragati School Management OS`;
                 <span className="font-serif italic text-xs font-semibold text-slate-800 dark:text-stone-200 leading-tight">
                   Secure. Accurate. Automated.
                 </span>
-                <span className="font-serif italic text-xs text-slate-500">For a brighter tomorrow.</span>
+                <span className="font-serif italic text-xs text-slate-500">Zero Suspense Ledger.</span>
                 <div className="w-8 h-0.5 bg-[#D97706] rounded-full mt-1" />
               </div>
             </div>
@@ -328,9 +332,9 @@ ${instName} • Agragati School Management OS`;
                 Daily Feed Volume
               </span>
               <div className="font-serif text-3xl font-bold text-[#0F172A] dark:text-stone-100 mt-0.5">
-                {formatIndianCurrency(215000)}
+                {formatIndianCurrency(dailyVolume)}
               </div>
-              <span className="text-[11px] text-slate-500 block">3 Bank Settlement Batches</span>
+              <span className="text-[11px] text-slate-500 block">{feedItems.length} Settlement Entries</span>
             </div>
           </div>
 
@@ -344,9 +348,9 @@ ${instName} • Agragati School Management OS`;
                 Automated Matches
               </span>
               <div className="font-serif text-3xl font-bold text-[#166534] dark:text-emerald-400 mt-0.5">
-                {reconciledCount} Settled (₹ 1,50,000)
+                {reconciledCount} Settled ({formatIndianCurrency(reconciledVolume)})
               </div>
-              <span className="text-[11px] text-[#16A34A] font-semibold block">100% 12-Digit UTR Matched</span>
+              <span className="text-[11px] text-[#16A34A] font-semibold block">Auto UTR Matched</span>
             </div>
           </div>
 
@@ -390,7 +394,7 @@ ${instName} • Agragati School Management OS`;
 
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-[#12161f] border border-stone-200/80 dark:border-stone-800 text-xs text-slate-600 dark:text-stone-300 font-medium shrink-0 ml-1">
               <Calendar className="w-3.5 h-3.5 text-slate-400" />
-              <span>Active Session: 2026-09-05</span>
+              <span>Active Session: {new Date().toISOString().split("T")[0]}</span>
             </div>
           </div>
 
@@ -421,130 +425,132 @@ ${instName} • Agragati School Management OS`;
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-stone-800">
-                {filteredFeed.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-stone-800/40 transition-colors">
-                    {/* Payment Ref & Bank */}
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
-                        {renderBankLogo(item.bankSource)}
-                        <div>
-                          <span className="font-mono text-xs font-bold text-[#0F172A] dark:text-stone-100 block">
-                            {item.transactionRef}
-                          </span>
-                          <span className="text-[11px] text-slate-500 font-medium block mt-0.5">
-                            {item.bankSource}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Remittance Memo / Narration */}
-                    <td className="py-4 px-4 max-w-xs">
-                      <p className="font-medium text-xs text-[#0F172A] dark:text-stone-100 line-clamp-1">
-                        {item.remittanceInfo}
-                      </p>
-                      <span className="text-[10px] text-slate-400 mt-0.5 block font-mono">
-                        {item.timestamp}
-                      </span>
-                    </td>
-
-                    {/* Amount */}
-                    <td className="py-4 px-4 text-right font-serif text-sm font-bold text-[#0F172A] dark:text-stone-100">
-                      {formatIndianCurrency(item.amount)}
-                    </td>
-
-                    {/* Matched Student & Invoice */}
-                    <td className="py-4 px-4">
-                      {item.matchedStudentName ? (
-                        <div className="flex items-center gap-2.5">
-                          <div
-                            className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 border ${
-                              item.matchedStudentName.includes("Aarav")
-                                ? "bg-[#EFF6FF] text-[#2563EB] border-[#DBEAFE]"
-                                : "bg-[#ECFDF5] text-[#059669] border-[#D1FAE5]"
-                            }`}
-                          >
-                            {item.matchedStudentName
-                              .split(" ")
-                              .map((n) => n[0])
-                              .slice(0, 2)
-                              .join("")}
-                          </div>
-                          <div>
-                            <span className="font-bold text-[#0F172A] dark:text-stone-100 block text-xs">
-                              {item.matchedStudentName}
-                            </span>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <span className="font-mono text-[10px] text-slate-500">{item.matchedInvoiceNo}</span>
-                              <span className="text-[10px] text-slate-300">•</span>
-                              <span className="text-[10px] text-[#16A34A] font-semibold">{item.confidenceScore}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-stone-800 text-slate-400 flex items-center justify-center shrink-0 border border-slate-200">
-                            <User className="w-3.5 h-3.5" />
-                          </div>
-                          <div>
-                            <span className="text-slate-800 dark:text-stone-200 font-bold text-xs block">
-                              Unidentified Remitter
-                            </span>
-                            <span className="text-[10px] text-rose-600 font-medium block">
-                              Requires Accounts Review
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Status */}
-                    <td className="py-4 px-4 text-center">
-                      {item.status === "RECONCILED" ? (
-                        <div>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-[#DCFCE7] text-[#166534] dark:bg-emerald-950 dark:text-emerald-300">
-                            <CheckCircle2 className="w-3 h-3" />
-                            RECONCILED
-                          </span>
-                          <span className="text-[10px] text-slate-400 block mt-0.5">Settled</span>
-                        </div>
-                      ) : (
-                        <div>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-[#FEE2E2] text-[#B91C1C] dark:bg-rose-950 dark:text-rose-300">
-                            <AlertTriangle className="w-3 h-3" />
-                            UNMATCHED
-                          </span>
-                          <span className="text-[10px] text-rose-600 block mt-0.5 font-medium">Manual Review</span>
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Actions */}
-                    <td className="py-4 px-4 text-right">
-                      {item.status === "RECONCILED" ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewReconciliationDetail(item)}
-                          className="h-8 px-3 rounded-lg text-xs font-semibold text-slate-700 dark:text-stone-300 hover:bg-slate-100 border-slate-200 dark:border-stone-700 gap-1.5"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-slate-500" />
-                          View
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setSelectedException(item)}
-                          className="h-8 px-3 rounded-lg text-xs font-semibold text-[#1E3A8A] hover:bg-blue-50 border-blue-200 gap-1.5"
-                        >
-                          <LinkIcon className="w-3.5 h-3.5 text-[#1E3A8A]" />
-                          Match &amp; Reconcile
-                        </Button>
-                      )}
+                {filteredFeed.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-slate-500 font-sans">
+                      No bank transactions recorded. Sync gateway or upload bank statement.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredFeed.map((item) => (
+                    <tr key={item.id} className="hover:bg-slate-50/70 dark:hover:bg-stone-800/40 transition-colors">
+                      {/* Payment Ref & Bank */}
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-3">
+                          {renderBankLogo(item.bankSource)}
+                          <div>
+                            <span className="font-mono text-xs font-bold text-[#0F172A] dark:text-stone-100 block">
+                              {item.transactionRef}
+                            </span>
+                            <span className="text-[11px] text-slate-500 font-medium block mt-0.5">
+                              {item.bankSource}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Remittance Memo / Narration */}
+                      <td className="py-4 px-4 max-w-xs">
+                        <p className="font-medium text-xs text-[#0F172A] dark:text-stone-100 line-clamp-1">
+                          {item.remittanceInfo}
+                        </p>
+                        <span className="text-[10px] text-slate-400 mt-0.5 block font-mono">
+                          {item.timestamp}
+                        </span>
+                      </td>
+
+                      {/* Amount */}
+                      <td className="py-4 px-4 text-right font-serif text-sm font-bold text-[#0F172A] dark:text-stone-100">
+                        {formatIndianCurrency(item.amount)}
+                      </td>
+
+                      {/* Matched Student & Invoice */}
+                      <td className="py-4 px-4">
+                        {item.matchedStudentName ? (
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 border bg-[#EFF6FF] text-[#2563EB] border-[#DBEAFE]">
+                              {item.matchedStudentName
+                                .split(" ")
+                                .map((n) => n[0])
+                                .slice(0, 2)
+                                .join("")}
+                            </div>
+                            <div>
+                              <span className="font-bold text-[#0F172A] dark:text-stone-100 block text-xs">
+                                {item.matchedStudentName}
+                              </span>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="font-mono text-[10px] text-slate-500">{item.matchedInvoiceNo}</span>
+                                <span className="text-[10px] text-slate-300">•</span>
+                                <span className="text-[10px] text-[#16A34A] font-semibold">{item.confidenceScore}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-stone-800 text-slate-400 flex items-center justify-center shrink-0 border border-slate-200">
+                              <User className="w-3.5 h-3.5" />
+                            </div>
+                            <div>
+                              <span className="text-slate-800 dark:text-stone-200 font-bold text-xs block">
+                                Unidentified Remitter
+                              </span>
+                              <span className="text-[10px] text-rose-600 font-medium block">
+                                Requires Accounts Review
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-4 px-4 text-center">
+                        {item.status === "RECONCILED" ? (
+                          <div>
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-[#DCFCE7] text-[#166534] dark:bg-emerald-950 dark:text-emerald-300">
+                              <CheckCircle2 className="w-3 h-3" />
+                              RECONCILED
+                            </span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">Settled</span>
+                          </div>
+                        ) : (
+                          <div>
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-[#FEE2E2] text-[#B91C1C] dark:bg-rose-950 dark:text-rose-300">
+                              <AlertTriangle className="w-3 h-3" />
+                              UNMATCHED
+                            </span>
+                            <span className="text-[10px] text-rose-600 block mt-0.5 font-medium">Manual Review</span>
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-4 px-4 text-right">
+                        {item.status === "RECONCILED" ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleViewReconciliationDetail(item)}
+                            className="h-8 px-3 rounded-lg text-xs font-semibold text-slate-700 dark:text-stone-300 hover:bg-slate-100 border-slate-200 dark:border-stone-700 gap-1.5"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-slate-500" />
+                            View
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setSelectedException(item)}
+                            className="h-8 px-3 rounded-lg text-xs font-semibold text-[#1E3A8A] hover:bg-blue-50 border-blue-200 gap-1.5"
+                          >
+                            <LinkIcon className="w-3.5 h-3.5 text-[#1E3A8A]" />
+                            Match &amp; Reconcile
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -620,7 +626,7 @@ ${instName} • Agragati School Management OS`;
                   <div className="p-3 bg-[#FEF3C7]/60 rounded-xl border border-[#FDE68A] flex items-center gap-2 text-xs text-[#B45309]">
                     <Sparkles className="w-4 h-4 shrink-0" />
                     <span>
-                      AI Match Confidence: <strong>96.4%</strong> based on guardian phone number in UPI handle.
+                      Automated match suggested based on student invoice demand and bank remittance narration.
                     </span>
                   </div>
 

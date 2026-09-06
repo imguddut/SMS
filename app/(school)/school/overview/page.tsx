@@ -31,8 +31,10 @@ import {
   updateApprovalStatus,
 } from "@/lib/db/school-admin";
 import { formatIndianCurrency } from "@/lib/utils";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function SchoolOverviewPage() {
+  const { school, profile } = useAuth();
   const [stats, setStats] = React.useState<SchoolOperationsStats | null>(null);
   const [warrants, setWarrants] = React.useState<ExecutiveApprovalWarrant[]>([]);
   const [notices, setNotices] = React.useState<CampusNoticeItem[]>([]);
@@ -67,9 +69,9 @@ export default function SchoolOverviewPage() {
   return (
     <AppShell
       role="PRINCIPAL"
-      userName="Dr. Arvind Swaminathan"
+      userName={profile?.full_name || "School Principal"}
       userRoleTitle="Principal & Head of School"
-      epochText="Term 2 (CBSE Board) • Main Enclave Campus"
+      epochText={school?.name ? `${school.name} • Academic Operations` : "Academic Operations"}
     >
       <div className="space-y-8 max-w-7xl mx-auto pb-12">
         {/* Header */}
@@ -80,7 +82,7 @@ export default function SchoolOverviewPage() {
                 Daily School Operations
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                Delhi Public School, R.K. Puram • Main Campus
+                {school?.name || "School Campus"}
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
@@ -115,15 +117,15 @@ export default function SchoolOverviewPage() {
                 Student Attendance
               </span>
               <span className="font-sans text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                97.4% Present
+                {stats?.morningAttendanceRate || "0.0%"} Present
               </span>
             </div>
             <div className="mt-3">
               <div className="font-serif text-3xl font-medium text-primary">
-                1,794 <span className="text-xs font-sans font-normal text-on-surface-variant">/ 1,842</span>
+                {stats?.presentCount || 0} <span className="text-xs font-sans font-normal text-on-surface-variant">/ {stats?.totalStudents || 0}</span>
               </div>
               <p className="font-sans text-xs text-on-surface-variant mt-1">
-                48 students absent or excused
+                {Math.max(0, (stats?.totalStudents || 0) - (stats?.presentCount || 0))} students absent or excused
               </p>
             </div>
           </Card>
@@ -139,10 +141,10 @@ export default function SchoolOverviewPage() {
             </div>
             <div className="mt-3">
               <div className="font-serif text-3xl font-medium text-blue-400">
-                5 Requests
+                {warrants.filter((w) => !authorizedWarrants[w.id]).length} Requests
               </div>
               <p className="font-sans text-xs text-on-surface-variant mt-1">
-                1 Fee Waiver Request
+                Awaiting executive action
               </p>
             </div>
           </Card>
@@ -156,10 +158,10 @@ export default function SchoolOverviewPage() {
             </div>
             <div className="mt-3">
               <div className="font-serif text-3xl font-medium text-primary">
-                64 Classes
+                {stats?.activeRosterUnits || 0} Classes
               </div>
               <p className="font-sans text-xs text-on-surface-variant mt-1">
-                Classes 1 to 12
+                Active class sections
               </p>
             </div>
           </Card>
@@ -173,10 +175,10 @@ export default function SchoolOverviewPage() {
             </div>
             <div className="mt-3">
               <div className="font-serif text-3xl font-medium text-emerald-400">
-                ₹4,26,000
+                {formatIndianCurrency(stats?.dailyVaultSettlement || 0)}
               </div>
               <p className="font-sans text-xs text-on-surface-variant mt-1">
-                UPI &amp; Bank Payments Received
+                Settlements received
               </p>
             </div>
           </Card>
@@ -199,21 +201,29 @@ export default function SchoolOverviewPage() {
             </div>
 
             <div className="space-y-4 font-sans text-xs">
-              {stats?.houseAttendance.map((h) => (
-                <div key={h.house} className="space-y-1.5">
-                  <div className="flex justify-between font-medium">
-                    <span className="text-primary truncate max-w-[200px]">{h.house}</span>
-                    <span className="font-bold text-emerald-400">{h.rate}</span>
-                  </div>
-                  <div className="flex justify-between text-[11px] text-on-surface-variant">
-                    <span>{h.present} Present</span>
-                    <span>{h.total} Total</span>
-                  </div>
-                  <div className="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
-                    <div className="bg-blue-600 h-full rounded-full" style={{ width: h.rate }}></div>
-                  </div>
+              {(!stats?.houseAttendance || stats.houseAttendance.length === 0) ? (
+                <div className="py-8 text-center text-on-surface-variant">
+                  <Clock className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
+                  <p className="font-medium text-xs">No house attendance recorded today</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Records will appear once roll-call is marked.</p>
                 </div>
-              ))}
+              ) : (
+                stats.houseAttendance.map((h) => (
+                  <div key={h.house} className="space-y-1.5">
+                    <div className="flex justify-between font-medium">
+                      <span className="text-primary truncate max-w-[200px]">{h.house}</span>
+                      <span className="font-bold text-emerald-400">{h.rate}</span>
+                    </div>
+                    <div className="flex justify-between text-[11px] text-on-surface-variant">
+                      <span>{h.present} Present</span>
+                      <span>{h.total} Total</span>
+                    </div>
+                    <div className="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
+                      <div className="bg-blue-600 h-full rounded-full" style={{ width: h.rate }}></div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </Card>
 
@@ -236,8 +246,15 @@ export default function SchoolOverviewPage() {
             </div>
 
             <div className="space-y-3 font-sans text-xs">
-              {warrants.slice(0, 3).map((war) => {
-                const isApproved = authorizedWarrants[war.id];
+              {warrants.length === 0 ? (
+                <div className="py-8 text-center text-on-surface-variant">
+                  <CheckCircle2 className="w-8 h-8 mx-auto mb-2 opacity-40 text-emerald-500" />
+                  <p className="font-medium text-xs">No pending approvals</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">All staff and student requests have been cleared.</p>
+                </div>
+              ) : (
+                warrants.slice(0, 3).map((war) => {
+                  const isApproved = authorizedWarrants[war.id];
 
                 return (
                   <div
@@ -285,7 +302,7 @@ export default function SchoolOverviewPage() {
                     </div>
                   </div>
                 );
-              })}
+              }))}
             </div>
           </Card>
         </div>
@@ -310,24 +327,32 @@ export default function SchoolOverviewPage() {
             </div>
 
             <div className="space-y-3 font-sans text-xs">
-              {notices.map((not) => (
-                <div key={not.id} className="p-3.5 rounded-lg border border-border/70 bg-surface space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="font-serif text-base font-semibold text-primary">{not.title}</span>
-                      {not.isPinned && <Badge variant="navy">Pinned</Badge>}
-                    </div>
-                    <Badge variant={not.priority === "URGENT" ? "critical" : "navy"}>
-                      {not.priority}
-                    </Badge>
-                  </div>
-                  <p className="text-on-surface-variant leading-relaxed text-[11px]">{not.content}</p>
-                  <div className="text-[10px] text-on-surface-variant pt-1 border-t border-border/50 flex justify-between">
-                    <span>By: {not.authorName} ({not.authorTitle})</span>
-                    <span>{not.publishedAt}</span>
-                  </div>
+              {notices.length === 0 ? (
+                <div className="py-8 text-center text-on-surface-variant">
+                  <Bell className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
+                  <p className="font-medium text-xs">No campus notices</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Published announcements will appear here.</p>
                 </div>
-              ))}
+              ) : (
+                notices.map((not) => (
+                  <div key={not.id} className="p-3.5 rounded-lg border border-border/70 bg-surface space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-serif text-base font-semibold text-primary">{not.title}</span>
+                        {not.isPinned && <Badge variant="navy">Pinned</Badge>}
+                      </div>
+                      <Badge variant={not.priority === "URGENT" ? "critical" : "navy"}>
+                        {not.priority}
+                      </Badge>
+                    </div>
+                    <p className="text-on-surface-variant leading-relaxed text-[11px]">{not.content}</p>
+                    <div className="text-[10px] text-on-surface-variant pt-1 border-t border-border/50 flex justify-between">
+                      <span>By: {not.authorName} ({not.authorTitle})</span>
+                      <span>{not.publishedAt}</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </Card>
 
@@ -341,7 +366,7 @@ export default function SchoolOverviewPage() {
                   </div>
                   <div>
                     <h4 className="font-serif text-base font-medium text-primary">Students Directory</h4>
-                    <span className="font-sans text-xs text-on-surface-variant">1,842 Students Enrolled</span>
+                    <span className="font-sans text-xs text-on-surface-variant">{stats?.totalStudents || 0} Students Enrolled</span>
                   </div>
                 </div>
               </Card>
@@ -355,7 +380,7 @@ export default function SchoolOverviewPage() {
                   </div>
                   <div>
                     <h4 className="font-serif text-base font-medium text-primary">Classes &amp; Sections</h4>
-                    <span className="font-sans text-xs text-on-surface-variant">64 Classes &amp; Teachers</span>
+                    <span className="font-sans text-xs text-on-surface-variant">{stats?.activeRosterUnits || 0} Classes &amp; Teachers</span>
                   </div>
                 </div>
               </Card>

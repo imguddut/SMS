@@ -185,68 +185,13 @@ export async function fetchSchoolById(id: string): Promise<SchoolWithDetails | n
       .single();
 
     if (error || !school) {
-      const fallback = FALLBACK_SCHOOLS.find((s) => s.id === id) || FALLBACK_SCHOOLS[0];
-      return {
-        ...fallback,
-        users_profiles: [
-          {
-            id: "u1",
-            auth_user_id: "auth-1",
-            school_id: fallback.id,
-            role: "OWNER",
-            full_name: "Vikramaditya Birla",
-            email: "owner@dpsrkp.net",
-            phone: "+91 98100 12345",
-            avatar_url: null,
-            title: "Chairman & Managing Trustee",
-            status: "ACTIVE",
-            metadata: {},
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          {
-            id: "u2",
-            auth_user_id: "auth-2",
-            school_id: fallback.id,
-            role: "PRINCIPAL",
-            full_name: "Dr. Arvind Swaminathan",
-            email: "principal@dpsrkp.net",
-            phone: "+91 98100 12346",
-            avatar_url: null,
-            title: "Principal & Provost",
-            status: "ACTIVE",
-            metadata: {},
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          {
-            id: "u3",
-            auth_user_id: "auth-3",
-            school_id: fallback.id,
-            role: "ACCOUNTANT",
-            full_name: "Rameshwar Gupta",
-            email: "finance@dpsrkp.net",
-            phone: "+91 98100 12347",
-            avatar_url: null,
-            title: "Chief Accounts Officer",
-            status: "ACTIVE",
-            metadata: {},
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-        ],
-        classes: [
-          { id: "c1", name: "Class 12-A - CBSE Senior Secondary Science", grade_level: 12, curriculum_code: "CBSE_SCI" },
-          { id: "c2", name: "Class 11-A - Physics & Higher Mathematics", grade_level: 11, curriculum_code: "CBSE_SCI" },
-          { id: "c3", name: "Class 10-B - Secondary Foundation & Mathematics", grade_level: 10, curriculum_code: "CBSE_GEN" },
-        ],
-      };
+      return null;
     }
 
     return school as SchoolWithDetails;
   } catch (err) {
     console.error("fetchSchoolById catch:", err);
-    return FALLBACK_SCHOOLS[0];
+    return null;
   }
 }
 
@@ -482,21 +427,21 @@ export async function updateSchoolSettings(id: string, settings: Record<string, 
 export async function fetchPlatformBilling(): Promise<PlatformBillingItem[]> {
   try {
     const supabase = createClient();
-    const { data: invoices } = await supabase.from("invoices").select("*");
+    const { data: invoices } = await supabase.from("invoices").select("*, schools(name)");
     if (invoices && invoices.length > 0) {
       return invoices.map((inv: any) => ({
         id: inv.id,
         invoice_number: inv.invoice_number || inv.id,
         school_id: inv.school_id,
-        school_name: "Campus",
-        plan_tier: "Standard Plan",
-        amount: inv.amount || 0,
+        school_name: inv.schools?.name || "School Campus",
+        plan_tier: "Enterprise Tier",
+        amount: Number(inv.amount || 0),
         currency: inv.currency || "INR",
         status: inv.status || "PAID",
         billing_cycle: "ANNUAL",
-        issue_date: inv.issue_date || new Date().toISOString(),
-        due_date: inv.due_date || new Date().toISOString(),
-        payment_method: inv.payment_method || "Online",
+        issue_date: inv.issue_date || new Date().toISOString().split("T")[0],
+        due_date: inv.due_date || new Date().toISOString().split("T")[0],
+        payment_method: inv.payment_method || "Direct Bank Settlement",
       }));
     }
   } catch (err) {
@@ -547,17 +492,26 @@ export async function fetchImpersonationDirectory(): Promise<ImpersonationUser[]
 export async function fetchPlatformAuditLogs(): Promise<PlatformAuditLog[]> {
   try {
     const supabase = createClient();
-    const { data: logs } = await supabase.from("audit_logs").select("*").order("created_at", { ascending: false });
-    if (logs && logs.length > 0) {
-      return logs.map((l: any) => ({
+    const { data: logs, error } = await supabase
+      .from("audit_logs")
+      .select("*, schools(legal_name)")
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    const records = (!error && logs) 
+      ? logs 
+      : ((await supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(20)).data || []);
+
+    if (records && records.length > 0) {
+      return records.map((l: any) => ({
         id: l.id,
         action: l.action || "SYSTEM_EVENT",
-        actor: l.actor_id || "System",
-        target: l.entity_table || "System Node",
-        timestamp: l.created_at || new Date().toISOString(),
+        actor: l.actor_id ? `User (${l.actor_id.slice(0, 8)})` : "System Provisioner",
+        target: l.schools?.legal_name || l.entity_table || "System Node",
+        timestamp: l.created_at ? new Date(l.created_at).toLocaleString() : new Date().toLocaleString(),
         status: "SUCCESS",
-        ip_address: "127.0.0.1",
-        details: JSON.stringify(l.new_values || {}),
+        ip_address: l.ip_address || "127.0.0.1",
+        details: typeof l.new_values === "string" ? l.new_values : JSON.stringify(l.new_values || {}),
       }));
     }
   } catch (err) {

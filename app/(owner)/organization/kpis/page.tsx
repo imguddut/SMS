@@ -35,6 +35,7 @@ import {
 import { useAuth } from "@/components/providers/auth-context";
 import { getOrganizationMetrics } from "@/lib/services/organization-service";
 import { fetchOwnerOverviewStats } from "@/lib/db/owner";
+import { fetchAllSchools } from "@/lib/db/platform-admin";
 import { formatIndianCurrency } from "@/lib/utils";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
 
@@ -58,13 +59,14 @@ interface CampusKPI {
 }
 
 export default function OrganizationKpisPage() {
-  const { currentOrganization, currentSchool, switchSchool } = useAuth();
+  const { currentOrganization, currentSchool, switchSchool, profile } = useAuth();
   const [selectedCampus, setSelectedCampus] = React.useState<string>("all");
   const [selectedPeriod, setSelectedPeriod] = React.useState<string>("annual");
   const [loading, setLoading] = React.useState<boolean>(true);
   const [refreshing, setRefreshing] = React.useState<boolean>(false);
   const [orgMetrics, setOrgMetrics] = React.useState<any>(null);
   const [ownerStats, setOwnerStats] = React.useState<any>(null);
+  const [campusesData, setCampusesData] = React.useState<CampusKPI[]>([]);
 
   // Drilldown modal state
   const [activeModalMetric, setActiveModalMetric] = React.useState<string | null>(null);
@@ -74,55 +76,36 @@ export default function OrganizationKpisPage() {
 
   const orgId = currentOrganization?.id || "e0000000-0000-0000-0000-000000000001";
 
-  // Multi-campus dataset
-  const campusesData: CampusKPI[] = [
-    {
-      id: "sch-001",
-      name: "The King's College & Academy",
-      code: "TKC-GEN",
-      city: "Geneva Campus",
-      students: 2120,
-      capacity: 2250,
-      capacityPercent: 94.2,
-      teachers: 152,
-      teacherRatio: "1:13.9",
-      feeCollected: 29800000,
-      feeBilled: 31500000,
-      feeRate: "94.6%",
-      pendingFees: 1700000,
-      attendanceRate: "97.2%",
-      boardPassRate: "99.6%",
-      distinctionRate: "81.2%",
-    },
-    {
-      id: "sch-002",
-      name: "The King's Academy - Delhi",
-      code: "TKC-DEL",
-      city: "New Delhi Campus",
-      students: 1300,
-      capacity: 1400,
-      capacityPercent: 92.8,
-      teachers: 96,
-      teacherRatio: "1:13.5",
-      feeCollected: 15400000,
-      feeBilled: 17000000,
-      feeRate: "90.5%",
-      pendingFees: 1600000,
-      attendanceRate: "95.6%",
-      boardPassRate: "98.8%",
-      distinctionRate: "74.8%",
-    },
-  ];
-
   // Load metrics from services
   const loadData = React.useCallback(async () => {
     try {
-      const [m, s] = await Promise.all([
+      const [m, s, dbSchools] = await Promise.all([
         getOrganizationMetrics(orgId),
         fetchOwnerOverviewStats(),
+        fetchAllSchools(),
       ]);
       setOrgMetrics(m);
       setOwnerStats(s);
+
+      const mappedCampuses: CampusKPI[] = (dbSchools || []).map((sch: any) => ({
+        id: sch.id,
+        name: sch.name,
+        code: sch.code || sch.name.slice(0, 3).toUpperCase(),
+        city: sch.city || sch.state || "Main Campus",
+        students: sch.student_count || 0,
+        capacity: sch.student_count ? Math.round(sch.student_count * 1.1) : 0,
+        capacityPercent: 90.0,
+        teachers: sch.faculty_count || 0,
+        teacherRatio: sch.faculty_count ? `1:${((sch.student_count || 0) / (sch.faculty_count || 1)).toFixed(1)}` : "1:0",
+        feeCollected: 0,
+        feeBilled: 0,
+        feeRate: "0.0%",
+        pendingFees: 0,
+        attendanceRate: "0.0%",
+        boardPassRate: "0.0%",
+        distinctionRate: "0.0%",
+      }));
+      setCampusesData(mappedCampuses);
     } catch (err) {
       console.error("Error loading KPI metrics:", err);
     } finally {
@@ -150,12 +133,12 @@ export default function OrganizationKpisPage() {
   // Dynamic calculations
   const totalStudents = activeCampuses.reduce((acc, c) => acc + c.students, 0);
   const totalCapacity = activeCampuses.reduce((acc, c) => acc + c.capacity, 0);
-  const capacityOccupancy = totalCapacity > 0 ? ((totalStudents / totalCapacity) * 100).toFixed(1) : "94.0";
+  const capacityOccupancy = totalCapacity > 0 ? ((totalStudents / totalCapacity) * 100).toFixed(1) : "0.0";
   const totalTeachers = activeCampuses.reduce((acc, c) => acc + c.teachers, 0);
   const totalBilled = activeCampuses.reduce((acc, c) => acc + c.feeBilled, 0);
   const totalCollected = activeCampuses.reduce((acc, c) => acc + c.feeCollected, 0);
   const pendingFees = activeCampuses.reduce((acc, c) => acc + c.pendingFees, 0);
-  const feeRate = totalBilled > 0 ? ((totalCollected / totalBilled) * 100).toFixed(1) : "93.8";
+  const feeRate = totalBilled > 0 ? ((totalCollected / totalBilled) * 100).toFixed(1) : "0.0";
 
   // Period adjustments
   const periodMultiplier = selectedPeriod === "term1" ? 0.35 : selectedPeriod === "term2" ? 0.35 : selectedPeriod === "term3" ? 0.30 : 1.0;
@@ -164,9 +147,9 @@ export default function OrganizationKpisPage() {
 
   // Plain-English Executive Summary text for PDF
   const executiveReportText = `
-AGRAGATI SCHOOL OS — EXECUTIVE KPI & AUDIT SUMMARY
-Organization: ${currentOrganization?.name || "King's Educational Trust"}
-Scope: ${selectedCampus === "all" ? "All Managed Campuses (2 Active)" : selectedCampus}
+SCHOOL OS — EXECUTIVE KPI & AUDIT SUMMARY
+Organization: ${currentOrganization?.name || "Educational Trust"}
+Scope: ${selectedCampus === "all" ? `All Managed Campuses (${activeCampuses.length} Active)` : selectedCampus}
 Time Period: ${selectedPeriod === "annual" ? "Academic Year 2024–2025 (Annual)" : selectedPeriod.toUpperCase()}
 Generated on: ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
 
@@ -174,36 +157,27 @@ Generated on: ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: 
 - Total Scholars Enrolled: ${totalStudents.toLocaleString()}
 - Total Campus Capacity: ${totalCapacity.toLocaleString()} seats
 - Capacity Occupancy: ${capacityOccupancy}%
-- Annual Retention Rate: 98.2% (Steady year-on-year)
 
 2. FINANCIAL & FEE REALIZATION:
 - Gross Tuition Billed: ${formatIndianCurrency(periodBilled)}
 - Net Tuition Realized: ${formatIndianCurrency(periodCollected)}
 - Overall Collection Yield: ${feeRate}%
 - Pending Arrears Balance: ${formatIndianCurrency(pendingFees)}
-- Overdue Accounts Count: 72 students across 2 campuses
 
 3. TEACHING FACULTY & STAFFING:
 - Total Faculty Members: ${totalTeachers}
-- Average Student-Teacher Ratio: 1:${(totalStudents / (totalTeachers || 1)).toFixed(1)}
-- Faculty Retention Rate: 96.5%
-- Teacher Attendance: 98.1%
+- Average Student-Teacher Ratio: 1:${totalTeachers > 0 ? (totalStudents / totalTeachers).toFixed(1) : "0"}
 
-4. ACADEMIC & ENGAGEMENT:
-- Average Daily Attendance: 96.4%
-- Board Examination Pass Rate: 99.2%
-- High Distinction Ratio: 78.4%
-
-Status: AUDIT VERIFIED • ALL SYSTEMS NORMAL
+Status: AUDIT VERIFIED • ALL SYSTEMS NOMINAL
 `;
 
   return (
     <AppShell
       role="OWNER"
-      schoolName={currentOrganization?.name || "King's Educational Trust"}
+      schoolName={currentOrganization?.name || "Educational Trust"}
       campusName="MANAGEMENT CONSOLE"
       epochText="Academic Year 2024–2025 • Consolidated Performance Dashboard"
-      userName="Dr. Arvind Swaminathan"
+      userName={profile?.full_name || "Trustee & Board Director"}
       userRoleTitle="Chancellor & Chief Trustee"
     >
       <div className="max-w-7xl mx-auto space-y-8 pb-16">
@@ -647,9 +621,18 @@ Status: AUDIT VERIFIED • ALL SYSTEMS NORMAL
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-700 dark:text-slate-300">
-                {campusesData.map((campus) => {
-                  const isFiltered = selectedCampus !== "all" && selectedCampus !== campus.id;
-                  return (
+                {campusesData.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="py-12 text-center text-slate-400">
+                      <Building2 className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
+                      <p className="text-sm font-medium">No campuses registered</p>
+                      <p className="text-xs text-slate-400 mt-0.5">Campuses added to your organization will appear here.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  campusesData.map((campus) => {
+                    const isFiltered = selectedCampus !== "all" && selectedCampus !== campus.id;
+                    return (
                     <tr
                       key={campus.id}
                       className={`hover:bg-slate-50/70 dark:hover:bg-slate-900/40 transition-colors ${
@@ -724,7 +707,7 @@ Status: AUDIT VERIFIED • ALL SYSTEMS NORMAL
                       </td>
                     </tr>
                   );
-                })}
+                }))}
               </tbody>
             </table>
           </CardContent>
@@ -994,31 +977,15 @@ Status: AUDIT VERIFIED • ALL SYSTEMS NORMAL
                       Total Overdue Arrears: {formatIndianCurrency(pendingFees)}
                     </div>
                     <p className="text-amber-700/90 dark:text-amber-400 text-xs mt-1">
-                      72 student accounts currently have an outstanding balance past the 30-day grace period.
+                      Outstanding fee demand tracked across institutional accounts.
                     </p>
                   </div>
-                  <div className="space-y-1.5">
-                    <div className="p-2.5 rounded bg-slate-50 dark:bg-slate-900 flex justify-between items-center text-xs">
-                      <div>
-                        <span className="font-semibold text-slate-900 dark:text-slate-200">Rohan Singhania (Class 12-A)</span>
-                        <div className="text-[10px] text-slate-400">Parent: Sunita Singhania • 64 days overdue</div>
-                      </div>
-                      <span className="font-bold text-amber-600 dark:text-amber-400">₹36,250</span>
-                    </div>
-                    <div className="p-2.5 rounded bg-slate-50 dark:bg-slate-900 flex justify-between items-center text-xs">
-                      <div>
-                        <span className="font-semibold text-slate-900 dark:text-slate-200">Devansh Gupta (Class 11-A)</span>
-                        <div className="text-[10px] text-slate-400">Parent: Alok Gupta • 42 days overdue</div>
-                      </div>
-                      <span className="font-bold text-amber-600 dark:text-amber-400">₹31,250</span>
-                    </div>
-                    <div className="p-2.5 rounded bg-slate-50 dark:bg-slate-900 flex justify-between items-center text-xs">
-                      <div>
-                        <span className="font-semibold text-slate-900 dark:text-slate-200">Kabir Mehta (Class 10-B)</span>
-                        <div className="text-[10px] text-slate-400">Parent: Dr. Manish Mehta • 92 days overdue</div>
-                      </div>
-                      <span className="font-bold text-red-500">₹23,750</span>
-                    </div>
+                  <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500">
+                    {pendingFees > 0 ? (
+                      <p>Detailed aged debtor schedule and individual student ledgers can be inspected under the Bursar &amp; Finance portal.</p>
+                    ) : (
+                      <p>All student fee accounts are fully settled. Zero outstanding arrears recorded.</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -1029,31 +996,12 @@ Status: AUDIT VERIFIED • ALL SYSTEMS NORMAL
                     <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                       <div className="text-slate-500 text-[11px]">Academic Staff</div>
                       <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-0.5">{totalTeachers} Teachers</div>
-                      <div className="text-[10px] text-slate-400 mt-1">Across 4 major faculties</div>
+                      <div className="text-[10px] text-slate-400 mt-1">Active registered staff</div>
                     </div>
                     <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                       <div className="text-slate-500 text-[11px]">Student-Teacher Ratio</div>
-                      <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">1:{(totalStudents / (totalTeachers || 1)).toFixed(1)}</div>
-                      <div className="text-[10px] text-slate-400 mt-1">Meets CIS &amp; CBSE standard</div>
-                    </div>
-                  </div>
-                  <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
-                    <span className="font-semibold text-slate-900 dark:text-slate-200 block">Department Headcounts</span>
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-600 dark:text-slate-400">Senior Science &amp; AI:</span>
-                      <span className="font-semibold">78 Faculty</span>
-                    </div>
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-600 dark:text-slate-400">Mathematics &amp; CS:</span>
-                      <span className="font-semibold">64 Faculty</span>
-                    </div>
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-600 dark:text-slate-400">Commerce &amp; Social Sciences:</span>
-                      <span className="font-semibold">56 Faculty</span>
-                    </div>
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-600 dark:text-slate-400">Languages &amp; Performing Arts:</span>
-                      <span className="font-semibold">50 Faculty</span>
+                      <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">1:{totalTeachers > 0 ? (totalStudents / totalTeachers).toFixed(1) : "0"}</div>
+                      <div className="text-[10px] text-slate-400 mt-1">Institutional ratio</div>
                     </div>
                   </div>
                 </div>
@@ -1063,25 +1011,23 @@ Status: AUDIT VERIFIED • ALL SYSTEMS NORMAL
                 <div className="space-y-3">
                   <div className="p-3.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
                     <div className="text-cyan-800 dark:text-cyan-300 font-semibold text-sm">
-                      Consolidated Daily Attendance: 96.4%
+                      Campus Attendance Records
                     </div>
                     <p className="text-cyan-700/90 dark:text-cyan-400 text-xs mt-1">
-                      Continuous RFID and classroom digital attendance tracking is active across all homerooms.
+                      Digital roll-call tracking active across homerooms.
                     </p>
                   </div>
                   <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-600 dark:text-slate-400">Geneva Campus Average:</span>
-                      <span className="font-semibold text-emerald-600">97.2%</span>
-                    </div>
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-600 dark:text-slate-400">New Delhi Campus Average:</span>
-                      <span className="font-semibold text-emerald-600">95.6%</span>
-                    </div>
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-600 dark:text-slate-400">Faculty &amp; Staff Attendance:</span>
-                      <span className="font-semibold text-cyan-600">98.1%</span>
-                    </div>
+                    {campusesData.length === 0 ? (
+                      <div className="text-center py-2 text-slate-400 text-xs">No campus attendance data recorded.</div>
+                    ) : (
+                      campusesData.map((c) => (
+                        <div key={c.id} className="flex justify-between text-[11px]">
+                          <span className="text-slate-600 dark:text-slate-400">{c.name}:</span>
+                          <span className="font-semibold text-emerald-600">{c.attendanceRate}</span>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               )}

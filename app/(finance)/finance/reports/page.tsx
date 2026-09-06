@@ -11,6 +11,7 @@ import { formatIndianCurrency } from "@/lib/utils";
 import { PdfPreviewModal, PDFStudentMetadata } from "@/components/ui/pdf-preview-modal";
 import { FinanceQuoteBanner } from "@/components/ui/finance-quote-banner";
 import { useAuth } from "@/components/providers/auth-context";
+import { fetchFinanceDashboardStats, FinanceDashboardStats } from "@/lib/db/finance";
 import {
   BarChart3,
   Download,
@@ -35,8 +36,21 @@ import {
 } from "lucide-react";
 
 export default function FinancialReportsPage() {
-  const { school } = useAuth();
+  const { school, profile } = useAuth();
+  const [stats, setStats] = React.useState<FinanceDashboardStats | null>(null);
   const [selectedTab, setSelectedTab] = React.useState("ALL");
+
+  React.useEffect(() => {
+    async function loadStats() {
+      try {
+        const data = await fetchFinanceDashboardStats(school?.id);
+        setStats(data);
+      } catch (err) {
+        console.error("Failed to fetch report stats", err);
+      }
+    }
+    loadStats();
+  }, [school?.id]);
   const [isGeneratingModal, setIsGeneratingModal] = React.useState(false);
   const [generationSuccess, setGenerationSuccess] = React.useState(false);
   const [customReportConfig, setCustomReportConfig] = React.useState({
@@ -69,25 +83,19 @@ export default function FinancialReportsPage() {
       sideDesc: "Shows fee collection progress and trends",
       getContent: () => `${(school?.name || "School").toUpperCase()} • FEE REALIZATION STATEMENT
 =============================================================
-Report Period: Term 2
-Generated: Today • Principal e-Signed & Sealed
+Report Period: Current Fiscal Session
+Generated: Real-time Supabase Ledger Audit
 Session: 2024–2025
 
 EXECUTIVE COLLECTION VELOCITY:
 -------------------------------------------------------------
-Total Invoiced Quota:           ₹ 4,85,00,000.00
-Realized Bank Receipts:         ₹ 4,58,81,000.00 (94.6% Velocity)
-Pending Within 30-Day Terms:    ₹   18,24,000.00
-Overdue Arrears:                ₹    7,95,000.00
-
-WING REALIZATION BREAKDOWN:
--------------------------------------------------------------
-1. Senior Secondary (Classes 11 & 12): ₹ 2,48,00,000 (97.2%)
-2. Secondary Wing (Classes 9 & 10):    ₹ 1,34,00,000 (93.8%)
-3. Middle Wing (Classes 6 to 8):       ₹   76,81,000 (91.4%)
+Total Invoiced Quota:           ₹ ${stats ? stats.totalInvoiced.toLocaleString("en-IN") : "0.00"}
+Realized Bank Receipts:         ₹ ${stats ? stats.realizedReceipts.toLocaleString("en-IN") : "0.00"} (${stats?.collectionRate || "0.0%"} Velocity)
+Pending Within 30-Day Terms:    ₹ ${stats ? stats.pendingWithinTerms.toLocaleString("en-IN") : "0.00"}
+Overdue Arrears:                ₹ ${stats ? stats.overdueArrears.toLocaleString("en-IN") : "0.00"}
 
 Verified by: Principal & Bursar • ${school?.name || "School"}
-Managed via Agragati School OS`,
+Managed via School OS Financial System`,
     },
     {
       id: "rep-02",
@@ -109,17 +117,13 @@ Standard: Ind AS / Institutional Accounting Guidelines
 
 ACCOUNT HEAD                    DEBIT (₹)          CREDIT (₹)
 -------------------------------------------------------------
-Tuition & Academic Fees         -                  4,58,81,000.00
-SBI Treasury Account            4,12,00,000.00     -
-HDFC Bank Clearing A/C            46,81,000.00     -
-Academic Salaries & Wages       2,84,00,000.00     -
-STEM Lab & Robotics Supplies      38,50,000.00     -
-Campus Utilities & Maintenance    24,10,000.00     -
+Tuition & Academic Fees         -                  ₹ ${stats ? stats.realizedReceipts.toLocaleString("en-IN") : "0.00"}
+Treasury Operating Account      ₹ ${stats ? stats.realizedReceipts.toLocaleString("en-IN") : "0.00"}     -
 Audited Balance Clearance       -                  -
 -------------------------------------------------------------
-TOTAL BALANCED GENERAL LEDGER:  ₹ 4,58,81,000.00   ₹ 4,58,81,000.00
+TOTAL BALANCED GENERAL LEDGER:  ₹ ${stats ? stats.realizedReceipts.toLocaleString("en-IN") : "0.00"}   ₹ ${stats ? stats.realizedReceipts.toLocaleString("en-IN") : "0.00"}
 
-Signatory: External Statutory Auditor & Bursar • DPS R.K. Puram`,
+Signatory: External Statutory Auditor & Bursar • ${school?.name || "School"}`,
     },
     {
       id: "rep-03",
@@ -137,15 +141,13 @@ Signatory: External Statutory Auditor & Bursar • DPS R.K. Puram`,
       getContent: () => `${(school?.name || "School").toUpperCase()} • AGED DEBTORS REGISTER
 =============================================================
 Aging Analysis: As of Today
-Total Overdue Student Accounts: 0 Accounts
-Cumulative Outstanding Balance: ₹ 0.00
+Total Overdue Student Accounts: ${stats?.overdueArrears ? "Pending Review" : "0 Accounts"}
+Cumulative Outstanding Balance: ₹ ${stats ? stats.overdueArrears.toLocaleString("en-IN") : "0.00"}
 
 AGING BUCKETS:
 -------------------------------------------------------------
-• 0–30 Days (Standard Grace):   ₹ 0.00
-• 31–60 Days (Notice Issued):   ₹ 0.00
-• 61–90 Days (Escalation):      ₹ 0.00
-• 90+ Days (Legal & Freeze):    ₹ 0.00
+• Pending Within Terms:         ₹ ${stats ? stats.pendingWithinTerms.toLocaleString("en-IN") : "0.00"}
+• Overdue Arrears:              ₹ ${stats ? stats.overdueArrears.toLocaleString("en-IN") : "0.00"}
 
 Bursary Collections Desk • ${school?.name || "School"}`,
     },
@@ -222,7 +224,7 @@ Period: ${customReportConfig.dateRange}
 Auditor Attestation: In full compliance with Accounting Standards.
 
 Signatory: Bursar & Accounts Bureau
-${school?.name || "School"} • Agragati OS`,
+${school?.name || "School"} • School OS`,
         studentMeta: {
           name: "Bursar Audit Bureau",
           form: "All Institutional Accounts",
@@ -272,9 +274,9 @@ ${school?.name || "School"} • Agragati OS`,
   return (
     <AppShell
       role="ACCOUNTANT"
-      userName="Mr. Suresh Menon"
+      userName={profile?.full_name || "Accounts Officer"}
       userRoleTitle="Accounts Officer & Bursar"
-      epochText="Term 2 (CBSE) • Academic Year 2024–2025"
+      epochText={school?.name ? `${school.name} • Financial Statements` : "Financial Statements"}
     >
       <div className="space-y-6">
         {/* Header */}

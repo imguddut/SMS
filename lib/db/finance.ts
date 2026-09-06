@@ -136,11 +136,11 @@ export async function fetchFinanceDashboardStats(schoolId?: string): Promise<Fin
       const rate = totalInvoiced > 0 ? ((realizedReceipts / totalInvoiced) * 100).toFixed(1) : "0.0";
 
       return {
-        totalInvoiced: Math.max(totalInvoiced, storeStats.totalInvoiced),
-        realizedReceipts: Math.max(realizedReceipts, storeStats.realizedReceipts),
+        totalInvoiced,
+        realizedReceipts,
         collectionRate: `${rate}%`,
-        pendingWithinTerms: pendingWithinTerms || storeStats.pendingWithinTerms,
-        overdueArrears: overdueArrears || storeStats.overdueArrears,
+        pendingWithinTerms,
+        overdueArrears,
         currency: "INR",
         billableScholars: studentCount || 0,
         dailyReconciledAmount: 0,
@@ -153,7 +153,7 @@ export async function fetchFinanceDashboardStats(schoolId?: string): Promise<Fin
 
   return {
     ...storeStats,
-    billableScholars: storeStats.totalInvoiced > 0 ? 1 : 0,
+    billableScholars: 0,
     dailyReconciledAmount: 0,
     autoMatchRate: storeStats.collectionRate || "0.0%",
   };

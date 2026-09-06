@@ -12,6 +12,7 @@ import {
 } from "@/lib/db/parent";
 import { formatIndianCurrency } from "@/lib/utils";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   Receipt,
   Download,
@@ -34,8 +35,9 @@ import {
 } from "lucide-react";
 
 export default function ParentFeesPage() {
+  const { profile, currentSchool } = useAuth();
   const [wards, setWards] = React.useState<ParentWardProfile[]>([]);
-  const [selectedWardId, setSelectedWardId] = React.useState<string>("ward-01");
+  const [selectedWardId, setSelectedWardId] = React.useState<string>("");
   const [invoices, setInvoices] = React.useState<WardFeeInvoice[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [previewDoc, setPreviewDoc] = React.useState<{
@@ -101,10 +103,10 @@ export default function ParentFeesPage() {
   };
 
   const handleDownloadInvoiceReceipt = (invoice: WardFeeInvoice) => {
-    const wardName = activeWard ? activeWard.name : "Aarav Sharma";
-    const wardForm = activeWard ? activeWard.form : "Class 12-A";
-    const wardRoll = activeWard ? activeWard.rollNumber : "ADM-2024-001";
-    const wardHouse = activeWard ? activeWard.house : "Tagore House";
+    const wardName = activeWard?.name || "Student";
+    const wardForm = activeWard?.form || "Class";
+    const wardRoll = activeWard?.rollNumber || "N/A";
+    const wardHouse = activeWard?.house || "N/A";
 
     const content = `AGRAGATI ACADEMY - OFFICIAL FEE RECEIPT
 =============================================================
@@ -138,31 +140,23 @@ Verification Hash: TAX-REC-2025-${invoice.id.toUpperCase()}-VERIFIED`;
   };
 
   const handleDownloadFeeStructure = () => {
-    const wardName = activeWard ? activeWard.name : "Aarav Sharma";
-    const wardForm = activeWard ? activeWard.form : "Class 12-A";
-    const wardRoll = activeWard ? activeWard.rollNumber : "ADM-2024-001";
-    const wardHouse = activeWard ? activeWard.house : "Tagore House";
+    const wardName = activeWard?.name || "Student";
+    const wardForm = activeWard?.form || "Class";
+    const wardRoll = activeWard?.rollNumber || "N/A";
+    const wardHouse = activeWard?.house || "N/A";
 
-    const content = `AGRAGATI ACADEMY - SENIOR SECONDARY FEE SCHEDULE (2024-2025)
+    const content = `AGRAGATI ACADEMY - SENIOR SECONDARY FEE SCHEDULE
 =============================================================
-Class: Class 11 & Class 12 (CBSE Science & Artificial Intelligence Stream)
+Class: ${wardForm}
+Student: ${wardName} (Roll: ${wardRoll})
+House: ${wardHouse}
 
-1. Term 1 Tuition & Composite Lab Fee: ₹ 48,500 (Due: 15 July 2024)
-2. Term 2 Examination & Digital School OS Fee: ₹ 48,500 (Due: 15 January 2025)
-3. Annual Composite Science Laboratory & ATL Innovation Club Fee: ₹ 14,200
-4. Annual CBSE Pre-Board Examination Registration & APAAR Assessment Fee: ₹ 4,800
-
-PAYMENT MODES ACCEPTED:
-- Instant UPI: Google Pay, PhonePe, Paytm, BHIM (Zero Convenience Fee)
-- NEFT / RTGS Net Banking to Agragati Educational Trust Account
-- On-Campus Point of Sale (POS) Desk: Accounts Annex (Room 104)
-
-Director of Finance • Agragati Academy`;
+Fee Schedule details available from institutional Bursar desk.`;
 
     setPreviewDoc({
       isOpen: true,
-      title: "Senior Secondary Fee Structure (2024–2025)",
-      fileName: "Agragati_Class12_Fee_Structure_2024_2025.pdf",
+      title: "Fee Schedule & Regulations",
+      fileName: "Fee_Structure_Schedule.pdf",
       content,
       studentMeta: {
         name: wardName,
@@ -172,6 +166,12 @@ Director of Finance • Agragati Academy`;
       },
     });
   };
+
+  const activeWard = wards.find((w) => w.id === selectedWardId) || wards[0];
+
+  const totalOutstanding = invoices
+    .filter((i) => i.status === "PENDING" || i.status === "OVERDUE")
+    .reduce((acc, i) => acc + i.amount, 0);
 
   const totalPaidSum = invoices
     .filter((i) => i.status === "PAID")
@@ -183,9 +183,9 @@ Director of Finance • Agragati Academy`;
   return (
     <AppShell
       role="PARENT"
-      userName="Mr. Rajesh Sharma"
-      userRoleTitle={`Parent • ${activeWard ? activeWard.name : "Aarav Sharma"}`}
-      epochText="Academic Year 2024–2025 • Term 2 (CBSE Board)"
+      userName={profile?.full_name || "Parent"}
+      userRoleTitle={`Parent${activeWard?.name ? ` • ${activeWard.name}` : ""}`}
+      epochText="Fee Schedule & Invoices"
     >
       <div className="space-y-6">
         {/* Top Brow & Page Header */}
@@ -548,7 +548,7 @@ Director of Finance • Agragati Academy`;
                 Investing in Education. Building a Brighter Tomorrow.
               </h3>
               <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-                Thank you for supporting {activeWard?.name.split(" ")[0] || "Aarav"}&apos;s schooling journey.
+                Thank you for supporting {activeWard?.name ? activeWard.name.split(" ")[0] : "your child"}&apos;s schooling journey.
               </p>
             </div>
           </div>
@@ -591,10 +591,10 @@ Director of Finance • Agragati Academy`;
                   <div className="p-4 bg-stone-50 dark:bg-stone-900/60 rounded-xl border border-stone-200 dark:border-stone-800 flex justify-between items-start">
                     <div>
                       <span className="font-serif text-base font-bold text-stone-900 dark:text-stone-100 block">
-                        Delhi Public School, R.K. Puram
+                        {currentSchool?.name || currentSchool?.legal_name || "School Administration"}
                       </span>
                       <span className="text-[11px] text-stone-500 dark:text-stone-400">
-                        Sector XII, R.K. Puram, New Delhi – 110022
+                        {currentSchool?.city ? `${currentSchool.city} Campus` : "Campus Administration"}
                       </span>
                     </div>
                     <span

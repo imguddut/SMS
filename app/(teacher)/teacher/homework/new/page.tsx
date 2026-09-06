@@ -91,8 +91,8 @@ SUBMISSION GUIDELINES:
 - Late submissions will be flagged and subject to penalty as per School Academic Policy.
 - Plagiarism or generative AI reproduction will result in immediate disqualification.
 
-Digital Verification Hash: DPS-RKP-HW-DISPATCH-2025-SECURE
-Authorized by Faculty Coordinator: Prof. Rajesh Verma (PGT Mathematics)`;
+Digital Verification Hash: HW-DISPATCH-${Math.random().toString(36).substring(2, 8).toUpperCase()}
+Authorized by Faculty Coordinator: ${profile?.full_name || "Faculty Member"}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,9 +119,11 @@ Authorized by Faculty Coordinator: Prof. Rajesh Verma (PGT Mathematics)`;
   return (
     <AppShell
       role="TEACHER"
-      userName="Prof. Rajesh Verma"
-      userRoleTitle="PGT Mathematics & Senior Coordinator"
-      epochText="Daily Schedule • Term 2 (CBSE Board)"
+      schoolName={school?.name || "School Portal"}
+      campusName={school?.code || "MAIN CAMPUS"}
+      userName={profile?.full_name || "Faculty Member"}
+      userRoleTitle={profile?.role || "Faculty"}
+      epochText={new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "short", day: "numeric" })}
     >
       <div className="space-y-6 max-w-6xl mx-auto pb-12 font-sans">
         {/* Top Back Link */}

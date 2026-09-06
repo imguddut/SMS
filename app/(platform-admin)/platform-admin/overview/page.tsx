@@ -26,8 +26,10 @@ import {
   fetchAllSchools,
   SchoolWithDetails,
 } from "@/lib/db/platform-admin";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function PlatformAdminOverviewPage() {
+  const { profile } = useAuth();
   const [stats, setStats] = React.useState<any>(null);
   const [schools, setSchools] = React.useState<SchoolWithDetails[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -53,7 +55,7 @@ export default function PlatformAdminOverviewPage() {
   return (
     <AppShell
       role="SUPER_ADMIN"
-      userName="Mr. Rajesh Pillai"
+      userName={profile?.full_name || "Super Admin"}
       userRoleTitle="Platform Lead & Super Admin"
       epochText="Central System Administration • Cloud Network Active"
     >
@@ -457,212 +459,77 @@ export default function PlatformAdminOverviewPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
-                {/* Row 1: DPS R.K. Puram */}
-                <tr className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-3">
-                      <SchoolCrest slug="dps-rkpuram" name="Delhi Public School, R.K. Puram" />
-                      <div>
-                        <span className="font-bold text-slate-900 block text-xs">
-                          Delhi Public School, R.K. Puram
-                        </span>
-                        <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400">
-                          <span>slug: dps-rkpuram</span>
-                          <span>•</span>
-                          <a
-                            href="https://dpsrkp.net"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600 hover:underline flex items-center gap-0.5"
-                          >
-                            <span>dpsrkp.net</span>
-                          </a>
+                {schools.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-slate-400">
+                      <Building2 className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
+                      <p className="text-sm font-medium">No schools registered</p>
+                      <p className="text-xs text-slate-400 mt-0.5">Institutions added to the platform will appear here.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  schools.map((sch) => (
+                    <tr key={sch.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <SchoolCrest slug={sch.id} name={sch.name} />
+                          <div>
+                            <span className="font-bold text-slate-900 block text-xs">
+                              {sch.name}
+                            </span>
+                            <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400">
+                              <span>code: {sch.code || sch.id.slice(0, 8)}</span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="font-bold text-slate-800 block text-xs">CBSE</span>
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider">
-                      AFFILIATED
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-1.5 text-slate-700">
-                      <MapPin className="w-3 h-3 text-slate-400" />
-                      <span className="text-xs">New Delhi, India</span>
-                    </div>
-                    <span className="text-[10px] text-slate-400 mt-0.5 block">
-                      Base: INR
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 font-semibold text-slate-800">
-                    3250 <span className="text-slate-400 font-normal">/ 3500</span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Active
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link href="/platform-admin/schools/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11">
-                        <button
-                          type="button"
-                          className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs shadow-2xs"
-                        >
-                          View Details
-                        </button>
-                      </Link>
-                      <Link href="/platform-admin/impersonate?school=dps-rkpuram">
-                        <button
-                          type="button"
-                          className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 text-blue-700 font-medium text-xs flex items-center gap-1.5 shadow-2xs"
-                        >
-                          <Users className="w-3 h-3" />
-                          <span>Open Portal</span>
-                        </button>
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-
-                {/* Row 2: NPS Indiranagar */}
-                <tr className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-3">
-                      <SchoolCrest slug="nps-indiranagar" name="National Public School, Indiranagar" />
-                      <div>
-                        <span className="font-bold text-slate-900 block text-xs">
-                          National Public School, Indiranagar
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="font-bold text-slate-800 block text-xs">{sch.board || "CBSE"}</span>
+                        <span className="text-[10px] text-slate-400 uppercase tracking-wider">
+                          AFFILIATED
                         </span>
-                        <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400">
-                          <span>slug: nps-indiranagar</span>
-                          <span>•</span>
-                          <a
-                            href="https://npsindiranagar.com"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600 hover:underline flex items-center gap-0.5"
-                          >
-                            <span>npsindiranagar.com</span>
-                          </a>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-1.5 text-slate-700">
+                          <MapPin className="w-3 h-3 text-slate-400" />
+                          <span className="text-xs">{sch.city || sch.state || "Campus"}</span>
                         </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="font-bold text-slate-800 block text-xs">CBSE ICSE</span>
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider">
-                      DUAL
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-1.5 text-slate-700">
-                      <MapPin className="w-3 h-3 text-slate-400" />
-                      <span className="text-xs">Bengaluru, Karnataka</span>
-                    </div>
-                    <span className="text-[10px] text-slate-400 mt-0.5 block">
-                      Base: INR
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 font-semibold text-slate-800">
-                    2100 <span className="text-slate-400 font-normal">/ 2200</span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Active
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link href="/platform-admin/schools/b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22">
-                        <button
-                          type="button"
-                          className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs shadow-2xs"
-                        >
-                          View Details
-                        </button>
-                      </Link>
-                      <Link href="/platform-admin/impersonate?school=nps-indiranagar">
-                        <button
-                          type="button"
-                          className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 text-blue-700 font-medium text-xs flex items-center gap-1.5 shadow-2xs"
-                        >
-                          <Users className="w-3 h-3" />
-                          <span>Open Portal</span>
-                        </button>
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-
-                {/* Row 3: The Cathedral & John Connon School */}
-                <tr className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-3">
-                      <SchoolCrest slug="cathedral-mumbai" name="The Cathedral & John Connon School" />
-                      <div>
-                        <span className="font-bold text-slate-900 block text-xs">
-                          The Cathedral &amp; John Connon School
+                        <span className="text-[10px] text-slate-400 mt-0.5 block">
+                          Base: {sch.currency || "INR"}
                         </span>
-                        <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400">
-                          <span>slug: cathedral-mumbai</span>
-                          <span>•</span>
-                          <a
-                            href="https://cathedral-school.com"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600 hover:underline flex items-center gap-0.5"
-                          >
-                            <span>cathedral-school.com</span>
-                          </a>
+                      </td>
+                      <td className="py-4 px-6 font-semibold text-slate-800">
+                        {sch.student_count || 0}
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          {sch.status || "Active"}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link href={`/platform-admin/schools/${sch.id}`}>
+                            <button
+                              type="button"
+                              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs shadow-2xs"
+                            >
+                              View Details
+                            </button>
+                          </Link>
+                          <Link href={`/platform-admin/impersonate?school=${sch.id}`}>
+                            <button
+                              type="button"
+                              className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 text-blue-700 font-medium text-xs flex items-center gap-1.5 shadow-2xs"
+                            >
+                              <Users className="w-3 h-3" />
+                              <span>Open Portal</span>
+                            </button>
+                          </Link>
                         </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="font-bold text-slate-800 block text-xs">ICSE ISC IB</span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-1.5 text-slate-700">
-                      <MapPin className="w-3 h-3 text-slate-400" />
-                      <span className="text-xs">Mumbai, Maharashtra</span>
-                    </div>
-                    <span className="text-[10px] text-slate-400 mt-0.5 block">
-                      Base: INR
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 font-semibold text-slate-800">
-                    1650 <span className="text-slate-400 font-normal">/ 1800</span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
-                      Trial
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link href="/platform-admin/schools/c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33">
-                        <button
-                          type="button"
-                          className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs shadow-2xs"
-                        >
-                          View Details
-                        </button>
-                      </Link>
-                      <Link href="/platform-admin/impersonate?school=cathedral-mumbai">
-                        <button
-                          type="button"
-                          className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 text-blue-700 font-medium text-xs flex items-center gap-1.5 shadow-2xs"
-                        >
-                          <Users className="w-3 h-3" />
-                          <span>Open Portal</span>
-                        </button>
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

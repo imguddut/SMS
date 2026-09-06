@@ -175,7 +175,7 @@ PAYMENT CHANNELS & SETTLEMENT:
 • Receipt will be issued on confirmation
 
 Accounts Officer / Bursar
-${instName} • Agragati School Management OS`;
+${instName} • School OS`;
 
     setPreviewDoc({
       isOpen: true,
@@ -209,7 +209,7 @@ ${instName} • Agragati School Management OS`;
       role="ACCOUNTANT"
       userName={profile?.full_name || "Accounts Officer"}
       userRoleTitle="Accounts Officer & Bursar"
-      epochText="Term 2 (CBSE) • Academic Year 2024–2025"
+      epochText="Receivables &amp; Invoices Ledger"
     >
       <div className="space-y-6">
         {/* Header */}
@@ -368,85 +368,93 @@ ${instName} • Agragati School Management OS`;
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-stone-800">
-                {filteredInvoices.map((inv, index) => {
-                  const avatar = getAvatarStyle(index);
-                  const initials = inv.studentName
-                    .split(" ")
-                    .map((n: string) => n[0])
-                    .slice(0, 2)
-                    .join("");
+                {filteredInvoices.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="py-8 text-center text-slate-500 font-sans">
+                      No invoices recorded. Generate a term invoice to begin.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredInvoices.map((inv, index) => {
+                    const avatar = getAvatarStyle(index);
+                    const initials = inv.studentName
+                      .split(" ")
+                      .map((n: string) => n[0])
+                      .slice(0, 2)
+                      .join("");
 
-                  return (
-                    <tr
-                      key={inv.id}
-                      className="hover:bg-slate-50/70 dark:hover:bg-stone-800/40 transition-colors"
-                    >
-                      <td className="py-4 px-4 font-mono font-bold text-[#0F172A] dark:text-stone-100">
-                        {inv.invoiceNumber}
-                      </td>
+                    return (
+                      <tr
+                        key={inv.id}
+                        className="hover:bg-slate-50/70 dark:hover:bg-stone-800/40 transition-colors"
+                      >
+                        <td className="py-4 px-4 font-mono font-bold text-[#0F172A] dark:text-stone-100">
+                          {inv.invoiceNumber}
+                        </td>
 
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 border ${avatar.bg}`}
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 border ${avatar.bg}`}
+                            >
+                              {initials}
+                            </div>
+                            <div>
+                              <span className="font-bold text-[#0F172A] dark:text-stone-100 block text-xs">
+                                {inv.studentName}
+                              </span>
+                              <span className="text-[11px] text-slate-500">
+                                {inv.form} {inv.house ? `• ${inv.house} House` : ""}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="py-4 px-4 font-medium text-slate-700 dark:text-stone-300">
+                          {inv.parentName}
+                        </td>
+
+                        <td className="py-4 px-4 text-slate-600 dark:text-stone-400">
+                          {inv.termName}
+                        </td>
+
+                        <td className="py-4 px-4 text-right font-serif text-sm font-bold text-[#0F172A] dark:text-stone-100">
+                          {formatIndianCurrency(inv.amount)}
+                        </td>
+
+                        <td className="py-4 px-4 font-mono text-slate-500 text-[11px]">
+                          {inv.dueDate}
+                        </td>
+
+                        <td className="py-4 px-4 text-center">
+                          <span
+                            className={`inline-block px-3 py-1 rounded-md text-[10px] font-bold uppercase ${
+                              inv.status === "PAID"
+                                ? "bg-[#DCFCE7] text-[#166534] dark:bg-emerald-950 dark:text-emerald-300"
+                                : inv.status === "OVERDUE"
+                                ? "bg-[#FEE2E2] text-[#B91C1C] dark:bg-rose-950 dark:text-rose-300"
+                                : "bg-[#FEF3C7] text-[#B45309] dark:bg-amber-950 dark:text-amber-300"
+                            }`}
                           >
-                            {initials}
-                          </div>
-                          <div>
-                            <span className="font-bold text-[#0F172A] dark:text-stone-100 block text-xs">
-                              {inv.studentName}
-                            </span>
-                            <span className="text-[11px] text-slate-500">
-                              {inv.form} • {inv.house} House
-                            </span>
-                          </div>
-                        </div>
-                      </td>
+                            {inv.status}
+                          </span>
+                        </td>
 
-                      <td className="py-4 px-4 font-medium text-slate-700 dark:text-stone-300">
-                        {inv.parentName}
-                      </td>
-
-                      <td className="py-4 px-4 text-slate-600 dark:text-stone-400">
-                        {inv.termName}
-                      </td>
-
-                      <td className="py-4 px-4 text-right font-serif text-sm font-bold text-[#0F172A] dark:text-stone-100">
-                        {formatIndianCurrency(inv.amount)}
-                      </td>
-
-                      <td className="py-4 px-4 font-mono text-slate-500 text-[11px]">
-                        {inv.dueDate}
-                      </td>
-
-                      <td className="py-4 px-4 text-center">
-                        <span
-                          className={`inline-block px-3 py-1 rounded-md text-[10px] font-bold uppercase ${
-                            inv.status === "PAID"
-                              ? "bg-[#DCFCE7] text-[#166534] dark:bg-emerald-950 dark:text-emerald-300"
-                              : inv.status === "OVERDUE"
-                              ? "bg-[#FEE2E2] text-[#B91C1C] dark:bg-rose-950 dark:text-rose-300"
-                              : "bg-[#FEF3C7] text-[#B45309] dark:bg-amber-950 dark:text-amber-300"
-                          }`}
-                        >
-                          {inv.status}
-                        </span>
-                      </td>
-
-                      <td className="py-4 px-4 text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleInspectInvoice(inv)}
-                          className="h-8 px-3 rounded-lg text-xs font-semibold text-slate-700 dark:text-stone-300 hover:bg-slate-100 border-slate-200 dark:border-stone-700 gap-1.5"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-slate-500" />
-                          Inspect
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                        <td className="py-4 px-4 text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleInspectInvoice(inv)}
+                            className="h-8 px-3 rounded-lg text-xs font-semibold text-slate-700 dark:text-stone-300 hover:bg-slate-100 border-slate-200 dark:border-stone-700 gap-1.5"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-slate-500" />
+                            Inspect
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -479,7 +487,7 @@ ${instName} • Agragati School Management OS`;
                   </label>
                   <Input
                     required
-                    placeholder="e.g. Aarav Sharma"
+                    placeholder="e.g. Student Full Name"
                     value={formData.studentName}
                     onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
                     className="text-xs"
@@ -491,7 +499,7 @@ ${instName} • Agragati School Management OS`;
                   </label>
                   <Input
                     required
-                    placeholder="e.g. ADM-2024-001"
+                    placeholder="e.g. ADM-001"
                     value={formData.admissionNumber}
                     onChange={(e) => setFormData({ ...formData, admissionNumber: e.target.value })}
                     className="text-xs font-mono"
@@ -506,7 +514,7 @@ ${instName} • Agragati School Management OS`;
                   </label>
                   <Input
                     required
-                    placeholder="e.g. Class 12-A"
+                    placeholder="e.g. Class 10-A"
                     value={formData.form}
                     onChange={(e) => setFormData({ ...formData, form: e.target.value })}
                     className="text-xs"
@@ -516,16 +524,12 @@ ${instName} • Agragati School Management OS`;
                   <label className="block font-sans text-xs font-semibold text-slate-700 mb-1">
                     House Affiliation
                   </label>
-                  <select
-                    className="w-full h-10 px-3 rounded-lg border border-stone-200 bg-white text-xs font-sans text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#A36829]"
+                  <Input
+                    placeholder="e.g. Red House"
                     value={formData.house}
                     onChange={(e) => setFormData({ ...formData, house: e.target.value })}
-                  >
-                    <option value="Tagore">Tagore House</option>
-                    <option value="Ashoka">Ashoka House</option>
-                    <option value="Shivaji">Shivaji House</option>
-                    <option value="Raman">Raman House</option>
-                  </select>
+                    className="text-xs"
+                  />
                 </div>
               </div>
 
@@ -536,7 +540,7 @@ ${instName} • Agragati School Management OS`;
                   </label>
                   <Input
                     required
-                    placeholder="e.g. Mr. Rajesh Sharma"
+                    placeholder="e.g. Parent / Guardian Name"
                     value={formData.parentName}
                     onChange={(e) => setFormData({ ...formData, parentName: e.target.value })}
                     className="text-xs"

@@ -121,318 +121,6 @@ function deleteCookie(name: string): void {
 }
 
 // ---------------------------------------------------------------------------
-// Seed Data (Multi-Tenant Offline / Demo Mode)
-// ---------------------------------------------------------------------------
-
-const DEMO_ORGANIZATION_A: AuthOrganization = {
-  id: "e0000000-0000-0000-0000-000000000001",
-  platform_id: "00000000-0000-0000-0000-000000000001",
-  name: "King's Educational Trust",
-  slug: "kings-trust",
-  legal_name: "The King's Educational Trust & Foundation",
-  organization_type: "TRUST",
-  registration_number: "KET-REG-2018-9842",
-  city: "Geneva",
-  state: "Geneva Canton",
-  country: "Switzerland",
-  status: "ACTIVE",
-  subscription_plan: "ENTERPRISE_FLEET",
-  subscription_status: "ACTIVE",
-  created_at: new Date().toISOString(),
-};
-
-const DEMO_ORGANIZATION_B: AuthOrganization = {
-  id: "e0000000-0000-0000-0000-000000000002",
-  platform_id: "00000000-0000-0000-0000-000000000001",
-  name: "ABC Education Society",
-  slug: "abc-society",
-  legal_name: "ABC Education Society Foundation",
-  organization_type: "SOCIETY",
-  registration_number: "ABC-SOC-2021-4410",
-  city: "New Delhi",
-  state: "Delhi",
-  country: "India",
-  status: "ACTIVE",
-  subscription_plan: "STANDARD",
-  subscription_status: "ACTIVE",
-  created_at: new Date().toISOString(),
-};
-
-const DEMO_SCHOOL_A1: AuthSchool = {
-  id: "11111111-1111-1111-1111-111111111111",
-  organization_id: "e0000000-0000-0000-0000-000000000001",
-  legal_name: "The King's College & Academy",
-  name: "The King's College & Academy",
-  slug: "kingscollege",
-  school_code: "KC-01",
-  domain: "kingscollege.agragati.edu",
-  currency: "CHF",
-  base_currency: "CHF",
-  status: "ACTIVE",
-  city: "Geneva",
-  created_at: new Date().toISOString(),
-};
-
-const DEMO_SCHOOL_A2: AuthSchool = {
-  id: "11111111-1111-1111-1111-111111111112",
-  organization_id: "e0000000-0000-0000-0000-000000000001",
-  legal_name: "King's Preparatory Grammar School",
-  name: "King's Preparatory Grammar School",
-  slug: "kingsprep",
-  school_code: "KC-PREP-02",
-  domain: "prep.kingscollege.edu",
-  currency: "CHF",
-  base_currency: "CHF",
-  status: "ACTIVE",
-  city: "Lausanne",
-  created_at: new Date().toISOString(),
-};
-
-const DEMO_SCHOOL_B1: AuthSchool = {
-  id: "22222222-2222-2222-2222-222222222222",
-  organization_id: "e0000000-0000-0000-0000-000000000002",
-  legal_name: "ABC Public Senior School",
-  name: "ABC Public Senior School",
-  slug: "abc-senior-school",
-  school_code: "ABC-01",
-  domain: "abcschool.agragati.edu",
-  currency: "INR",
-  base_currency: "INR",
-  status: "ACTIVE",
-  city: "New Delhi",
-  created_at: new Date().toISOString(),
-};
-
-const DEMO_PROFILES: Record<UserRole, AuthProfile> = {
-  PLATFORM_ADMIN: {
-    id: "b0000000-0000-0000-0000-000000000001",
-    auth_user_id: "a0000000-0000-0000-0000-000000000001",
-    full_name: "Eleanor Vance",
-    email: "superadmin@agragati.edu",
-    title: "Platform Lead & National Admin",
-    status: "ACTIVE",
-    role: "PLATFORM_ADMIN",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  SUPER_ADMIN: {
-    id: "b0000000-0000-0000-0000-000000000001",
-    auth_user_id: "a0000000-0000-0000-0000-000000000001",
-    full_name: "Eleanor Vance",
-    email: "superadmin@agragati.edu",
-    title: "Platform Lead & Super Admin",
-    status: "ACTIVE",
-    role: "SUPER_ADMIN",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  ORGANIZATION_OWNER: {
-    id: "b0000000-0000-0000-0000-000000000002",
-    auth_user_id: "a0000000-0000-0000-0000-000000000002",
-    full_name: "Julian Vance-Moreau, D.Phil",
-    email: "owner@kingscollege.edu",
-    title: "Trust Chairman & Founder",
-    status: "ACTIVE",
-    role: "ORGANIZATION_OWNER",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  ORGANIZATION_ADMIN: {
-    id: "b0000000-0000-0000-0000-000000000002",
-    auth_user_id: "a0000000-0000-0000-0000-000000000002",
-    full_name: "Julian Vance-Moreau, D.Phil",
-    email: "owner@kingscollege.edu",
-    title: "Chief Executive Officer",
-    status: "ACTIVE",
-    role: "ORGANIZATION_ADMIN",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  ORGANIZATION_FINANCE: {
-    id: "b0000000-0000-0000-0000-000000000006",
-    auth_user_id: "a0000000-0000-0000-0000-000000000006",
-    full_name: "Arthur M. Vance",
-    email: "finance@kingscollege.edu",
-    title: "Trust Financial Controller",
-    status: "ACTIVE",
-    role: "ORGANIZATION_FINANCE",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  ORGANIZATION_VIEWER: {
-    id: "b0000000-0000-0000-0000-000000000002",
-    auth_user_id: "a0000000-0000-0000-0000-000000000002",
-    full_name: "Julian Vance-Moreau, D.Phil",
-    email: "owner@kingscollege.edu",
-    title: "Trustee & Observer",
-    status: "ACTIVE",
-    role: "ORGANIZATION_VIEWER",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  TRUST_CHAIRMAN: {
-    id: "b0000000-0000-0000-0000-000000000002",
-    auth_user_id: "a0000000-0000-0000-0000-000000000002",
-    full_name: "Julian Vance-Moreau, D.Phil",
-    email: "owner@kingscollege.edu",
-    title: "Trust Chairman & Trustee",
-    status: "ACTIVE",
-    role: "ORGANIZATION_OWNER",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  CEO: {
-    id: "b0000000-0000-0000-0000-000000000002",
-    auth_user_id: "a0000000-0000-0000-0000-000000000002",
-    full_name: "Julian Vance-Moreau, D.Phil",
-    email: "owner@kingscollege.edu",
-    title: "Chief Executive Officer",
-    status: "ACTIVE",
-    role: "ORGANIZATION_ADMIN",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  OWNER: {
-    id: "b0000000-0000-0000-0000-000000000002",
-    auth_user_id: "a0000000-0000-0000-0000-000000000002",
-    full_name: "Julian Vance-Moreau, D.Phil",
-    email: "owner@kingscollege.edu",
-    title: "Chancellor & Founder",
-    status: "ACTIVE",
-    role: "ORGANIZATION_OWNER",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  PRINCIPAL: {
-    id: "b0000000-0000-0000-0000-000000000003",
-    auth_user_id: "a0000000-0000-0000-0000-000000000003",
-    full_name: "Mme. Claire De La Tour",
-    email: "principal@kingscollege.edu",
-    title: "Head of School / Principal",
-    status: "ACTIVE",
-    role: "PRINCIPAL",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  SCHOOL_ADMIN: {
-    id: "b0000000-0000-0000-0000-000000000004",
-    auth_user_id: "a0000000-0000-0000-0000-000000000004",
-    full_name: "Henrietta Sterling",
-    email: "admin@kingscollege.edu",
-    title: "School Operations Administrator",
-    status: "ACTIVE",
-    role: "SCHOOL_ADMIN",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  TEACHER: {
-    id: "b0000000-0000-0000-0000-000000000005",
-    auth_user_id: "a0000000-0000-0000-0000-000000000005",
-    full_name: "Dr. Alistair Finch",
-    email: "teacher@kingscollege.edu",
-    title: "Senior Faculty • Physics",
-    status: "ACTIVE",
-    role: "TEACHER",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  ACCOUNTANT: {
-    id: "b0000000-0000-0000-0000-000000000006",
-    auth_user_id: "a0000000-0000-0000-0000-000000000006",
-    full_name: "Arthur M. Vance",
-    email: "finance@kingscollege.edu",
-    title: "Chief Bursar & Comptroller",
-    status: "ACTIVE",
-    role: "ACCOUNTANT",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  PARENT: {
-    id: "b0000000-0000-0000-0000-000000000007",
-    auth_user_id: "a0000000-0000-0000-0000-000000000007",
-    full_name: "Marcus Laurent",
-    email: "parent@kingscollege.edu",
-    title: "Guardian • Senior Form",
-    status: "ACTIVE",
-    role: "PARENT",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  STUDENT: {
-    id: "b0000000-0000-0000-0000-000000000008",
-    auth_user_id: "a0000000-0000-0000-0000-000000000008",
-    full_name: "Genevieve Laurent",
-    email: "student@kingscollege.edu",
-    title: "Scholar • Grade 11-IB",
-    status: "ACTIVE",
-    role: "STUDENT",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  BURSAR: {
-    id: "b0000000-0000-0000-0000-000000000006",
-    auth_user_id: "a0000000-0000-0000-0000-000000000006",
-    full_name: "Montgomery Sterling, CPA",
-    email: "finance@kingscollege.edu",
-    title: "Bursar & Chief Financial Officer",
-    status: "ACTIVE",
-    role: "BURSAR",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  FACULTY: {
-    id: "b0000000-0000-0000-0000-000000000005",
-    auth_user_id: "a0000000-0000-0000-0000-000000000005",
-    full_name: "Dr. Alistair Finch",
-    email: "faculty@kingscollege.edu",
-    title: "Senior Faculty & Head of Sciences",
-    status: "ACTIVE",
-    role: "FACULTY",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  GUARDIAN: {
-    id: "b0000000-0000-0000-0000-000000000007",
-    auth_user_id: "a0000000-0000-0000-0000-000000000007",
-    full_name: "Lord Sterling",
-    email: "parent@kingscollege.edu",
-    title: "Parent & Benefactor",
-    status: "ACTIVE",
-    role: "GUARDIAN",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  SCHOLAR: {
-    id: "b0000000-0000-0000-0000-000000000008",
-    auth_user_id: "a0000000-0000-0000-0000-000000000008",
-    full_name: "Genevieve Laurent",
-    email: "student@kingscollege.edu",
-    title: "Scholar • Grade 11-IB",
-    status: "ACTIVE",
-    role: "SCHOLAR",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-};
-
-// ---------------------------------------------------------------------------
 // Provider Component
 // ---------------------------------------------------------------------------
 
@@ -571,10 +259,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const matched = organizations.find((o) => o.organization_id === orgId)?.organization;
       if (matched) {
         setCurrentOrganization(matched);
-      } else if (orgId === DEMO_ORGANIZATION_A.id) {
-        setCurrentOrganization(DEMO_ORGANIZATION_A);
-      } else if (orgId === DEMO_ORGANIZATION_B.id) {
-        setCurrentOrganization(DEMO_ORGANIZATION_B);
+      } else {
+        try {
+          const supabase = createClient();
+          const { data: org } = await supabase.from("organizations").select("*").eq("id", orgId).single();
+          if (org) setCurrentOrganization(org as AuthOrganization);
+        } catch {
+          // ignore
+        }
       }
     },
     [organizations]
@@ -587,12 +279,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const matched = schools.find((s) => s.school_id === schoolId)?.school;
       if (matched) {
         setCurrentSchool(matched);
-      } else if (schoolId === DEMO_SCHOOL_A1.id) {
-        setCurrentSchool(DEMO_SCHOOL_A1);
-      } else if (schoolId === DEMO_SCHOOL_A2.id) {
-        setCurrentSchool(DEMO_SCHOOL_A2);
-      } else if (schoolId === DEMO_SCHOOL_B1.id) {
-        setCurrentSchool(DEMO_SCHOOL_B1);
+      } else {
+        try {
+          const supabase = createClient();
+          const { data: sch } = await supabase.from("schools").select("*").eq("id", schoolId).single();
+          if (sch) setCurrentSchool(sch as AuthSchool);
+        } catch {
+          // ignore
+        }
       }
     },
     [schools]

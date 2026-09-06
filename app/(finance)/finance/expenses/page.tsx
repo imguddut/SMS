@@ -26,7 +26,7 @@ import { sharedStore, SharedExpense, SharedVendor } from "@/lib/db/shared-store"
 import { formatIndianCurrency } from "@/lib/utils";
 
 export default function FinanceExpensesPage() {
-  const { schoolId } = useAuth();
+  const { profile, schoolId } = useAuth();
   const [activeTab, setActiveTab] = useState<"EXPENSES" | "VENDORS">("EXPENSES");
   const [expenses, setExpenses] = useState<SharedExpense[]>([]);
   const [vendors, setVendors] = useState<SharedVendor[]>([]);
@@ -203,9 +203,9 @@ export default function FinanceExpensesPage() {
   return (
     <AppShell
       role="ACCOUNTANT"
-      userName="Rameshwar Gupta"
+      userName={profile?.full_name || "Accounts Officer"}
       userRoleTitle="Chief Accounts Officer"
-      epochText="Fiscal Year 2024–2025 • Q3 Operations"
+      epochText="Fiscal Operations &amp; Procurement"
     >
       <div className="space-y-6 max-w-7xl mx-auto pb-12">
         {/* Toast Notification */}

@@ -190,15 +190,15 @@ export default function StudentAttendancePage() {
                 CONSECUTIVE STREAK
               </span>
               <div className="font-serif text-3xl font-bold text-stone-900 dark:text-stone-100 mt-0.5">
-                24 Days
+                {studentProfile?.consecutiveStreakDays ?? 0} Days
               </div>
               <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-                Perfect Term 2 Roll-Call Record
+                Roll-Call Record
               </p>
             </div>
           </div>
 
-          {/* Card 2: Term Attendance Rate with Donut Ring */}
+          {/* Card 2: Term Attendance Rate */}
           <div className="bg-white dark:bg-[#151922] rounded-2xl border border-stone-200/80 dark:border-stone-800 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 flex items-center justify-center shrink-0">
@@ -209,41 +209,18 @@ export default function StudentAttendancePage() {
                   ATTENDANCE RATE
                 </span>
                 <div className="font-serif text-3xl font-bold text-stone-900 dark:text-stone-100 mt-0.5">
-                  98.4%
+                  {logs.length > 0
+                    ? `${Math.round((logs.filter((l) => l.status === "PRESENT").length / logs.length) * 100)}%`
+                    : (studentProfile?.attendanceRate || "0.0%")}
                 </div>
                 <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-                  18 / 18 Sessions Present
+                  {logs.filter((l) => l.status === "PRESENT").length} / {logs.length} Sessions Present
                 </p>
               </div>
             </div>
-
-            {/* Circular Progress Donut Ring */}
-            <div className="w-14 h-14 relative flex items-center justify-center shrink-0">
-              <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-                <path
-                  className="text-stone-100 dark:text-stone-800"
-                  strokeWidth="3.5"
-                  stroke="currentColor"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-                <path
-                  className="text-emerald-600"
-                  strokeDasharray="98.4, 100"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  stroke="currentColor"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-              </svg>
-              <span className="absolute font-sans text-[10px] font-bold text-stone-900 dark:text-stone-100">
-                98.4%
-              </span>
-            </div>
           </div>
 
-          {/* Card 3: Hostel Curfew Cutoff */}
+          {/* Card 3: Gate Timing */}
           <div className="bg-white dark:bg-[#151922] rounded-2xl border border-stone-200/80 dark:border-stone-800 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-950/40 text-[#8C6D27] dark:text-amber-300 flex items-center justify-center shrink-0">
               <Moon className="w-6 h-6" />
@@ -256,7 +233,7 @@ export default function StudentAttendancePage() {
                 21:00 IST
               </div>
               <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-                Tagore House Smart RFID Lock
+                {studentProfile?.house ? `${studentProfile.house} Gate Lock` : "Campus Gate"}
               </p>
             </div>
           </div>
@@ -270,12 +247,14 @@ export default function StudentAttendancePage() {
                 <Calendar className="w-4 h-4" />
               </div>
               <span className="font-serif text-base font-bold text-stone-900 dark:text-stone-100">
-                Gate Entry &amp; Roll-Call Logs (January 2025)
+                Gate Entry &amp; Roll-Call Logs
               </span>
             </div>
-            <span className="px-3 py-1 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-sans text-[10px] font-bold uppercase tracking-wider border border-stone-200/70 dark:border-stone-700">
-              ROLL NO: ADM-2024-001
-            </span>
+            {studentProfile?.rollNumber && (
+              <span className="px-3 py-1 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-sans text-[10px] font-bold uppercase tracking-wider border border-stone-200/70 dark:border-stone-700">
+                ROLL NO: {studentProfile.rollNumber}
+              </span>
+            )}
           </div>
 
           <div className="overflow-x-auto">
@@ -290,7 +269,14 @@ export default function StudentAttendancePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
-                {logs.map((log) => (
+                {logs.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-12 text-center text-stone-500 text-xs">
+                      No gate entry or attendance records found.
+                    </td>
+                  </tr>
+                ) : (
+                  logs.map((log) => (
                   <tr key={log.id} className="hover:bg-stone-50/60 dark:hover:bg-stone-900/40 transition-colors">
                     <td className="py-3.5 px-5">
                       <span className="font-bold text-stone-900 dark:text-stone-100 block">
@@ -321,7 +307,7 @@ export default function StudentAttendancePage() {
                       {log.remarks || "—"}
                     </td>
                   </tr>
-                ))}
+                )))}
               </tbody>
             </table>
           </div>
@@ -356,7 +342,7 @@ export default function StudentAttendancePage() {
           isOpen={isPassModalOpen}
           onClose={() => setIsPassModalOpen(false)}
           title="Request Campus Leave / Exeat Pass"
-          description="Submit an authorized campus pass to Prof. Rajesh Verma for biometric gate authorization."
+          description="Submit an authorized campus pass for biometric gate authorization."
           maxWidth="lg"
         >
           {passSuccess ? (

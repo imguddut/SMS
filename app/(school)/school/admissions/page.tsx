@@ -32,7 +32,7 @@ import {
 import { SharedAdmission } from "@/lib/db/shared-store";
 
 export default function AdmissionsPage() {
-  const { schoolId } = useAuth();
+  const { schoolId, school } = useAuth();
   const [admissions, setAdmissions] = useState<SharedAdmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,16 +55,17 @@ export default function AdmissionsPage() {
     entranceScore: "",
   });
 
+  const activeSchoolId = schoolId || school?.id;
+
   const loadData = async () => {
-    if (!schoolId) {
+    if (!activeSchoolId) {
       setAdmissions([]);
       setLoading(false);
       return;
     }
     setLoading(true);
     try {
-      const data = await getAdmissions(schoolId);
-      setAdmissions(data);
+      const data = await getAdmissions(activeSchoolId);
       setAdmissions(data);
     } catch (e) {
       console.error(e);
@@ -75,7 +76,7 @@ export default function AdmissionsPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [activeSchoolId]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -111,16 +112,21 @@ export default function AdmissionsPage() {
       return;
     }
 
+    if (!activeSchoolId) {
+      alert("No active school found for this session.");
+      return;
+    }
+
     const created = await createAdmission({
-      schoolId: "11111111-1111-1111-1111-111111111111",
+      schoolId: activeSchoolId,
       applicantName: formData.applicantName,
-      dateOfBirth: formData.dateOfBirth || "2015-01-01",
+      dateOfBirth: formData.dateOfBirth || new Date().toISOString().split("T")[0],
       gender: formData.gender,
       gradeApplyingFor: formData.gradeApplyingFor,
       parentName: formData.parentName,
-      parentEmail: formData.parentEmail || "parent@example.com",
+      parentEmail: formData.parentEmail || "",
       parentPhone: formData.parentPhone,
-      address: formData.address || "Local Campus Vicinity",
+      address: formData.address || "",
       notes: formData.notes,
       entranceScore: formData.entranceScore ? parseFloat(formData.entranceScore) : undefined,
     });

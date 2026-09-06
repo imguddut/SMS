@@ -6,6 +6,7 @@ import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 import { MobileNav } from "./mobile-nav";
 import { ImpersonationBanner } from "./impersonation-banner";
+import { useAuth } from "@/components/providers/auth-context";
 import { cn } from "@/lib/utils";
 
 export interface AppShellProps {
@@ -20,18 +21,20 @@ export interface AppShellProps {
 
 export function AppShell({
   role,
-  schoolName = "The King's College & Academy",
-  campusName = "GENEVA CAMPUS",
-  epochText = "Daily Schedule • Michaelmas Term 2024–2025",
-  userName = "Genevieve Laurent",
-  userRoleTitle = "SCHOLAR • FORM VI (GRADE 12-IB) • ROSEY MANOR",
+  schoolName,
+  campusName,
+  epochText = "Academic Session",
+  userName,
+  userRoleTitle,
   children,
 }: AppShellProps) {
+  const { profile, currentSchool } = useAuth();
   const isMobilePortal = role === "PARENT" || role === "STUDENT";
-  const isPlatformAdmin = role === "SUPER_ADMIN";
 
-  const effectiveUserName = isPlatformAdmin && userName === "Genevieve Laurent" ? "Mr. Rajesh Pillai" : userName;
-  const effectiveUserTitle = isPlatformAdmin && userRoleTitle.includes("SCHOLAR") ? "Platform Lead & Super Admin" : userRoleTitle;
+  const effectiveUserName = userName || profile?.full_name || (role === "SUPER_ADMIN" ? "Super Admin" : "User");
+  const effectiveSchoolName = schoolName || currentSchool?.name || currentSchool?.legal_name || "School Administration";
+  const effectiveCampusName = campusName || currentSchool?.school_code || "Main Campus";
+  const effectiveUserTitle = userRoleTitle || `${role} • ${effectiveSchoolName}`;
 
   return (
     <div
@@ -44,7 +47,7 @@ export function AppShell({
       <div className={cn("hidden md:block")}>
         <Sidebar
           role={role}
-          schoolName={schoolName}
+          schoolName={effectiveSchoolName}
           userName={effectiveUserName}
           userRoleTitle={effectiveUserTitle}
         />
@@ -56,8 +59,8 @@ export function AppShell({
         <div className="hidden md:block">
           <Topbar
             role={role}
-            schoolName={schoolName}
-            campusName={campusName}
+            schoolName={effectiveSchoolName}
+            campusName={effectiveCampusName}
             epochText={epochText}
             userName={effectiveUserName}
             userTitle={effectiveUserTitle}

@@ -26,10 +26,12 @@ import {
   Download,
 } from "lucide-react";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function ParentHomeworkPage() {
+  const { profile, currentSchool } = useAuth();
   const [wards, setWards] = React.useState<ParentWardProfile[]>([]);
-  const [selectedWardId, setSelectedWardId] = React.useState<string>("ward-01");
+  const [selectedWardId, setSelectedWardId] = React.useState<string>("");
   const [homeworkList, setHomeworkList] = React.useState<WardHomeworkItem[]>([]);
   const [statusFilter, setStatusFilter] = React.useState("ALL");
   const [isLoading, setIsLoading] = React.useState(true);
@@ -64,10 +66,10 @@ export default function ParentHomeworkPage() {
   const activeWard = wards.find((w) => w.id === selectedWardId) || wards[0];
 
   const handleDownloadHomeworkPDF = (hw: WardHomeworkItem) => {
-    const studentName = activeWard?.name || "Aarav Sharma";
-    const studentForm = activeWard?.form || "Class 12-A";
-    const studentRoll = activeWard?.rollNumber || "ADM-2024-001";
-    const studentHouse = activeWard?.house || "Tagore House";
+    const studentName = activeWard?.name || "Student";
+    const studentForm = activeWard?.form || "Class";
+    const studentRoll = activeWard?.rollNumber || "N/A";
+    const studentHouse = activeWard?.house || "N/A";
 
     let content = "";
     if (hw.status === "GRADED") {
@@ -174,9 +176,9 @@ Agragati Academy Department of Secondary Education`;
   return (
     <AppShell
       role="PARENT"
-      userName="Mr. Rajesh Sharma"
-      userRoleTitle={`Parent • ${activeWard ? activeWard.name : "Aarav Sharma"}`}
-      epochText="Academic Year 2024–2025 • Term 2 (CBSE Board)"
+      userName={profile?.full_name || "Parent"}
+      userRoleTitle={`Parent${activeWard?.name ? ` • ${activeWard.name}` : ""}`}
+      epochText="Academic Assignments"
     >
       <div className="space-y-6">
         {/* Top Brow & Page Header */}

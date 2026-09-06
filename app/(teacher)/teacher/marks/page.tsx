@@ -25,10 +25,12 @@ import {
   GradebookRow,
 } from "@/lib/db/teacher";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function TeacherMarksPage() {
+  const { user, profile, school } = useAuth();
   const [rows, setRows] = React.useState<GradebookRow[]>([]);
-  const [selectedClass, setSelectedClass] = React.useState("Class 12-A - Senior Secondary Pure Mathematics");
+  const [selectedClass, setSelectedClass] = React.useState("Mathematics Class Gradebook");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [sealedHash, setSealedHash] = React.useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = React.useState(false);
@@ -40,6 +42,10 @@ export default function TeacherMarksPage() {
     }
     load();
   }, []);
+
+  const teacherName = profile?.full_name || "Faculty Member";
+  const teacherDesignation = profile?.role || "Faculty";
+  const schoolDisplayName = school?.name || "School Portal";
 
   const calculateGrade = (totalPct: number): string => {
     if (totalPct >= 91) return "A1";
@@ -94,21 +100,20 @@ export default function TeacherMarksPage() {
     }
   };
 
-  const previewContent = `DELHI PUBLIC SCHOOL, R.K. PURAM
+  const previewContent = `${schoolDisplayName.toUpperCase()}
 OFFICIAL SEALED GRADEBOOK & SCHOLASTIC PERFORMANCE MATRIX
-Academic Session: 2024–2025 • Term 2 (CBSE Senior Secondary)
+Generated: ${new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
 
 COURSE & EVALUATION SPECIFICATIONS:
 Course: ${selectedClass}
-Subject: Mathematics (Code: 041) • CBSE Affiliation No: 2730017
-Evaluator / Head of Department: Prof. Rajesh Verma (Senior PGT Mathematics)
+Evaluator: ${teacherName} (${teacherDesignation})
 Assessment Scale: Theory Examination (80 Marks) + Internal Assessment & Practical (20 Marks) = 100 Total Marks
 Sealing Status: ${sealedHash ? `Sealed (${sealedHash})` : "Active Faculty Entry"}
-Date of Ledger Seal: ${new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+Date of Ledger Seal: ${new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
 
 SCHOLAR SCORECARD & GRADE MATRIX:
 ================================================================================
-${rows
+${rows.length > 0 ? rows
   .map(
     (r, idx) =>
       `${idx + 1}. SCHOLAR: ${r.studentName} (${r.studentNumber})
@@ -116,31 +121,25 @@ ${rows
    Theory Component (Max 80): ${r.paper1} Marks
    Internal Assessment / Practical (Max 20): ${r.internalAssessment} Marks
    Total Aggregate Score: ${r.weightedTotal} / 100 Marks (${r.weightedTotal}%)
-   Awarded CBSE Letter Grade: Grade ${r.predictedGrade}`
+   Awarded Grade: Grade ${r.predictedGrade}`
   )
-  .join("\n\n")}
+  .join("\n\n") : "No scholar records available in gradebook."}
 ================================================================================
 
-CBSE GRADING SCALE BENCHMARK:
-- A1: Top 1/8th of passed candidates (91% - 100%) [Outstanding Performance]
-- A2: Next 1/8th of passed candidates (81% - 90%) [Excellent Performance]
-- B1: Next 1/8th of passed candidates (71% - 80%) [Very Good Performance]
-- B2: Next 1/8th of passed candidates (61% - 70%) [Good Performance]
-- C1: Next 1/8th of passed candidates (51% - 60%) [Fair Performance]
-
 OFFICIAL CERTIFICATION & SEAL:
-I hereby certify that the scores recorded above represent verified answer scripts and laboratory records evaluated strictly according to CBSE Senior Secondary standards.
+I hereby certify that the scores recorded above represent verified academic records evaluated strictly according to school standards.
 
-Digital Hash: ${sealedHash || "SEAL-GRADEBOOK-CBSE-DILITHIUM5-2025"}
-Evaluator Signature: Prof. Rajesh Verma (Head of Mathematics Department)
-Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
+Digital Hash: ${sealedHash || "SEAL-GRADEBOOK-ACTIVE"}
+Evaluator Signature: ${teacherName}`;
 
   return (
     <AppShell
       role="TEACHER"
-      userName="Prof. Rajesh Verma"
-      userRoleTitle="Senior PGT Mathematics & Head of Department"
-      epochText="Daily Schedule • Academic Year 2024–25 (CBSE)"
+      schoolName={schoolDisplayName}
+      campusName={school?.code || "MAIN CAMPUS"}
+      userName={teacherName}
+      userRoleTitle={teacherDesignation}
+      epochText={new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "short", day: "numeric" })}
     >
       <div className="space-y-8 max-w-7xl mx-auto pb-12">
         {/* Header */}
@@ -151,7 +150,7 @@ Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
                 Class Marks &amp; Grades
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                Term 2 (CBSE 2024–25) • Final Evaluation
+                Official Gradebook Matrix
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
@@ -198,17 +197,17 @@ Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
           isOpen={previewOpen}
           onClose={() => setPreviewOpen(false)}
           title="Official Gradebook Matrix"
-          fileName="Official_Gradebook_Class12A_Mathematics.pdf"
+          fileName="Official_Gradebook_Matrix.pdf"
           content={previewContent}
           studentMeta={{
-            name: "Class 12-A Scholars",
-            rollNumber: "Subject Code: Mathematics (041)",
-            form: "Class 12-A Senior Secondary",
-            house: "Department of Mathematics",
-            institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-            institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017",
-            institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022 • School Code: 85214",
-            academicSession: "2024–2025",
+            name: "Enrolled Scholars",
+            rollNumber: selectedClass,
+            form: teacherDesignation,
+            house: schoolDisplayName,
+            institutionName: schoolDisplayName,
+            institutionAffiliation: school?.code || "",
+            institutionAddress: "",
+            academicSession: new Date().getFullYear().toString(),
           }}
         />
 
@@ -218,7 +217,7 @@ Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
             <div className="flex items-center gap-2 text-emerald-400">
               <CheckCircle2 className="w-5 h-5" />
               <span>
-                <strong>Grades Saved Successfully!</strong> All student scores and CBSE grades have been recorded. Ref: <span className="font-mono font-bold">{sealedHash}</span>
+                <strong>Grades Saved Successfully!</strong> All student scores and grades have been recorded. Ref: <span className="font-mono font-bold">{sealedHash}</span>
               </span>
             </div>
           </div>
@@ -232,7 +231,7 @@ Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
                 {selectedClass}
               </h3>
               <p className="font-sans text-xs text-on-surface-variant mt-0.5">
-                CBSE Senior Secondary (041) • Theory Examination (80 Marks) + Internal Assessment (20 Marks) = 100 Marks
+                Theory Examination (80 Marks) + Internal Assessment (20 Marks) = 100 Marks
               </p>
             </div>
           </div>
@@ -245,11 +244,18 @@ Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
                   <th className="py-3.5 px-4 text-center">Theory Paper (80)</th>
                   <th className="py-3.5 px-4 text-center">Internal Assessment (20)</th>
                   <th className="py-3.5 px-4 text-center">Total Score (100)</th>
-                  <th className="py-3.5 px-6 text-right">Awarded CBSE Grade</th>
+                  <th className="py-3.5 px-6 text-right">Awarded Grade</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
-                {rows.map((row) => (
+                {rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-12 text-center text-on-surface-variant text-sm">
+                      No scholars found in this gradebook.
+                    </td>
+                  </tr>
+                ) : (
+                  rows.map((row) => (
                   <tr key={row.studentId} className="hover:bg-surface-variant/20 transition-colors">
                     <td className="py-4 px-6">
                       <div className="font-serif font-medium text-base text-primary leading-tight">
@@ -309,7 +315,8 @@ Countersigned by: Dr. V. K. Malhotra (Principal & Headmaster, DPS R.K. Puram)`;
                       </div>
                     </td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>

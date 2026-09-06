@@ -18,8 +18,10 @@ import {
   Check,
 } from "lucide-react";
 import { fetchSchoolOperationalSettings } from "@/lib/db/school-admin";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function SchoolSettingsPage() {
+  const { school, profile } = useAuth();
   const [settings, setSettings] = React.useState<any>(null);
   const [isSaved, setIsSaved] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
@@ -42,7 +44,7 @@ export default function SchoolSettingsPage() {
     return (
       <AppShell
         role="PRINCIPAL"
-        userName="Dr. Arvind Swaminathan"
+        userName={profile?.full_name || "School Principal"}
         userRoleTitle="Principal & Head of School"
       >
         <div className="py-20 text-center text-on-surface-variant font-sans">
@@ -55,9 +57,9 @@ export default function SchoolSettingsPage() {
   return (
     <AppShell
       role="PRINCIPAL"
-      userName="Dr. Arvind Swaminathan"
+      userName={profile?.full_name || "School Principal"}
       userRoleTitle="Principal & Head of School"
-      epochText="Term 2 (CBSE Board) • Main Campus"
+      epochText={school?.name ? `${school.name} • Settings` : "Settings"}
     >
       <div className="space-y-8 max-w-5xl mx-auto pb-12">
         {/* Header */}
@@ -68,7 +70,7 @@ export default function SchoolSettingsPage() {
                 School Settings
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                Delhi Public School, R.K. Puram • Main Campus
+                {school?.name || "School Campus"}
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">

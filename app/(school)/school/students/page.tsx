@@ -31,8 +31,10 @@ import {
   fetchStudentsDirectory,
   StudentRecord,
 } from "@/lib/db/school-admin";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function SchoolStudentsPage() {
+  const { school, profile } = useAuth();
   const [students, setStudents] = React.useState<StudentRecord[]>([]);
   const [selectedStudent, setSelectedStudent] = React.useState<StudentRecord | null>(null);
   const [search, setSearch] = React.useState("");
@@ -41,6 +43,15 @@ export default function SchoolStudentsPage() {
   const [standingFilter, setStandingFilter] = React.useState("ALL");
   const [loading, setLoading] = React.useState(true);
   const [actionFeedback, setActionFeedback] = React.useState<string | null>(null);
+
+  const availableHouses = React.useMemo(
+    () => Array.from(new Set(students.map((s) => s.house).filter(Boolean))),
+    [students]
+  );
+  const availableForms = React.useMemo(
+    () => Array.from(new Set(students.map((s) => s.form).filter(Boolean))),
+    [students]
+  );
 
   const loadData = React.useCallback(async () => {
     setLoading(true);
@@ -85,9 +96,9 @@ export default function SchoolStudentsPage() {
   return (
     <AppShell
       role="PRINCIPAL"
-      userName="Dr. Arvind Swaminathan"
+      userName={profile?.full_name || "School Principal"}
       userRoleTitle="Principal & Head of School"
-      epochText="Academic Year 2024–2025 • Term 2 (CBSE)"
+      epochText={school?.name ? `${school.name} • Student Directory` : "Student Directory"}
     >
       <div className="space-y-8 max-w-7xl mx-auto pb-12">
         {/* Header */}
@@ -98,7 +109,7 @@ export default function SchoolStudentsPage() {
                 Student Directory
               </Badge>
               <span className="font-sans text-xs text-on-surface-variant">
-                All Active Students • Current Academic Year
+                {school?.name || "School Campus"} • Active Enrolment
               </span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-normal tracking-tight text-primary">
@@ -143,9 +154,9 @@ export default function SchoolStudentsPage() {
                 className="h-10 px-3 rounded-lg border border-border bg-surface text-on-surface font-sans text-xs font-medium focus:outline-none focus:ring-1 focus:ring-secondary"
               >
                 <option value="ALL">All Forms</option>
-                <option value="Form VI">Form VI (Grade 12)</option>
-                <option value="Form V">Form V (Grade 11)</option>
-                <option value="Form IV">Form IV (Grade 10)</option>
+                {availableForms.map((f) => (
+                  <option key={f} value={f}>{f}</option>
+                ))}
               </select>
 
               <select
@@ -153,10 +164,10 @@ export default function SchoolStudentsPage() {
                 onChange={(e) => setHouseFilter(e.target.value)}
                 className="h-10 px-3 rounded-lg border border-border bg-surface text-on-surface font-sans text-xs font-medium focus:outline-none focus:ring-1 focus:ring-secondary"
               >
-                <option value="ALL">All Boarding Houses</option>
-                <option value="Beau Soleil">Beau Soleil House</option>
-                <option value="Rosey Manor">Rosey Manor</option>
-                <option value="Eagleton">Eagleton Alpine Lodge</option>
+                <option value="ALL">All Houses</option>
+                {availableHouses.map((h) => (
+                  <option key={h} value={h}>{h}</option>
+                ))}
               </select>
 
               <select
@@ -188,76 +199,86 @@ export default function SchoolStudentsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
-                {students.map((std) => (
-                  <tr key={std.id} className="hover:bg-surface-variant/20 transition-colors">
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs shadow-sm">
-                          {std.fullName
-                            .split(" ")
-                            .map((n) => n[0])
-                            .slice(0, 2)
-                            .join("")}
-                        </div>
-                        <div>
-                          <div className="font-serif font-medium text-base text-primary leading-tight">
-                            {std.fullName}
-                          </div>
-                          <div className="text-xs font-mono text-on-surface-variant">
-                            Roll: {std.studentNumber} • {std.gender}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="py-4 px-6 text-xs">
-                      <div className="font-semibold text-primary">{std.form}</div>
-                      <div className="text-on-surface-variant">{std.house}</div>
-                    </td>
-
-                    <td className="py-4 px-6 text-xs">
-                      <div className="font-medium text-primary">{std.guardianName}</div>
-                      <div className="text-on-surface-variant font-mono text-[11px]">
-                        {std.guardianEmail}
-                      </div>
-                    </td>
-
-                    <td className="py-4 px-6 text-xs">
-                      <span className="font-bold text-[#3D5B42]">{std.attendanceRate}</span>
-                      <div className="text-on-surface-variant font-mono text-[10px]">Biometric Recorded</div>
-                    </td>
-
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={
-                            std.academicStanding === "HIGH_HONORS"
-                              ? "gold"
-                              : std.academicStanding === "HONORS"
-                              ? "active"
-                              : "neutral"
-                          }
-                        >
-                          {std.academicStanding.replace(/_/g, " ")}
-                        </Badge>
-                      </div>
-                      <div className="text-[11px] font-mono text-on-surface-variant mt-0.5">
-                        {std.gpa}
-                      </div>
-                    </td>
-
-                    <td className="py-4 px-6 text-right">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedStudent(std)}
-                        className="text-xs gap-1 text-blue-600 border-blue-200 hover:bg-blue-50"
-                      >
-                        View Details
-                      </Button>
+                {students.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-on-surface-variant">
+                      <Users className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
+                      <p className="font-medium text-xs">No student records found</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">There are no students matching your filter criteria.</p>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  students.map((std) => (
+                    <tr key={std.id} className="hover:bg-surface-variant/20 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs shadow-sm">
+                            {std.fullName
+                              .split(" ")
+                              .map((n) => n[0])
+                              .slice(0, 2)
+                              .join("")}
+                          </div>
+                          <div>
+                            <div className="font-serif font-medium text-base text-primary leading-tight">
+                              {std.fullName}
+                            </div>
+                            <div className="text-xs font-mono text-on-surface-variant">
+                              Roll: {std.studentNumber} • {std.gender}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="py-4 px-6 text-xs">
+                        <div className="font-semibold text-primary">{std.form}</div>
+                        <div className="text-on-surface-variant">{std.house}</div>
+                      </td>
+
+                      <td className="py-4 px-6 text-xs">
+                        <div className="font-medium text-primary">{std.guardianName}</div>
+                        <div className="text-on-surface-variant font-mono text-[11px]">
+                          {std.guardianEmail}
+                        </div>
+                      </td>
+
+                      <td className="py-4 px-6 text-xs">
+                        <span className="font-bold text-[#3D5B42]">{std.attendanceRate}</span>
+                        <div className="text-on-surface-variant font-mono text-[10px]">Biometric Recorded</div>
+                      </td>
+
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={
+                              std.academicStanding === "HIGH_HONORS"
+                                ? "gold"
+                                : std.academicStanding === "HONORS"
+                                ? "active"
+                                : "neutral"
+                            }
+                          >
+                            {std.academicStanding.replace(/_/g, " ")}
+                          </Badge>
+                        </div>
+                        <div className="text-[11px] font-mono text-on-surface-variant mt-0.5">
+                          {std.gpa}
+                        </div>
+                      </td>
+
+                      <td className="py-4 px-6 text-right">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedStudent(std)}
+                          className="text-xs gap-1 text-blue-600 border-blue-200 hover:bg-blue-50"
+                        >
+                          View Details
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -303,26 +324,23 @@ export default function SchoolStudentsPage() {
                 </div>
               </div>
 
-              {/* Enrolled Courses */}
+              {/* Academic Enrollment Information */}
               <div>
                 <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">
-                  Enrolled Subjects &amp; Teachers
+                  Academic Enrolment &amp; Standing
                 </h4>
-                <div className="space-y-2 text-xs">
-                  <div className="p-3 rounded-lg border border-border/70 flex justify-between items-center">
-                    <div>
-                      <div className="font-semibold text-primary">Class 12 - Advanced Mathematics</div>
-                      <div className="text-on-surface-variant text-[11px]">Teacher: Prof. Rajesh Verma</div>
-                    </div>
-                    <span className="font-bold text-[#3D5B42]">Score: 98% (A1)</span>
+                <div className="p-3.5 rounded-lg border border-border/70 bg-surface-variant/20 space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-on-surface-variant">Class / Form:</span>
+                    <span className="font-semibold text-primary">{selectedStudent.form} ({selectedStudent.house})</span>
                   </div>
-
-                  <div className="p-3 rounded-lg border border-border/70 flex justify-between items-center">
-                    <div>
-                      <div className="font-semibold text-primary">Class 12 - Physics &amp; Mechanics</div>
-                      <div className="text-on-surface-variant text-[11px]">Teacher: Dr. S. Raman</div>
-                    </div>
-                    <span className="font-bold text-[#3D5B42]">Score: 96% (A1)</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-on-surface-variant">Academic Standing:</span>
+                    <span className="font-semibold text-primary">{selectedStudent.academicStanding.replace(/_/g, " ")}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-on-surface-variant">Attendance Record:</span>
+                    <span className="font-semibold text-[#3D5B42]">{selectedStudent.attendanceRate}</span>
                   </div>
                 </div>
               </div>

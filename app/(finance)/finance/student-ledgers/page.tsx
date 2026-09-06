@@ -42,7 +42,7 @@ import {
 } from "lucide-react";
 
 export default function StudentLedgersPage() {
-  const { school } = useAuth();
+  const { school, profile } = useAuth();
   const [ledgers, setLedgers] = React.useState<StudentLedgerSummary[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -65,8 +65,8 @@ export default function StudentLedgersPage() {
   const [txSuccess, setTxSuccess] = React.useState(false);
   const [txData, setTxData] = React.useState({
     type: "CREDIT_PAYMENT" as "CREDIT_PAYMENT" | "DEBIT_FEE",
-    description: "UPI Settlement (Ref: SBI-UPI-8392019482)",
-    amount: 36250,
+    description: "",
+    amount: 0,
   });
 
   React.useEffect(() => {
@@ -86,7 +86,8 @@ export default function StudentLedgersPage() {
   const totalBilled = ledgers.reduce((acc, curr) => acc + curr.totalBilled, 0);
   const totalSettled = ledgers.reduce((acc, curr) => acc + curr.totalSettled, 0);
   const totalBalanceDue = ledgers.reduce((acc, curr) => acc + curr.balanceDue, 0);
-  const overdueCount = ledgers.filter((l) => l.balanceDue > 0).length;
+  const overdueCount = ledgers.filter((l) => l.balanceDue >= 30000).length;
+  const pendingCount = ledgers.filter((l) => l.balanceDue > 0 && l.balanceDue < 30000).length;
   const settledCount = ledgers.filter((l) => l.balanceDue === 0).length;
 
   const filteredLedgers = ledgers.filter((l) => {
@@ -198,7 +199,7 @@ CHRONOLOGICAL TRANSACTION TIMELINE:
 ${txLines}
 
 Accounts Officer / Bursar
-${instName} • Agragati OS`;
+${instName} • School OS`;
 
     setPreviewDoc({
       isOpen: true,
@@ -239,7 +240,7 @@ STUDENT-WISE LEDGER SUMMARY:
 ${lines}
 
 Bursary & Accounts Division • ${instName}
-Managed via Agragati School Management OS`;
+Managed via School OS Financial Management System`;
 
     setPreviewDoc({
       isOpen: true,
@@ -270,9 +271,9 @@ Managed via Agragati School Management OS`;
   return (
     <AppShell
       role="ACCOUNTANT"
-      userName="Mr. Suresh Menon"
+      userName={profile?.full_name || "Accounts Officer"}
       userRoleTitle="Accounts Officer & Bursar"
-      epochText="Term 2 (CBSE) • Academic Year 2024–2025"
+      epochText={school?.name ? `${school.name} • Financial Ledger` : "Financial Ledger"}
     >
       <div className="space-y-6">
         {/* Header */}
@@ -332,7 +333,7 @@ Managed via Agragati School Management OS`;
                 Total Billed (Fiscal YTD)
               </span>
               <div className="font-serif text-3xl font-bold text-[#0F172A] dark:text-stone-100 mt-0.5">
-                {formatIndianCurrency(totalBilled || 510000)}
+                {formatIndianCurrency(totalBilled)}
               </div>
               <span className="text-[11px] text-slate-500 block">For {ledgers.length} tracked students</span>
             </div>
@@ -348,10 +349,10 @@ Managed via Agragati School Management OS`;
                 Total Settled (Credits)
               </span>
               <div className="font-serif text-3xl font-bold text-[#166534] dark:text-emerald-400 mt-0.5">
-                {formatIndianCurrency(totalSettled || 450000)}
+                {formatIndianCurrency(totalSettled)}
               </div>
               <span className="text-[11px] text-slate-500 block">
-                {totalBilled > 0 ? ((totalSettled / totalBilled) * 100).toFixed(1) : "88.2"}% collection rate
+                {totalBilled > 0 ? ((totalSettled / totalBilled) * 100).toFixed(1) : "0.0"}% collection rate
               </span>
             </div>
           </div>
@@ -366,7 +367,7 @@ Managed via Agragati School Management OS`;
                 Net Outstanding Arrears
               </span>
               <div className="font-serif text-3xl font-bold text-[#B91C1C] dark:text-rose-400 mt-0.5">
-                {formatIndianCurrency(totalBalanceDue || 60000)}
+                {formatIndianCurrency(totalBalanceDue)}
               </div>
               <span className="text-[11px] text-rose-600 font-medium block">
                 {overdueCount} students with pending dues
@@ -392,7 +393,7 @@ Managed via Agragati School Management OS`;
             {[
               { id: "ALL", label: `All Accounts (${ledgers.length})` },
               { id: "SETTLED", label: `Settled (${settledCount})` },
-              { id: "PENDING", label: `Pending (1)` },
+              { id: "PENDING", label: `Pending (${pendingCount})` },
               { id: "OVERDUE", label: `Overdue (${overdueCount})` },
             ].map((st) => (
               <button
@@ -427,9 +428,18 @@ Managed via Agragati School Management OS`;
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-stone-800">
-                {filteredLedgers.map((student, index) => {
-                  const avatar = getAvatarStyle(index);
-                  const initials = student.studentName
+                {filteredLedgers.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="py-12 text-center text-slate-400">
+                      <FileText className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                      <p className="text-sm font-medium">No student ledgers found</p>
+                      <p className="text-xs text-slate-400 mt-0.5">There are no matching student accounts in this filter.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredLedgers.map((student, index) => {
+                    const avatar = getAvatarStyle(index);
+                    const initials = student.studentName
                     .split(" ")
                     .map((n: string) => n[0])
                     .slice(0, 2)
@@ -515,7 +525,7 @@ Managed via Agragati School Management OS`;
                       </td>
                     </tr>
                   );
-                })}
+                }))}
               </tbody>
             </table>
           </div>

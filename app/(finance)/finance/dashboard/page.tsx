@@ -18,6 +18,7 @@ import {
 import { PdfPreviewModal, PDFStudentMetadata } from "@/components/ui/pdf-preview-modal";
 import { useRealtimeEvent } from "@/components/providers/realtime-provider";
 import { FinanceQuoteBanner } from "@/components/ui/finance-quote-banner";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   Building2,
   TrendingUp,
@@ -48,6 +49,7 @@ import {
 } from "lucide-react";
 
 export default function FinanceDashboardPage() {
+  const { profile, school } = useAuth();
   const [stats, setStats] = React.useState<FinanceDashboardStats | null>(null);
   const [invoices, setInvoices] = React.useState<FinanceInvoiceItem[]>([]);
   const [feed, setFeed] = React.useState<BankReconciliationItem[]>([]);
@@ -100,42 +102,38 @@ export default function FinanceDashboardPage() {
   useRealtimeEvent("invoices", "*", refreshFinanceData);
 
   const handleDownloadTreasurySummary = () => {
-    const totalInv = stats?.totalInvoiced || 48500000;
-    const realRec = stats?.realizedReceipts || 45881000;
-    const pendRec = stats?.pendingWithinTerms || 1824000;
-    const overArr = stats?.overdueArrears || 795000;
-    const colRate = stats?.collectionRate || "94.6%";
+    const totalInv = stats?.totalInvoiced || 0;
+    const realRec = stats?.realizedReceipts || 0;
+    const pendRec = stats?.pendingWithinTerms || 0;
+    const overArr = stats?.overdueArrears || 0;
+    const colRate = stats?.collectionRate || "0.0%";
+    const schoolName = school?.name || "School";
+    const userName = profile?.full_name || "Finance Officer";
 
-    const content = `DELHI PUBLIC SCHOOL, R.K. PURAM • TREASURY & BURSARY EXECUTIVE SUMMARY
+    const content = `${schoolName.toUpperCase()} • TREASURY & BURSARY EXECUTIVE SUMMARY
 =============================================================
-Academic Session: 2024–2025 • Term 2 Comprehensive Treasury Report
+Academic Session: 2024–2025 • Comprehensive Treasury Report
 Report Generated: ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}
-Institution: Delhi Public School, Sector XII, R.K. Puram, New Delhi
+Institution: ${schoolName}
 
-EXECUTIVE KEY PERFORMANCE INDICATORS (TERM 2):
+EXECUTIVE KEY PERFORMANCE INDICATORS:
 -------------------------------------------------------------
-1. Total Invoiced Demand:       ₹ ${totalInv.toLocaleString("en-IN")} (1,842 Enrolled Scholars)
+1. Total Invoiced Demand:       ₹ ${totalInv.toLocaleString("en-IN")}
 2. Realized Fee Collections:    ₹ ${realRec.toLocaleString("en-IN")} (${colRate} Collection Velocity)
-3. Pending Regular Receivables: ₹ ${pendRec.toLocaleString("en-IN")} (Within standard 30-day window)
-4. Overdue Cumulative Arrears:  ₹ ${overArr.toLocaleString("en-IN")} (28 Student Accounts)
-
-WING-WISE REALIZATION BREAKDOWN:
--------------------------------------------------------------
-• Senior Secondary (Classes 11 & 12): 97.2% Realized (₹ 2.48 Crores Collected)
-• Secondary Wing (Classes 9 & 10):    93.8% Realized (₹ 1.34 Crores Collected)
-• Middle Wing (Classes 6 to 8):       91.4% Realized (₹ 76.8 Lakhs Collected)
+3. Pending Regular Receivables: ₹ ${pendRec.toLocaleString("en-IN")}
+4. Overdue Cumulative Arrears:  ₹ ${overArr.toLocaleString("en-IN")}
 
 GATEWAY & CLEARING PERFORMANCE:
 -------------------------------------------------------------
 Clearing Gateways: State Bank of India, HDFC Bank Ltd, ICICI Bank
-UPI Auto-Reconciliation Rate: 99.8% with 12-digit UTR Verification
-Daily Settled Volume: ₹ 4,26,000.00 | Security Hash: SHA256-VERIFIED
+UPI Auto-Reconciliation Rate: ${stats?.autoMatchRate || "0.0%"}
+Security Hash: SHA256-VERIFIED
 
 CERTIFICATION & AUDIT STATEMENT:
-This summary reflects authentic double-entry transactions posted to the Agragati School Management OS general ledger. All collections are reconciled against CBS bank statements and approved by the School Bursar.
+This summary reflects authentic double-entry transactions posted to the School OS general ledger. All collections are reconciled against CBS bank statements and verified by the Bursar.
 
-Authorized Signatory: Mr. Suresh Menon • Accounts Officer & Bursar
-Delhi Public School, R.K. Puram, New Delhi`;
+Authorized Signatory: ${userName} • Accounts Officer & Bursar
+${schoolName}`;
 
     setPreviewDoc({
       isOpen: true,
@@ -144,39 +142,39 @@ Delhi Public School, R.K. Puram, New Delhi`;
       content,
       studentMeta: {
         name: "Bursary & Accounts Executive Bureau",
-        form: "All Wings (Classes 6 to 12)",
-        institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-        institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017 • School Code: 85214",
-        institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022",
+        form: "All Wings",
+        institutionName: schoolName.toUpperCase(),
         academicSession: "2024–2025",
       },
     });
   };
 
   const handleInspectInvoice = (inv: FinanceInvoiceItem) => {
-    const content = `DELHI PUBLIC SCHOOL, R.K. PURAM • OFFICIAL FEE INVOICE & RECEIPT DEMAND
+    const schoolName = school?.name || "School";
+    const userName = profile?.full_name || "Finance Officer";
+    const content = `${schoolName.toUpperCase()} • OFFICIAL FEE INVOICE & RECEIPT DEMAND
 =============================================================
 Invoice Number: ${inv.invoiceNumber}
-Issue Date: 2024-10-01
+Issue Date: ${inv.issueDate || new Date().toISOString().split("T")[0]}
 Due Date: ${inv.dueDate}
 Status: ${inv.status}
 
 STUDENT DETAILS:
 -------------------------------------------------------------
 Scholar Name: ${inv.studentName}
-Class & Section: ${inv.form}
-House Affiliation: ${inv.house}
-Guardian / Debtor: ${inv.parentName}
+Class & Section: ${inv.form || "Enrolled"}
+House Affiliation: ${inv.house || "N/A"}
+Guardian / Debtor: ${inv.parentName || inv.guardianName || "Parent/Guardian"}
 
 FINANCIAL BREAKDOWN:
 -------------------------------------------------------------
-Tuition Fee (${inv.termName}): ₹ ${(inv.amount * 0.8).toLocaleString("en-IN")}
+Tuition Fee (${inv.termName || "Academic Term"}): ₹ ${(inv.amount * 0.8).toLocaleString("en-IN")}
 Laboratory & Digital Learning Levy: ₹ ${(inv.amount * 0.15).toLocaleString("en-IN")}
 Development & Sports Levy: ₹ ${(inv.amount * 0.05).toLocaleString("en-IN")}
 TOTAL INVOICE DEMAND: ₹ ${inv.amount.toLocaleString("en-IN")}
 
 Status: ${inv.status === "PAID" ? "SETTLED IN FULL (Auto-Reconciled via NPCI UPI)" : "PAYMENT PENDING / DEMAND ACTIVE"}
-Bursar Office: Mr. Suresh Menon • Delhi Public School, R.K. Puram`;
+Bursar Office: ${userName} • ${schoolName}`;
 
     setPreviewDoc({
       isOpen: true,
@@ -187,9 +185,7 @@ Bursar Office: Mr. Suresh Menon • Delhi Public School, R.K. Puram`;
         name: inv.studentName,
         form: inv.form,
         house: inv.house,
-        institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-        institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017 • School Code: 85214",
-        institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022",
+        institutionName: schoolName.toUpperCase(),
         academicSession: "2024–2025",
       },
     });
@@ -198,9 +194,9 @@ Bursar Office: Mr. Suresh Menon • Delhi Public School, R.K. Puram`;
   return (
     <AppShell
       role="ACCOUNTANT"
-      userName="Mr. Suresh Menon"
+      userName={profile?.full_name || "Finance Officer"}
       userRoleTitle="Accounts Officer & Bursar"
-      epochText="Term 2 (CBSE) • Academic Year 2024–2025"
+      epochText="Finance &amp; Accounts Directorate"
     >
       <div className="space-y-6">
         {/* Header with tracker and actions */}
@@ -272,13 +268,13 @@ Bursar Office: Mr. Suresh Menon • Delhi Public School, R.K. Puram`;
               </span>
             </div>
             <span className="font-sans text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-stone-400 block mt-3">
-              TOTAL INVOICED (TERM 2)
+              TOTAL INVOICED
             </span>
             <div className="font-serif text-2xl md:text-3xl font-bold text-[#0F172A] dark:text-stone-100 mt-1">
-              ₹ 4,85,00,000
+              {formatIndianCurrency(stats?.totalInvoiced || 0)}
             </div>
             <div className="flex items-center justify-between mt-3 pt-2 border-t border-stone-100 dark:border-stone-800 text-xs text-slate-500 dark:text-stone-400 font-medium">
-              <span>1,842 Enrolled Students</span>
+              <span>{stats?.billableScholars || invoices.length} Invoiced Scholars</span>
             </div>
           </div>
 
@@ -293,14 +289,14 @@ Bursar Office: Mr. Suresh Menon • Delhi Public School, R.K. Puram`;
               REALIZED RECEIPTS
             </span>
             <div className="font-serif text-2xl md:text-3xl font-bold text-[#166534] dark:text-emerald-400 mt-1">
-              ₹ 4,58,81,000
+              {formatIndianCurrency(stats?.realizedReceipts || 0)}
             </div>
             <div className="flex items-center justify-between mt-3 pt-2 border-t border-stone-100 dark:border-stone-800">
               <span className="font-sans text-xs font-semibold text-[#16A34A]">
-                94.6% Realization Rate
+                {stats?.collectionRate || "0.0%"} Realization Rate
               </span>
               <span className="px-2 py-0.5 rounded-md bg-[#DCFCE7] text-[#166534] dark:bg-emerald-950 dark:text-emerald-300 text-[10px] font-bold uppercase">
-                ON TARGET
+                ACTIVE
               </span>
             </div>
           </div>
@@ -316,14 +312,14 @@ Bursar Office: Mr. Suresh Menon • Delhi Public School, R.K. Puram`;
               PENDING WITHIN TERMS
             </span>
             <div className="font-serif text-2xl md:text-3xl font-bold text-[#B45309] dark:text-amber-400 mt-1">
-              ₹ 18,24,000
+              {formatIndianCurrency(stats?.pendingWithinTerms || 0)}
             </div>
             <div className="flex items-center justify-between mt-3 pt-2 border-t border-stone-100 dark:border-stone-800">
               <span className="font-sans text-xs text-slate-500 dark:text-stone-400">
-                Due within 15–30 days
+                Regular Receivables
               </span>
               <span className="px-2 py-0.5 rounded-md bg-[#FEF3C7] text-[#B45309] dark:bg-amber-950 dark:text-amber-300 text-[10px] font-bold uppercase">
-                UNSETTLED
+                PENDING
               </span>
             </div>
           </div>
@@ -339,11 +335,11 @@ Bursar Office: Mr. Suresh Menon • Delhi Public School, R.K. Puram`;
               OVERDUE ARREARS
             </span>
             <div className="font-serif text-2xl md:text-3xl font-bold text-[#B91C1C] dark:text-rose-400 mt-1">
-              ₹ 7,95,000
+              {formatIndianCurrency(stats?.overdueArrears || 0)}
             </div>
             <div className="flex items-center justify-between mt-3 pt-2 border-t border-stone-100 dark:border-stone-800">
               <span className="font-sans text-xs text-rose-600 font-medium">
-                28 Accounts Follow-Up
+                Follow-Up Required
               </span>
               <span className="px-2 py-0.5 rounded-md bg-[#FEE2E2] text-[#B91C1C] dark:bg-rose-950 dark:text-rose-300 text-[10px] font-bold uppercase">
                 ARREARS
@@ -367,7 +363,7 @@ Bursar Office: Mr. Suresh Menon • Delhi Public School, R.K. Puram`;
                       Term Fee Realization Velocity
                     </h2>
                     <p className="font-sans text-xs text-[#64748B] dark:text-stone-400 mt-0.5">
-                      Target vs Actual realization across Senior Secondary, Secondary, and Middle Wings
+                      Target vs Actual realization across student forms and academic wings
                     </p>
                   </div>
                 </div>
@@ -375,11 +371,8 @@ Bursar Office: Mr. Suresh Menon • Delhi Public School, R.K. Puram`;
                 <div className="text-right sm:text-right shrink-0">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">Overall Realization Progress</span>
                   <div className="flex items-center gap-2 justify-end">
-                    <span className="font-serif text-xl font-bold text-[#16A34A]">94.6%</span>
-                    <span className="text-xs text-slate-500 font-mono">(₹4,58,81,000 / ₹4,85,00,000)</span>
-                    <span className="px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-[10px] font-bold">
-                      ₹ 4.85 CR QUOTA
-                    </span>
+                    <span className="font-serif text-xl font-bold text-[#16A34A]">{stats?.collectionRate || "0.0%"}</span>
+                    <span className="text-xs text-slate-500 font-mono">({formatIndianCurrency(stats?.realizedReceipts || 0)} / {formatIndianCurrency(stats?.totalInvoiced || 0)})</span>
                   </div>
                 </div>
               </div>
@@ -388,7 +381,7 @@ Bursar Office: Mr. Suresh Menon • Delhi Public School, R.K. Puram`;
               <div className="w-full bg-slate-100 dark:bg-stone-800 rounded-full h-3 overflow-hidden mb-6">
                 <div
                   className="bg-[#10B981] h-full rounded-full transition-all duration-500"
-                  style={{ width: "94.6%" }}
+                  style={{ width: stats?.collectionRate || "0%" }}
                 />
               </div>
 
@@ -505,46 +498,54 @@ Bursar Office: Mr. Suresh Menon • Delhi Public School, R.K. Puram`;
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-stone-800">
-                    {invoices.slice(0, 4).map((inv) => (
-                      <tr key={inv.id} className="hover:bg-slate-50/60 dark:hover:bg-stone-800/40 transition-colors">
-                        <td className="py-3.5 px-3 font-mono font-bold text-[#0F172A] dark:text-stone-100">
-                          {inv.invoiceNumber}
-                        </td>
-                        <td className="py-3.5 px-3">
-                          <span className="font-bold text-[#0F172A] dark:text-stone-100 block">{inv.studentName}</span>
-                          <span className="text-[11px] text-slate-500">{inv.form} • {inv.house}</span>
-                        </td>
-                        <td className="py-3.5 px-3 text-slate-600 dark:text-stone-400">
-                          {inv.termName}
-                        </td>
-                        <td className="py-3.5 px-3 text-right font-bold text-[#0F172A] dark:text-stone-100">
-                          {formatIndianCurrency(inv.amount)}
-                        </td>
-                        <td className="py-3.5 px-3 text-center">
-                          <span
-                            className={`inline-block px-2.5 py-1 rounded-md text-[10px] font-bold uppercase ${
-                              inv.status === "PAID"
-                                ? "bg-[#DCFCE7] text-[#166534] dark:bg-emerald-950 dark:text-emerald-300"
-                                : inv.status === "OVERDUE"
-                                ? "bg-[#FEE2E2] text-[#B91C1C] dark:bg-rose-950 dark:text-rose-300"
-                                : "bg-[#FEF3C7] text-[#B45309] dark:bg-amber-950 dark:text-amber-300"
-                            }`}
-                          >
-                            {inv.status}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-3 text-right">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleInspectInvoice(inv)}
-                            className="text-xs h-7 px-3 rounded-md text-slate-600 dark:text-stone-300 border-slate-200 dark:border-stone-700 hover:bg-slate-100"
-                          >
-                            {inv.status === "PAID" ? "View" : inv.status === "OVERDUE" ? "Follow Up" : "Remind"}
-                          </Button>
+                    {invoices.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center text-slate-500 font-sans">
+                          No recent invoices or settlements found.
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      invoices.slice(0, 4).map((inv) => (
+                        <tr key={inv.id} className="hover:bg-slate-50/60 dark:hover:bg-stone-800/40 transition-colors">
+                          <td className="py-3.5 px-3 font-mono font-bold text-[#0F172A] dark:text-stone-100">
+                            {inv.invoiceNumber}
+                          </td>
+                          <td className="py-3.5 px-3">
+                            <span className="font-bold text-[#0F172A] dark:text-stone-100 block">{inv.studentName}</span>
+                            <span className="text-[11px] text-slate-500">{inv.form} • {inv.house}</span>
+                          </td>
+                          <td className="py-3.5 px-3 text-slate-600 dark:text-stone-400">
+                            {inv.termName}
+                          </td>
+                          <td className="py-3.5 px-3 text-right font-bold text-[#0F172A] dark:text-stone-100">
+                            {formatIndianCurrency(inv.amount)}
+                          </td>
+                          <td className="py-3.5 px-3 text-center">
+                            <span
+                              className={`inline-block px-2.5 py-1 rounded-md text-[10px] font-bold uppercase ${
+                                inv.status === "PAID"
+                                  ? "bg-[#DCFCE7] text-[#166534] dark:bg-emerald-950 dark:text-emerald-300"
+                                  : inv.status === "OVERDUE"
+                                  ? "bg-[#FEE2E2] text-[#B91C1C] dark:bg-rose-950 dark:text-rose-300"
+                                  : "bg-[#FEF3C7] text-[#B45309] dark:bg-amber-950 dark:text-amber-300"
+                              }`}
+                            >
+                              {inv.status}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-3 text-right">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleInspectInvoice(inv)}
+                              className="text-xs h-7 px-3 rounded-md text-slate-600 dark:text-stone-300 border-slate-200 dark:border-stone-700 hover:bg-slate-100"
+                            >
+                              {inv.status === "PAID" ? "View" : inv.status === "OVERDUE" ? "Follow Up" : "Remind"}
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

@@ -327,15 +327,15 @@ export async function fetchStudentHomeworkList(studentId: string = "std-01"): Pr
         return {
           id: hw.id,
           title: hw.title,
-          subject: sub?.name || "Mathematics",
-          teacherName: prof?.full_name || "Senior Faculty",
-          assignedDate: hw.created_at?.split("T")[0] || "2025-01-20",
-          dueDate: hw.due_datetime?.split("T")[0] || "2025-01-27",
-          cutoffCountdown: isGraded ? "Completed & Evaluated" : isSubmitted ? "Submitted for Review" : "3 days remaining",
+          subject: sub?.name || "Subject",
+          teacherName: prof?.full_name || "Faculty",
+          assignedDate: hw.created_at?.split("T")[0] || "",
+          dueDate: hw.due_datetime?.split("T")[0] || "",
+          cutoffCountdown: isGraded ? "Completed & Evaluated" : isSubmitted ? "Submitted for Review" : "Pending submission",
           status: isGraded ? "GRADED" : isSubmitted ? "SUBMITTED" : "PENDING",
-          maxScore: Number(hw.max_points) || 50,
-          score: localSubmission?.marksAwarded ?? submission?.score ?? (isGraded ? 49 : undefined),
-          rubricSummary: hw.brief_markdown?.slice(0, 120) || "Complete all NCERT Exemplar proofs.",
+          maxScore: Number(hw.max_points) || 100,
+          score: localSubmission?.marksAwarded ?? submission?.score ?? undefined,
+          rubricSummary: hw.brief_markdown?.slice(0, 120) || "No rubric details provided.",
           teacherFeedback: localSubmission?.feedback || submission?.teacher_feedback || undefined,
           submittedFileName: localSubmission?.fileName || undefined,
           submissionDate: localSubmission?.submittedAt || submission?.submitted_at?.split("T")[0],
@@ -361,10 +361,10 @@ export async function fetchStudentHomeworkList(studentId: string = "std-01"): Pr
       teacherName: '',
       assignedDate: hw.assignedDate,
       dueDate: hw.dueDate,
-      cutoffCountdown: isGraded ? "Completed & Evaluated" : isSubmitted ? "Submitted for Review" : "3 days remaining",
+      cutoffCountdown: isGraded ? "Completed & Evaluated" : isSubmitted ? "Submitted for Review" : "Pending submission",
       status: isGraded ? "GRADED" : isSubmitted ? "SUBMITTED" : "PENDING",
       maxScore: hw.maxMarks,
-      score: sub?.marksAwarded ?? (isGraded ? 49 : undefined),
+      score: sub?.marksAwarded ?? undefined,
       rubricSummary: hw.rubric,
       teacherFeedback: sub?.feedback,
       submittedFileName: sub?.fileName,
@@ -445,7 +445,7 @@ export async function fetchStudentResults(studentId: string = "std-01"): Promise
       const subjects: StudentSubjectScore[] = data.map((entry) => {
         const assess = Array.isArray(entry.assessments) ? entry.assessments[0] : entry.assessments;
         const sub = Array.isArray(assess?.subjects) ? assess?.subjects[0] : assess?.subjects;
-        const score = Number(entry.raw_score) || 95;
+        const score = Number(entry.raw_score) || 0;
         const max = Number(assess?.max_score) || 100;
         const pct = Math.round((score / max) * 100);
 
@@ -505,8 +505,8 @@ export async function fetchStudentNotices(): Promise<StudentBulletinItem[]> {
         id: n.id,
         title: n.title,
         category: "ACADEMY",
-        date: n.publish_date?.split("T")[0] || "2025-01-14",
-        author: "Principal & Academic Advisory Council",
+        date: n.publish_date?.split("T")[0] || new Date().toISOString().split("T")[0],
+        author: "Administration",
         summary: n.content_markdown?.slice(0, 100) || "",
         body: n.content_markdown || "",
         priority: n.is_pinned ? "URGENT" : "STANDARD",

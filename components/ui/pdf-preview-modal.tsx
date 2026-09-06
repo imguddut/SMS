@@ -74,19 +74,19 @@ export function PdfPreviewModal({
     }, 150);
   };
 
-  const sName = studentMeta?.name || "Aarav Sharma";
-  const sForm = studentMeta?.form || "Class 12-A";
-  const sRoll = studentMeta?.rollNumber || "ADM-2024-001 (CBSE: 12104928)";
-  const sHouse = studentMeta?.house || "Tagore House (Senior Lyceum)";
+  const sName = studentMeta?.name || "Student";
+  const sForm = studentMeta?.form || "";
+  const sRoll = studentMeta?.rollNumber || "";
+  const sHouse = studentMeta?.house || "";
 
-  const instName = studentMeta?.institutionName || "AGRAGATI MODERN ACADEMY & SENIOR SECONDARY SCHOOL";
+  const instName = studentMeta?.institutionName || "School Administration";
   const instAffiliation =
     studentMeta?.institutionAffiliation ||
-    "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017 • School Code: 85214";
+    "Official Academic Transcript & Governance Record";
   const instAddress =
     studentMeta?.institutionAddress ||
-    "Sector XII, Institutional Area, New Delhi - 110022 • Institutional APAAR ID: 998418-CBSE";
-  const academicSession = studentMeta?.academicSession || "2024–2025";
+    "Campus Administration Desk";
+  const academicSession = studentMeta?.academicSession || new Date().getFullYear().toString();
 
   // Parse text content into structured paragraphs/sections for the realistic sheet view
   const cleanedLines = (content || "")

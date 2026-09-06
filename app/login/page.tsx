@@ -97,7 +97,7 @@ export default function LoginPage() {
             CBSE Aligned &amp; Secure
           </Badge>
           <span className="hidden sm:inline text-outline-variant">•</span>
-          <span className="hidden sm:inline">Delhi Public School, R.K. Puram</span>
+          <span className="hidden sm:inline">Unified Multi-Tenant Portal</span>
         </div>
       </header>
 

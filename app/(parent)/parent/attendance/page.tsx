@@ -24,10 +24,12 @@ import {
   Eye,
 } from "lucide-react";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function ParentAttendancePage() {
+  const { profile, currentSchool } = useAuth();
   const [wards, setWards] = React.useState<ParentWardProfile[]>([]);
-  const [selectedWardId, setSelectedWardId] = React.useState<string>("ward-01");
+  const [selectedWardId, setSelectedWardId] = React.useState<string>("");
   const [records, setRecords] = React.useState<WardAttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [previewDoc, setPreviewDoc] = React.useState<{
@@ -69,10 +71,10 @@ export default function ParentAttendancePage() {
   const activeWard = wards.find((w) => w.id === selectedWardId) || wards[0];
 
   const handleDownloadAttendanceStatement = () => {
-    const studentName = activeWard?.name || "Aarav Sharma";
-    const studentForm = activeWard?.form || "Class 12-A";
-    const studentRoll = activeWard?.rollNumber || "ADM-2024-001";
-    const studentHouse = activeWard?.house || "Tagore House";
+    const studentName = activeWard?.name || "Student";
+    const studentForm = activeWard?.form || "Class";
+    const studentRoll = activeWard?.rollNumber || "N/A";
+    const studentHouse = activeWard?.house || "N/A";
 
     let logsText = "DATE & DAY | ENTRY GATE | TIME | STATUS | REMARKS\n";
     logsText += "--------------------------------------------------------------------------------\n";
@@ -80,32 +82,27 @@ export default function ParentAttendancePage() {
       logsText += `${r.date} (${r.dayOfWeek}) | ${r.turnstileGate} | ${r.timestamp} | ${r.status} | ${r.sessionRemarks}\n`;
     });
 
-    const content = `OFFICIAL RFID GATE ATTENDANCE & BIOMETRIC REPORT
-Month: January 2025
-Term: Term 2 (CBSE Senior Secondary)
-Institution: Agragati Academy & Senior Secondary School
+    const content = `OFFICIAL GATE ATTENDANCE & BIOMETRIC REPORT
+Term: Academic Attendance
+Institution: ${currentSchool?.name || currentSchool?.legal_name || "School Administration"}
 
 CANDIDATE INFORMATION:
 Student Name: ${studentName}
 Class & Section: ${studentForm}
 Admission Roll No: ${studentRoll}
 House Affiliation: ${studentHouse}
-Attendance Aggregate: 18 Days Attended (98.4%) | 1 Late Arrival | 1 Excused Leave
 
-MONTHLY SMART RFID LOGS & CLASS PERIOD CHECK-INS:
+SMART RFID LOGS & CLASS PERIOD CHECK-INS:
 ${logsText}
 
-INSTITUTIONAL NOTES & CBISC COMPLIANCE:
-1. As per CBSE Rule 14.1, a minimum of 75% attendance is required for board examination eligibility.
-2. RFID turnstile timestamps are recorded at Main North Gate and Senior Wing Gate B.
-3. Class attendance is synchronized daily with the Teacher ERP Register by Class Teacher Prof. Rajesh Verma.
-
-Digital Verification Hash: AUTH-ATT-2025-APAAR-998418-OK`;
+INSTITUTIONAL NOTES:
+1. Daily attendance is recorded electronically.
+2. Class attendance is synchronized with the Teacher Register by authorized faculty.`;
 
     setPreviewDoc({
       isOpen: true,
-      title: `RFID Attendance Statement • January 2025`,
-      fileName: `Attendance_Statement_${studentName.replace(/\s+/g, "_")}_Jan2025.pdf`,
+      title: "RFID Attendance Statement",
+      fileName: `Attendance_Statement_${studentName.replace(/\s+/g, "_")}.pdf`,
       content,
       studentMeta: {
         name: studentName,
@@ -117,22 +114,22 @@ Digital Verification Hash: AUTH-ATT-2025-APAAR-998418-OK`;
   };
 
   const handleDownloadLeaveReceipt = () => {
-    const studentName = activeWard?.name || "Aarav Sharma";
-    const studentForm = activeWard?.form || "Class 12-A";
-    const studentRoll = activeWard?.rollNumber || "ADM-2024-001";
-    const studentHouse = activeWard?.house || "Tagore House";
+    const studentName = activeWard?.name || "Student";
+    const studentForm = activeWard?.form || "Class";
+    const studentRoll = activeWard?.rollNumber || "N/A";
+    const studentHouse = activeWard?.house || "N/A";
 
     const content = `OFFICIAL PARENTAL LEAVE APPLICATION RECEIPT
 Receipt ID: LEAVE-APP-${Date.now().toString().slice(-6)}
 Date of Filing: ${new Date().toLocaleDateString("en-IN")}
-Status: SUBMITTED (Pending Class Teacher Approval)
+Status: SUBMITTED (Pending Faculty Approval)
 
 STUDENT DETAILS:
 Name: ${studentName}
 Class / Section: ${studentForm}
 Roll No: ${studentRoll}
 House: ${studentHouse}
-Parent / Guardian: Mr. Rajesh Sharma
+Parent / Guardian: ${profile?.full_name || "Parent"}
 
 LEAVE APPLICATION DETAILS:
 Date of Absence: ${formData.date}
@@ -141,8 +138,7 @@ Reason / Note: ${formData.reason || "Parent notification submitted via School Po
 Doctor Certificate: ${formData.hasCertificate ? "Attached" : "Not Required / Standard Day Leave"}
 
 APPROVAL WORKFLOW:
-Reviewing Teacher: Prof. Rajesh Verma
-Department: Senior Secondary Science
+Reviewing Teacher: Class Faculty Coordinator
 ERP Gate Clearance: Updated on approval`;
 
     setPreviewDoc({
@@ -190,9 +186,9 @@ ERP Gate Clearance: Updated on approval`;
   return (
     <AppShell
       role="PARENT"
-      userName="Mr. Rajesh Sharma"
-      userRoleTitle={`Parent • ${activeWard ? activeWard.name : "Aarav Sharma"}`}
-      epochText="Academic Year 2024–2025 • Term 2 (CBSE Board)"
+      userName={profile?.full_name || "Parent"}
+      userRoleTitle={`Parent${activeWard?.name ? ` • ${activeWard.name}` : ""}`}
+      epochText="Academic Attendance"
     >
       <div className="space-y-6">
         {/* Top Brow & Page Header */}

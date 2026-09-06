@@ -156,7 +156,7 @@ export async function listOrganizations(): Promise<OrganizationSummary[]> {
   } catch (err) {
     console.warn("listOrganizations fallback:", err);
   }
-  return memoryOrganizations;
+  return [];
 }
 
 /**
@@ -402,7 +402,7 @@ export async function provisionSchool(
 
   memorySchools.push(schoolRecord);
   const org = memoryOrganizations.find((o) => o.id === orgId);
-  if (org) { org.school_count += 1; org.student_count += 450; org.faculty_count += 35; }
+  if (org) { org.school_count += 1; }
 
   await logAudit({
     schoolId: schoolRecord.id,

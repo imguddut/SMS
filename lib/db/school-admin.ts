@@ -274,43 +274,72 @@ export async function createNotice(payload: {
   content: string;
   audience: "ALL_CAMPUS" | "FACULTY_ONLY" | "SENIOR_WING" | "PARENTS_ONLY";
   priority: "URGENT" | "ACADEMIC" | "GENERAL";
+  schoolId?: string;
+  authorId?: string;
+  authorName?: string;
 }): Promise<CampusNoticeItem> {
+  const supabase = createClient();
+  let schoolId = payload.schoolId || "";
+  let authorId = payload.authorId || "";
+  let authorName = payload.authorName || "";
+
+  if (!authorId || !schoolId || !authorName) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        authorId = authorId || user.id;
+        const { data: profile } = await supabase
+          .from("users_profiles")
+          .select("school_id, full_name")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (profile) {
+          schoolId = schoolId || profile.school_id || "";
+          authorName = authorName || profile.full_name || "School Administration";
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+  authorName = authorName || "School Administration";
+
   const newNotice = sharedStore.createNotice({
     title: payload.title,
     body: payload.content,
     summary: payload.content.slice(0, 120),
     category: payload.audience === "PARENTS_ONLY" ? "GOVERNANCE" : "ACADEMIC",
-    author: "Dr. Arvind Swaminathan (Principal)",
+    author: authorName,
     date: new Date().toISOString().split("T")[0],
     priority: payload.priority === "URGENT" ? "URGENT" : "STANDARD",
     requiresConsent: payload.priority === "URGENT",
     isSigned: false,
   });
 
-  const schoolId = "11111111-1111-1111-1111-111111111111";
-  const authorId = "b0000000-0000-0000-0000-000000000004";
   let noticeId = newNotice.id;
 
-  try {
-    const res = await createNoticeService(schoolId, {
-      authorId,
-      title: payload.title,
-      contentMarkdown: payload.content,
-      targetAudiences: [payload.audience],
-    });
-    if (res?.noticeId) noticeId = res.noticeId;
-  } catch (err) {
-    console.warn("Notice service fallback:", err);
-  }
+  if (schoolId && authorId) {
+    try {
+      const res = await createNoticeService(schoolId, {
+        authorId,
+        title: payload.title,
+        contentMarkdown: payload.content,
+        targetAudiences: [payload.audience],
+      });
+      if (res?.noticeId) noticeId = res.noticeId;
+    } catch (err) {
+      console.warn("Notice service fallback:", err);
+    }
 
-  await logAudit({
-    schoolId,
-    actorId: authorId,
-    action: AuditAction.NOTICE_CREATED,
-    entityTable: "notices",
-    entityId: noticeId,
-    newValues: { title: payload.title, audience: payload.audience },
-  });
+    await logAudit({
+      schoolId,
+      actorId: authorId,
+      action: AuditAction.NOTICE_CREATED,
+      entityTable: "notices",
+      entityId: noticeId,
+      newValues: { title: payload.title, audience: payload.audience },
+    });
+  }
 
   return {
     id: noticeId,
@@ -318,8 +347,8 @@ export async function createNotice(payload: {
     content: payload.content,
     audience: payload.audience,
     priority: payload.priority,
-    authorName: "Dr. Arvind Swaminathan",
-    authorTitle: "Principal & Provost",
+    authorName,
+    authorTitle: "School Administration",
     publishedAt: "Just now",
     isPinned: false,
   };
@@ -344,18 +373,43 @@ export async function fetchApprovalsQueue(): Promise<ExecutiveApprovalWarrant[]>
 
 export async function updateApprovalStatus(
   id: string,
-  status: "APPROVED" | "REJECTED"
+  status: "APPROVED" | "REJECTED",
+  actorDeciderId?: string,
+  actorSchoolId?: string
 ): Promise<{ success: boolean; signatureHash?: string }> {
-  const schoolId = "11111111-1111-1111-1111-111111111111";
-  const deciderId = "b0000000-0000-0000-0000-000000000003"; // Principal Claire De La Tour
-  const signatureHash = "SIG-PRINCIPAL-9942-APAAR-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+  const supabase = createClient();
+  let deciderId = actorDeciderId || "";
+  let schoolId = actorSchoolId || "";
+
+  if (!deciderId || !schoolId) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        deciderId = deciderId || user.id;
+        const { data: profile } = await supabase
+          .from("users_profiles")
+          .select("school_id")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (profile?.school_id) {
+          schoolId = schoolId || profile.school_id;
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const signatureHash = "SIG-EXECUTIVE-" + Math.random().toString(36).substring(2, 10).toUpperCase();
 
   sharedStore.updateApprovalStatus(id, status, signatureHash);
 
-  try {
-    await decideApproval(id, deciderId, status);
-  } catch (err) {
-    console.warn("Approval service fallback:", err);
+  if (deciderId) {
+    try {
+      await decideApproval(id, deciderId, status);
+    } catch (err) {
+      console.warn("Approval service fallback:", err);
+    }
   }
 
   const supabase = createClient();

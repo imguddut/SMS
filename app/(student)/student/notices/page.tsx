@@ -77,7 +77,7 @@ export default function StudentNoticesPage() {
   const handleDownloadCircular = (notice: StudentBulletinItem, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     const safeTitle = notice.title.replace(/[^a-zA-Z0-9]/g, "_");
-    const content = `=== ${school?.name || "AGRAGATI ACADEMY"} • OFFICIAL ADMINISTRATIVE CIRCULAR ===\nCircular Reference: CIR-${notice.id.toUpperCase()}-${notice.date.replace(/-/g, "")}\nDate: ${notice.date}\nCategory: ${notice.category}\nAuthority: ${notice.author}\nSubject: ${notice.title}\n\nOFFICIAL ANNOUNCEMENT SUMMARY:\n${notice.summary}\n\nCOMPLETE CIRCULAR DIRECTIVE:\n${notice.body}\n\nDIRECTIVES FOR STUDENTS & PARENTS:\n1. Compliance with the designated schedule is required.\n2. For queries, contact the School Administration.\n3. Keep this digital copy for campus records.`;
+    const content = `=== ${school?.name || "SCHOOL"} • OFFICIAL ADMINISTRATIVE CIRCULAR ===\nCircular Reference: CIR-${notice.id.toUpperCase()}-${notice.date.replace(/-/g, "")}\nDate: ${notice.date}\nCategory: ${notice.category}\nAuthority: ${notice.author}\nSubject: ${notice.title}\n\nOFFICIAL ANNOUNCEMENT SUMMARY:\n${notice.summary}\n\nCOMPLETE CIRCULAR DIRECTIVE:\n${notice.body}\n\nDIRECTIVES FOR STUDENTS & PARENTS:\n1. Compliance with the designated schedule is required.\n2. For queries, contact the School Administration.\n3. Keep this digital copy for campus records.`;
 
     const studentName = profile?.full_name || studentProfile?.name || "Student";
     setPreviewDoc({
@@ -90,14 +90,14 @@ export default function StudentNoticesPage() {
         classSection: studentProfile?.form || "",
         rollNumber: studentProfile?.rollNumber || "",
         academicSession: "2024-2025",
-        institutionName: school?.name || "AGRAGATI MODERN ACADEMY",
+        institutionName: school?.name || "",
       },
     });
   };
 
   const handleDownloadExcursionConsent = (notice: StudentBulletinItem) => {
     const studentName = profile?.full_name || studentProfile?.name || "Student";
-    const content = `=== ${school?.name || "AGRAGATI ACADEMY"} • STUDY TOUR & CONSENT FORM ===\nStudent: ${studentName} (${studentProfile?.form || ""})\nEvent: ${notice.title}\nCategory: ${notice.category}\nDate: ${notice.date}\n\nPARENTAL CONSENT DECLARATION:\n"I hereby grant permission for ${studentName} to participate in this school activity."\n\nParent Signature: _______________________\nDate: _______________________`;
+    const content = `=== ${school?.name || "SCHOOL"} • STUDY TOUR & CONSENT FORM ===\nStudent: ${studentName} (${studentProfile?.form || ""})\nEvent: ${notice.title}\nCategory: ${notice.category}\nDate: ${notice.date}\n\nPARENTAL CONSENT DECLARATION:\n"I hereby grant permission for ${studentName} to participate in this school activity."\n\nParent Signature: _______________________\nDate: _______________________`;
 
     setPreviewDoc({
       isOpen: true,
@@ -109,7 +109,7 @@ export default function StudentNoticesPage() {
         classSection: studentProfile?.form || "",
         rollNumber: studentProfile?.rollNumber || "",
         academicSession: "2024-2025",
-        institutionName: school?.name || "AGRAGATI MODERN ACADEMY",
+        institutionName: school?.name || "",
       },
     });
   };
@@ -135,7 +135,7 @@ export default function StudentNoticesPage() {
       role="STUDENT"
       userName={profile?.full_name || studentProfile?.name || "Student"}
       userRoleTitle={studentProfile?.form ? `SCHOLAR • ${studentProfile.form.toUpperCase()}` : "STUDENT"}
-      epochText="Official Academy Bulletins • Michaelmas & CBSE Term 2024–2025"
+      epochText="Official Bulletins &amp; Circulars"
     >
       <div className="space-y-6">
         {/* Toast Alert Feedback */}
@@ -166,7 +166,7 @@ export default function StudentNoticesPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="font-sans text-[10px] font-bold text-amber-800 uppercase tracking-widest">
-                ACADEMY CIRCULARS &amp; HOUSE BULLETINS
+                ACADEMY CIRCULARS &amp; BULLETINS
               </span>
               <span className="text-stone-300 text-xs">•</span>
               <span className="font-sans text-[10px] font-medium text-stone-500">
@@ -177,7 +177,7 @@ export default function StudentNoticesPage() {
               Notices &amp; House Circulars
             </h1>
             <p className="font-sans text-xs text-stone-500 mt-1 max-w-2xl leading-relaxed">
-              Official school announcements, Tagore House fixtures, excursion briefing guidelines, and Science &amp; ATL Society colloquia.
+              Official school announcements, house fixtures, excursion briefing guidelines, and society colloquia.
             </p>
           </div>
 
@@ -201,7 +201,7 @@ export default function StudentNoticesPage() {
             {[
               { id: "ALL", label: "All Bulletins", icon: null },
               { id: "EXCURSION", label: "Excursions & Tours", icon: <Plane className="w-3.5 h-3.5" /> },
-              { id: "HOUSE", label: "Tagore House", icon: <Home className="w-3.5 h-3.5" /> },
+              { id: "HOUSE", label: "House Notices", icon: <Home className="w-3.5 h-3.5" /> },
               { id: "SOCIETY", label: "Clubs & Societies", icon: <Users className="w-3.5 h-3.5" /> },
             ].map((cat) => (
               <button

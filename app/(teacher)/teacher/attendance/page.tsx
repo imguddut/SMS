@@ -34,10 +34,12 @@ import {
 } from "@/lib/db/teacher";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
 import { TeacherQuoteBanner } from "@/components/ui/teacher-quote-banner";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function TeacherAttendancePage() {
+  const { user, profile, school } = useAuth();
   const [roster, setRoster] = React.useState<StudentAttendanceItem[]>([]);
-  const [selectedClass, setSelectedClass] = React.useState("Form VI - Advanced Pure ...");
+  const [selectedClass, setSelectedClass] = React.useState("Session Roll-Call");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [sealedHash, setSealedHash] = React.useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = React.useState(false);
@@ -49,6 +51,10 @@ export default function TeacherAttendancePage() {
     }
     load();
   }, []);
+
+  const teacherName = profile?.full_name || "Faculty Member";
+  const teacherDesignation = profile?.role || "Faculty";
+  const schoolDisplayName = school?.name || "School Portal";
 
   const handleStatusChange = (id: string, newStatus: "PRESENT" | "ABSENT" | "LATE" | "EXCUSED") => {
     setRoster((prev) =>
@@ -82,16 +88,14 @@ export default function TeacherAttendancePage() {
   const absentCount = roster.filter((r) => r.status === "ABSENT").length;
   const excusedCount = roster.filter((r) => r.status === "EXCUSED").length;
 
-  const previewContent = `DELHI PUBLIC SCHOOL, R.K. PURAM
+  const previewContent = `${schoolDisplayName.toUpperCase()}
 OFFICIAL CLASSROOM ATTENDANCE REGISTER & BIOMETRIC LOG
-Academic Session: 2024–2025 • Michaelmas Term 3
+Generated: ${new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
 
 CLASS & SESSION DETAILS:
-Class & Section: Class 12-A — Form VI (Senior Lyceum)
-Lecture Hall: Physics Wing Rm 301 • Session Period: Period 1 (08:30 – 10:00 IST)
-Subject: Mathematics (041) — Vectors & 3D Geometry
-Faculty In-Charge: Dr. Alistair Finch (Senior Master in Classical Humanities)
-Date: Friday, 5 Sep 2026 • 08:30 CET Cutoff
+Class & Section: ${selectedClass}
+Faculty In-Charge: ${teacherName} (${teacherDesignation})
+Date: ${new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
 
 SUMMARY COHORT STATISTICS:
 Total Registered Scholars: ${roster.length} Scholars
@@ -103,22 +107,19 @@ Register Status: ${sealedHash ? `Sealed (${sealedHash})` : "Active Roll-Call in 
 
 STUDENT-WISE ATTENDANCE LOG:
 ================================================================================
-${roster
+${roster.length > 0 ? roster
   .map(
     (s, idx) =>
       `${idx + 1}. SCHOLAR: ${s.studentName} (${s.studentId.toUpperCase()})
    House: ${s.house} • Form: ${s.form}
-   Turnstile Sensor Log: ${s.turnstileTime}
-   Attendance Status: ${s.status}${s.remarks ? `\n   Faculty Remarks: ${s.remarks}` : ""}`
+   Turnstile Sensor Log: ${s.turnstileTime || "N/A"}
+   Attendance Status: ${s.status}${s.remarks ? `\n   Remarks: ${s.remarks}` : ""}`
   )
-  .join("\n\n")}
+  .join("\n\n") : "No scholars recorded in this register."}
 ================================================================================
 
-STATUTORY CBSE ATTENDANCE DIRECTIVE:
-As per CBSE Senior Secondary Examination By-laws, a minimum of 75% aggregate attendance is mandatory for board exam candidature.
-
-Cryptographic Seal: ${sealedHash || "SEAL-ROLLCALL-DILITHIUM5-ACTIVE"}
-Faculty Invigilator Signature: Dr. Alistair Finch (Senior Master)`;
+Cryptographic Seal: ${sealedHash || "SEAL-ROLLCALL-ACTIVE"}
+Faculty Invigilator Signature: ${teacherName}`;
 
   // Student Initials Color Mapping
   const avatarColors: Record<string, string> = {
@@ -140,11 +141,11 @@ Faculty Invigilator Signature: Dr. Alistair Finch (Senior Master)`;
   return (
     <AppShell
       role="TEACHER"
-      schoolName="The King's College & Academy"
-      campusName="GENEVA CAMPUS"
-      userName="Dr. Alistair Finch"
-      userRoleTitle="Senior Master in Classical Humanities"
-      epochText="Daily Schedule • Michaelmas Term 3 • 5 Sep 2026"
+      schoolName={schoolDisplayName}
+      campusName={school?.code || "MAIN CAMPUS"}
+      userName={teacherName}
+      userRoleTitle={teacherDesignation}
+      epochText={new Date().toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "short", day: "numeric" })}
     >
       <div className="space-y-6 max-w-7xl mx-auto pb-12">
         {/* Header Section matching Image 3 */}
@@ -152,7 +153,7 @@ Faculty Invigilator Signature: Dr. Alistair Finch (Senior Master)`;
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="font-sans text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-widest">
-                ROLL-CALL SESSION ACTIVE • Turnstile Edge Gates Synchronized • 08:30 CET Cutoff
+                ROLL-CALL SESSION ACTIVE • Attendance Register
               </span>
             </div>
             <h1 className="font-serif text-3xl font-bold tracking-tight text-[#0F172A] dark:text-stone-100">
@@ -220,21 +221,21 @@ Faculty Invigilator Signature: Dr. Alistair Finch (Senior Master)`;
           isOpen={previewOpen}
           onClose={() => setPreviewOpen(false)}
           title="Classroom Attendance Register"
-          fileName="Class_12A_Attendance_Register_Session1.pdf"
+          fileName="Attendance_Register.pdf"
           content={previewContent}
           studentMeta={{
-            name: "Class 12-A Roster",
-            rollNumber: "38 Enrolled Scholars",
-            form: "Class 12-A (Senior Secondary)",
-            house: "Senior Lyceum Section",
-            institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-            institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017",
-            institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022 • School Code: 85214",
-            academicSession: "2024–2025",
+            name: "Class Roster",
+            rollNumber: `${roster.length} Enrolled Scholars`,
+            form: teacherDesignation,
+            house: schoolDisplayName,
+            institutionName: schoolDisplayName,
+            institutionAffiliation: school?.code || "",
+            institutionAddress: "",
+            academicSession: new Date().getFullYear().toString(),
           }}
         />
 
-        {/* 4 Metric Cards matching Image 3 */}
+        {/* 4 Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-sans text-xs">
           {/* Card 1: Active Course */}
           <Card className="p-4 rounded-2xl border-slate-200/80 dark:border-stone-800 bg-white dark:bg-[#12161f] shadow-xs flex items-center gap-3.5">
@@ -246,7 +247,7 @@ Faculty Invigilator Signature: Dr. Alistair Finch (Senior Master)`;
               <div className="font-serif text-base font-bold text-slate-900 dark:text-stone-100 truncate mt-0.5">
                 {selectedClass}
               </div>
-              <span className="text-[10px] text-slate-500 font-medium">Class 12-A</span>
+              <span className="text-[10px] text-slate-500 font-medium">{roster.length} Scholars</span>
             </div>
           </Card>
 
@@ -296,7 +297,7 @@ Faculty Invigilator Signature: Dr. Alistair Finch (Senior Master)`;
             <div className="flex items-center gap-2.5 text-[#059669]">
               <CheckCircle2 className="w-5 h-5" />
               <span>
-                <strong>Attendance Register Sealed:</strong> Roll-call ledger committed to sovereign PostgreSQL partition. Hash: <span className="font-mono font-bold">{sealedHash}</span>
+                <strong>Attendance Register Sealed:</strong> Roll-call ledger committed. Hash: <span className="font-mono font-bold">{sealedHash}</span>
               </span>
             </div>
             <Link href="/teacher/my-day">
@@ -307,7 +308,7 @@ Faculty Invigilator Signature: Dr. Alistair Finch (Senior Master)`;
           </div>
         )}
 
-        {/* Roster Table matching Image 3 */}
+        {/* Roster Table */}
         <Card className="rounded-2xl border-slate-200/80 dark:border-stone-800 bg-white dark:bg-[#12161f] shadow-xs overflow-hidden">
           {/* Table Header Bar */}
           <div className="p-5 border-b border-slate-100 dark:border-stone-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -320,7 +321,7 @@ Faculty Invigilator Signature: Dr. Alistair Finch (Senior Master)`;
                   Scholar Roll-Call Check Roster
                 </h3>
                 <p className="font-sans text-xs text-slate-500 dark:text-stone-400">
-                  Turnstile RFID sensor timestamps recorded automatically at campus perimeter.
+                  Roll-call attendance verification roster.
                 </p>
               </div>
             </div>
@@ -328,7 +329,7 @@ Faculty Invigilator Signature: Dr. Alistair Finch (Senior Master)`;
             {/* Date badge */}
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-stone-800 text-xs font-semibold text-slate-600 dark:text-stone-300">
               <Calendar className="w-4 h-4 text-slate-500" />
-              <span>Fri, 5 Sep 2026 • Form VI • 08:30 CET Cutoff</span>
+              <span>{new Date().toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: "numeric" })}</span>
             </div>
           </div>
 
@@ -346,7 +347,14 @@ Faculty Invigilator Signature: Dr. Alistair Finch (Senior Master)`;
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-stone-800">
-                {roster.map((student, idx) => {
+                {roster.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-slate-500 text-sm">
+                      No scholars enrolled in this attendance roster.
+                    </td>
+                  </tr>
+                ) : (
+                  roster.map((student, idx) => {
                   const initials = student.studentName
                     .split(" ")
                     .map((n) => n[0])
@@ -444,7 +452,8 @@ Faculty Invigilator Signature: Dr. Alistair Finch (Senior Master)`;
                       </td>
                     </tr>
                   );
-                })}
+                  })
+                )}
               </tbody>
             </table>
           </div>

@@ -6,6 +6,8 @@ import { AppShell } from "@/components/layout/app-shell";
 import { PlatformAdminFooter } from "@/components/layout/platform-admin-footer";
 import { SchoolCrest } from "@/components/ui/school-crest";
 import { Modal } from "@/components/ui/modal";
+import { formatIndianCurrency } from "@/lib/utils";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   TrendingUp,
   Users,
@@ -20,6 +22,7 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
+  Receipt,
 } from "lucide-react";
 import {
   fetchPlatformBilling,
@@ -27,6 +30,7 @@ import {
 } from "@/lib/db/platform-admin";
 
 export default function PlatformAdminBillingPage() {
+  const { profile } = useAuth();
   const [invoices, setInvoices] = React.useState<PlatformBillingItem[]>([]);
   const [selectedInvoice, setSelectedInvoice] = React.useState<PlatformBillingItem | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -45,10 +49,15 @@ export default function PlatformAdminBillingPage() {
     load();
   }, []);
 
+  const totalRevenue = invoices.reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+  const totalCollected = invoices.filter((inv) => inv.status === "PAID").reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+  const totalOverdue = invoices.filter((inv) => inv.status === "OVERDUE").reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+  const avgRevenue = invoices.length > 0 ? Math.round(totalRevenue / invoices.length) : 0;
+
   return (
     <AppShell
       role="SUPER_ADMIN"
-      userName="Mr. Rajesh Pillai"
+      userName={profile?.full_name || "Super Admin"}
       userRoleTitle="Platform Lead & Super Admin"
       epochText="Central Administration • Cloud Network Active"
     >
@@ -98,10 +107,10 @@ export default function PlatformAdminBillingPage() {
             </div>
             <div className="mt-4">
               <div className="text-2xl font-bold text-slate-900">
-                ₹4.82 Cr
+                {formatIndianCurrency(totalRevenue)}
               </div>
               <p className="text-xs font-semibold text-emerald-600 mt-1">
-                +14.2% YoY growth
+                Active billing ledger
               </p>
             </div>
           </div>
@@ -118,7 +127,7 @@ export default function PlatformAdminBillingPage() {
             </div>
             <div className="mt-4">
               <div className="text-2xl font-bold text-slate-900">
-                ₹3,85,000
+                {formatIndianCurrency(avgRevenue)}
               </div>
               <p className="text-xs text-slate-500 mt-1">
                 Annual institutional contracts
@@ -138,10 +147,10 @@ export default function PlatformAdminBillingPage() {
             </div>
             <div className="mt-4">
               <div className="text-2xl font-bold text-slate-900">
-                ₹84,25,000
+                {formatIndianCurrency(totalCollected)}
               </div>
               <p className="text-xs font-semibold text-emerald-600 mt-1">
-                100% on-time settlement
+                Settled receipts
               </p>
             </div>
           </div>
@@ -158,10 +167,10 @@ export default function PlatformAdminBillingPage() {
             </div>
             <div className="mt-4">
               <div className="text-2xl font-bold text-slate-900">
-                ₹0.00
+                {formatIndianCurrency(totalOverdue)}
               </div>
-              <p className="text-xs font-semibold text-emerald-600 mt-1">
-                All school accounts up to date
+              <p className="text-xs font-semibold text-slate-500 mt-1">
+                Outstanding subscriptions
               </p>
             </div>
           </div>
@@ -267,282 +276,76 @@ export default function PlatformAdminBillingPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
-                {/* Row 1: DPS R.K. Puram */}
-                <tr className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-4 px-5 font-mono font-medium text-slate-800">
-                    GST-2025-001
-                  </td>
-                  <td className="py-4 px-5">
-                    <div className="flex items-center gap-3">
-                      <SchoolCrest slug="dps-rkpuram" name="Delhi Public School, R.K. Puram" size="sm" />
-                      <div>
-                        <span className="font-bold text-slate-900 block text-xs">
-                          Delhi Public School, R.K. Puram
+                {invoices.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center text-slate-400">
+                      <Receipt className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
+                      <p className="text-sm font-medium">No subscription invoices recorded</p>
+                      <p className="text-xs text-slate-400 mt-0.5">Platform invoices for active schools will appear here.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  invoices.map((inv) => (
+                    <tr key={inv.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-4 px-5 font-mono font-medium text-slate-800">
+                        {inv.invoice_number}
+                      </td>
+                      <td className="py-4 px-5">
+                        <div className="flex items-center gap-3">
+                          <SchoolCrest slug={inv.school_id} name={inv.school_name} size="sm" />
+                          <div>
+                            <span className="font-bold text-slate-900 block text-xs">
+                              {inv.school_name}
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              {inv.payment_method}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-5">
+                        <span className="font-semibold text-slate-800 block text-xs">
+                          {inv.plan_tier}
                         </span>
-                        <span className="text-[10px] text-slate-400">
-                          Corporate NetBanking (HDFC Bank)
+                        <span className="px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 border border-purple-200 text-[9px] font-bold uppercase tracking-wider mt-0.5 inline-block">
+                          {inv.billing_cycle} CYCLE
                         </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="font-semibold text-slate-800 block text-xs">
-                      Institutional Enterprise Tier
-                    </span>
-                    <span className="px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 border border-purple-200 text-[9px] font-bold uppercase tracking-wider mt-0.5 inline-block">
-                      ANNUAL CYCLE
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 font-bold text-slate-900">
-                    ₹4,50,000
-                  </td>
-                  <td className="py-4 px-5 text-slate-600 text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-blue-500" />
-                      <span>2025-01-31</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Paid
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedInvoice({
-                          id: "1",
-                          invoice_number: "GST-2025-001",
-                          school_id: "a0eebc99",
-                          school_name: "Delhi Public School, R.K. Puram",
-                          plan_tier: "Institutional Enterprise Tier",
-                          amount: 450000,
-                          currency: "INR",
-                          status: "PAID",
-                          billing_cycle: "ANNUAL",
-                          issue_date: "2025-01-01",
-                          due_date: "2025-01-31",
-                          payment_method: "Corporate NetBanking (HDFC Bank)",
-                        })}
-                        className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-blue-600 font-semibold text-xs flex items-center gap-1 shadow-2xs"
-                      >
-                        <Eye className="w-3 h-3 text-blue-600" />
-                        <span>Inspect</span>
-                      </button>
-                      <button type="button" className="p-1 text-slate-400 hover:text-slate-600 rounded">
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-
-                {/* Row 2: NPS Indiranagar */}
-                <tr className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-4 px-5 font-mono font-medium text-slate-800">
-                    GST-2025-002
-                  </td>
-                  <td className="py-4 px-5">
-                    <div className="flex items-center gap-3">
-                      <SchoolCrest slug="nps-indiranagar" name="National Public School, Indiranagar" size="sm" />
-                      <div>
-                        <span className="font-bold text-slate-900 block text-xs">
-                          National Public School, Indiranagar
+                      </td>
+                      <td className="py-4 px-5 font-bold text-slate-900">
+                        {formatIndianCurrency(inv.amount)}
+                      </td>
+                      <td className="py-4 px-5 text-slate-600 text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-blue-500" />
+                          <span>{inv.due_date}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-5">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                            inv.status === "PAID"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-amber-50 text-amber-800 border border-amber-200"
+                          }`}
+                        >
+                          {inv.status}
                         </span>
-                        <span className="text-[10px] text-slate-400">
-                          (ICICI Bank)
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="font-semibold text-slate-800 block text-xs">
-                      Institutional Enterprise Tier
-                    </span>
-                    <span className="px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 border border-purple-200 text-[9px] font-bold uppercase tracking-wider mt-0.5 inline-block">
-                      ANNUAL CYCLE
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 font-bold text-slate-900">
-                    ₹4,50,000
-                  </td>
-                  <td className="py-4 px-5 text-slate-600 text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-blue-500" />
-                      <span>2025-02-15</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Paid
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedInvoice({
-                          id: "2",
-                          invoice_number: "GST-2025-002",
-                          school_id: "b0eebc99",
-                          school_name: "National Public School, Indiranagar",
-                          plan_tier: "Institutional Enterprise Tier",
-                          amount: 450000,
-                          currency: "INR",
-                          status: "PAID",
-                          billing_cycle: "ANNUAL",
-                          issue_date: "2025-01-15",
-                          due_date: "2025-02-15",
-                          payment_method: "Corporate NetBanking (ICICI Bank)",
-                        })}
-                        className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-blue-600 font-semibold text-xs flex items-center gap-1 shadow-2xs"
-                      >
-                        <Eye className="w-3 h-3 text-blue-600" />
-                        <span>Inspect</span>
-                      </button>
-                      <button type="button" className="p-1 text-slate-400 hover:text-slate-600 rounded">
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-
-                {/* Row 3: The Cathedral & John Connon School */}
-                <tr className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-4 px-5 font-mono font-medium text-slate-800">
-                    GST-2025-003
-                  </td>
-                  <td className="py-4 px-5">
-                    <div className="flex items-center gap-3">
-                      <SchoolCrest slug="cathedral-mumbai" name="The Cathedral & John Connon School" size="sm" />
-                      <div>
-                        <span className="font-bold text-slate-900 block text-xs">
-                          The Cathedral &amp; John Connon School
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="font-semibold text-slate-800 block text-xs">
-                      Pro Campus
-                    </span>
-                    <span className="px-1.5 py-0.2 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[9px] font-bold uppercase tracking-wider mt-0.5 inline-block">
-                      ANNUAL CYCLE
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 font-bold text-slate-900">
-                    ₹2,50,000
-                  </td>
-                  <td className="py-4 px-5 text-slate-600 text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-blue-500" />
-                      <span>2025-03-01</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
-                      Pending
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedInvoice({
-                          id: "3",
-                          invoice_number: "GST-2025-003",
-                          school_id: "c0eebc99",
-                          school_name: "The Cathedral & John Connon School",
-                          plan_tier: "Pro Campus",
-                          amount: 250000,
-                          currency: "INR",
-                          status: "PENDING",
-                          billing_cycle: "ANNUAL",
-                          issue_date: "2025-02-01",
-                          due_date: "2025-03-01",
-                          payment_method: "Corporate NetBanking (Axis Bank)",
-                        })}
-                        className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-blue-600 font-semibold text-xs flex items-center gap-1 shadow-2xs"
-                      >
-                        <Eye className="w-3 h-3 text-blue-600" />
-                        <span>Inspect</span>
-                      </button>
-                      <button type="button" className="p-1 text-slate-400 hover:text-slate-600 rounded">
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-
-                {/* Row 4: DPS Biometric Addon */}
-                <tr className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-4 px-5 font-mono font-medium text-slate-800">
-                    GST-2024-098
-                  </td>
-                  <td className="py-4 px-5">
-                    <div className="flex items-center gap-3">
-                      <SchoolCrest slug="dps-rkpuram" name="Delhi Public School, R.K. Puram" size="sm" />
-                      <div>
-                        <span className="font-bold text-slate-900 block text-xs">
-                          Delhi Public School, R.K. Puram
-                        </span>
-                        <span className="text-[10px] text-slate-400">
-                          Corporate NetBanking (SBI)
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="font-semibold text-slate-800 block text-xs">
-                      Smart Biometric &amp; Bus Tracking Module Addon
-                    </span>
-                    <span className="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-bold uppercase tracking-wider mt-0.5 inline-block">
-                      ANNUAL CYCLE
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 font-bold text-slate-900">
-                    ₹1,20,000
-                  </td>
-                  <td className="py-4 px-5 text-slate-600 text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-blue-500" />
-                      <span>2024-12-10</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Paid
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedInvoice({
-                          id: "4",
-                          invoice_number: "GST-2024-098",
-                          school_id: "a0eebc99",
-                          school_name: "Delhi Public School, R.K. Puram",
-                          plan_tier: "Smart Biometric & Bus Tracking Module Addon",
-                          amount: 120000,
-                          currency: "INR",
-                          status: "PAID",
-                          billing_cycle: "ANNUAL",
-                          issue_date: "2024-11-10",
-                          due_date: "2024-12-10",
-                          payment_method: "Corporate NetBanking (SBI)",
-                        })}
-                        className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-blue-600 font-semibold text-xs flex items-center gap-1 shadow-2xs"
-                      >
-                        <Eye className="w-3 h-3 text-blue-600" />
-                        <span>Inspect</span>
-                      </button>
-                      <button type="button" className="p-1 text-slate-400 hover:text-slate-600 rounded">
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                      </td>
+                      <td className="py-4 px-5 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedInvoice(inv)}
+                            className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-blue-600 font-semibold text-xs flex items-center gap-1 shadow-2xs"
+                          >
+                            <Eye className="w-3 h-3 text-blue-600" />
+                            <span>Inspect</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

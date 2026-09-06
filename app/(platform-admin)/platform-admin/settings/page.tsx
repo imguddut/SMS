@@ -3,6 +3,7 @@
 import * as React from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PlatformAdminFooter } from "@/components/layout/platform-admin-footer";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   ShieldCheck,
   RotateCw,
@@ -37,8 +38,12 @@ import {
   SwissFadpComplianceItem,
   DataVaultExportResult,
 } from "@/lib/db/security";
+import { fetchPlatformAuditLogs, PlatformAuditLog } from "@/lib/db/platform-admin";
 
 export default function PlatformAdminSettingsPage() {
+  const { profile } = useAuth();
+  const userName = profile?.full_name || "Platform Admin";
+
   const [activeTab, setActiveTab] = React.useState<"HSM" | "CRYPTO_VERIFIER" | "RLS_AUDIT" | "FADP_COMPLIANCE">("HSM");
   const [keyRotated, setKeyRotated] = React.useState(false);
   const [sessionTtl, setSessionTtl] = React.useState("24h");
@@ -48,7 +53,7 @@ export default function PlatformAdminSettingsPage() {
   const [savedSuccess, setSavedSuccess] = React.useState(false);
 
   // Cryptographic Verifier State
-  const [inputSealHash, setInputSealHash] = React.useState("SEAL-PROVISEUR-DILITHIUM5-998418-GENEVE");
+  const [inputSealHash, setInputSealHash] = React.useState("");
   const [verificationResult, setVerificationResult] = React.useState<SignatureVerificationResult | null>(null);
   const [isVerifying, setIsVerifying] = React.useState(false);
 
@@ -62,16 +67,21 @@ export default function PlatformAdminSettingsPage() {
   const [vaultExport, setVaultExport] = React.useState<DataVaultExportResult | null>(null);
   const [isExporting, setIsExporting] = React.useState(false);
 
+  // Audit Logs State
+  const [auditLogs, setAuditLogs] = React.useState<PlatformAuditLog[]>([]);
+
   React.useEffect(() => {
     async function loadSubsystems() {
       try {
-        const [rlsData, fadpData] = await Promise.all([
+        const [rlsData, fadpData, logsData] = await Promise.all([
           runRlsIsolationAudit(),
           fetchSwissFadpComplianceMetrics(),
+          fetchPlatformAuditLogs(),
         ]);
         setRlsAuditTables(rlsData.tables);
         setRlsScannedCount(rlsData.totalRecordsChecked);
         setComplianceList(fadpData);
+        setAuditLogs(logsData);
       } catch (err) {
         console.error(err);
       }
@@ -123,7 +133,7 @@ export default function PlatformAdminSettingsPage() {
   return (
     <AppShell
       role="SUPER_ADMIN"
-      userName="Eleanor Vance"
+      userName={userName}
       userRoleTitle="Platform Lead & Super Admin"
       epochText="Central Administration • Cloud Network Active"
     >
@@ -590,158 +600,58 @@ export default function PlatformAdminSettingsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-xs">
-                    {/* Row 1 */}
-                    <tr className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                            <CheckCircle2 className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <span className="font-bold text-slate-900 block text-xs">
-                              APAAR / DigiLocker Key Attestation
+                    {auditLogs.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-12 text-center text-slate-400 text-xs">
+                          No platform audit logs recorded yet.
+                        </td>
+                      </tr>
+                    ) : (
+                      auditLogs.map((log) => (
+                        <tr key={log.id} className="hover:bg-slate-50/60 transition-colors">
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                                <CheckCircle2 className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <span className="font-bold text-slate-900 block text-xs">
+                                  {log.action}
+                                </span>
+                                <span className="text-[11px] text-slate-500 line-clamp-1">
+                                  {log.details && log.details !== "{}" ? log.details : "System audit record logged."}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6">
+                            <span className="font-bold text-slate-800 block text-xs">
+                              {log.actor}
                             </span>
-                            <span className="text-[11px] text-slate-500">
-                              DigiLocker &amp; DPDP Act 2023 compliance cryptographic verification validated.
+                            <span className="text-[10px] text-slate-400">
+                              IP: {log.ip_address}
                             </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className="font-bold text-slate-800 block text-xs">
-                          Anand Sen (Platform Security Lead)
-                        </span>
-                        <span className="text-[10px] text-slate-400">
-                          IP: 103.24.188.12
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 font-medium text-slate-700 text-xs">
-                        Delhi-Primary-01 Hardware Node
-                      </td>
-                      <td className="py-4 px-6 text-slate-500 text-xs">
-                        Today, 15:22:04 IST
-                      </td>
-                      <td className="py-4 px-6 text-right">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          Success
-                        </span>
-                      </td>
-                    </tr>
-
-                    {/* Row 2 */}
-                    <tr className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                            <PlusCircle className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <span className="font-bold text-slate-900 block text-xs">
-                              Tenant Provisioned
+                          </td>
+                          <td className="py-4 px-6 font-medium text-slate-700 text-xs">
+                            {log.target}
+                          </td>
+                          <td className="py-4 px-6 text-slate-500 text-xs">
+                            {log.timestamp}
+                          </td>
+                          <td className="py-4 px-6 text-right">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                              log.status === "SUCCESS"
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : log.status === "WARNING"
+                                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                : "bg-rose-50 text-rose-700 border border-rose-200"
+                            }`}>
+                              {log.status}
                             </span>
-                            <span className="text-[11px] text-slate-500">
-                              CBSE &amp; ICSE dual curriculum database schema initialized.
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className="font-bold text-slate-800 block text-xs">
-                          System Provisioner Daemon
-                        </span>
-                        <span className="text-[10px] text-slate-400">
-                          IP: 127.0.0.1
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 text-xs">
-                        <span className="font-medium text-slate-800 block">National Public School</span>
-                        <span className="text-[10px] text-slate-400">(npsindiranagar.com)</span>
-                      </td>
-                      <td className="py-4 px-6 text-slate-500 text-xs">
-                        Today, 14:01:19 IST
-                      </td>
-                      <td className="py-4 px-6 text-right">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          Success
-                        </span>
-                      </td>
-                    </tr>
-
-                    {/* Row 3 */}
-                    <tr className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                            <UserCheck className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <span className="font-bold text-slate-900 block text-xs">
-                              Administrative Impersonation Session
-                            </span>
-                            <span className="text-[11px] text-slate-500">
-                              Temporary elevated session initiated with audit log recording.
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className="font-bold text-slate-800 block text-xs">
-                          Anand Sen (Platform Security Lead)
-                        </span>
-                        <span className="text-[10px] text-slate-400">
-                          IP: 103.24.188.12
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 font-medium text-slate-800 text-xs">
-                        Vikramaditya Birla (Owner)
-                      </td>
-                      <td className="py-4 px-6 text-slate-500 text-xs">
-                        Today, 11:15:42 IST
-                      </td>
-                      <td className="py-4 px-6 text-right">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
-                          Warning
-                        </span>
-                      </td>
-                    </tr>
-
-                    {/* Row 4 */}
-                    <tr className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                            <RotateCw className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <span className="font-bold text-slate-900 block text-xs">
-                              Automated Daily UPI / Bank Reconciliation
-                            </span>
-                            <span className="text-[11px] text-slate-500">
-                              99.8% auto-match rate on UPI UTR and NEFT batch payments (₹ 8,42,500 total).
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className="font-bold text-slate-800 block text-xs">
-                          Cron Ledger Reconciler
-                        </span>
-                        <span className="text-[10px] text-slate-400">
-                          IP: 10.0.4.88
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 font-medium text-slate-700 text-xs">
-                        Delhi Public School, R.K. Puram
-                      </td>
-                      <td className="py-4 px-6 text-slate-500 text-xs">
-                        Today, 04:00:00 IST
-                      </td>
-                      <td className="py-4 px-6 text-right">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          Success
-                        </span>
-                      </td>
-                    </tr>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -766,14 +676,14 @@ export default function PlatformAdminSettingsPage() {
                 type="text"
                 value={inputSealHash}
                 onChange={(e) => setInputSealHash(e.target.value)}
-                placeholder="Enter Seal Hash..."
+                placeholder="Enter Seal Hash (e.g. SEAL-CBSE-DILITHIUM5-2025)..."
                 className="flex-1 h-10 px-4 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50 focus:bg-white"
               />
               <button
                 type="button"
                 onClick={handleVerifySeal}
-                disabled={isVerifying}
-                className="h-10 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs flex items-center justify-center gap-2"
+                disabled={!inputSealHash.trim() || isVerifying}
+                className="h-10 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold text-xs flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>{isVerifying ? "Verifying..." : "Verify Quantum Seal"}</span>

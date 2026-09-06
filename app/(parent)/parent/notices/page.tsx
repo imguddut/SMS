@@ -6,7 +6,9 @@ import { Modal } from "@/components/ui/modal";
 import {
   fetchParentBulletins,
   signNoticeConsent,
+  fetchEnrolledWards,
   ParentNoticeItem,
+  ParentWardProfile,
 } from "@/lib/db/parent";
 import {
   CheckCircle2,
@@ -24,8 +26,11 @@ import {
   Eye,
 } from "lucide-react";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function ParentNoticesPage() {
+  const { profile } = useAuth();
+  const [wards, setWards] = React.useState<ParentWardProfile[]>([]);
   const [bulletins, setBulletins] = React.useState<ParentNoticeItem[]>([]);
   const [categoryFilter, setCategoryFilter] = React.useState("ALL");
   const [isLoading, setIsLoading] = React.useState(true);
@@ -46,8 +51,9 @@ export default function ParentNoticesPage() {
   React.useEffect(() => {
     async function loadData() {
       try {
-        const data = await fetchParentBulletins();
+        const [data, wardsData] = await Promise.all([fetchParentBulletins(), fetchEnrolledWards()]);
         setBulletins(data);
+        setWards(wardsData);
       } catch (err) {
         console.error("Failed to load bulletins", err);
       } finally {
@@ -78,21 +84,33 @@ ADMINISTRATIVE GUIDELINES:
 Authorized By: ${notice.sender}
 Principal & Headmaster Dr. V. K. Malhotra • Agragati Academy New Delhi`;
 
+    const activeWard = wards[0];
+    const studentName = activeWard?.name || "Student";
+    const studentForm = activeWard?.form || "Class";
+    const studentRoll = activeWard?.rollNumber || "N/A";
+    const studentHouse = activeWard?.house || "N/A";
+
     setPreviewDoc({
       isOpen: true,
       title: `School Circular • ${notice.title}`,
       fileName: `Circular_${notice.category}_${notice.title.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 30)}.pdf`,
       content,
       studentMeta: {
-        name: "Aarav Sharma",
-        form: "Class 12-A",
-        rollNumber: "ADM-2024-001",
-        house: "Tagore House",
+        name: studentName,
+        form: studentForm,
+        rollNumber: studentRoll,
+        house: studentHouse,
       },
     });
   };
 
   const handleDownloadSignedConsent = (notice: ParentNoticeItem) => {
+    const activeWard = wards[0];
+    const studentName = activeWard?.name || "Student";
+    const studentForm = activeWard?.form || "Class";
+    const studentRoll = activeWard?.rollNumber || "N/A";
+    const studentHouse = activeWard?.house || "N/A";
+
     const content = `OFFICIAL PARENTAL PERMISSION & CONSENT SLIP
 Activity: ${notice.title}
 Notice ID: ${notice.id.toUpperCase()}
@@ -100,19 +118,19 @@ Issued By: ${notice.sender}
 Notice Date: ${notice.date}
 
 STUDENT PARTICULARS:
-Student Name: Aarav Sharma
-Class & Section: Class 12-A
-Roll Number: ADM-2024-001 (CBSE: 12104928)
-House: Tagore House
+Student Name: ${studentName}
+Class & Section: ${studentForm}
+Roll Number: ${studentRoll}
+House: ${studentHouse}
 
 PARENT DECLARATION & ELECTRONIC SIGNATURE:
-Parent Name: Mr. Rajesh Sharma
+Parent Name: ${profile?.full_name || "Parent"}
 Signed Date: ${notice.signedDate || new Date().toISOString().split("T")[0]}
 Status: CONSENT GRANTED & DIGITALLY VERIFIED
 
-"I hereby confirm that I have read and agreed to the guidelines for ${notice.title}. I grant permission for my ward Aarav Sharma to participate under the supervision of school faculty."
+"I hereby confirm that I have read and agreed to the guidelines for ${notice.title}. I grant permission for my ward ${studentName} to participate under the supervision of school faculty."
 
-Verification Seal: SEAL-CBSE-CONSENT-APPROVED-2025`;
+Verification Seal: DIGITAL-CONSENT-VERIFIED`;
 
     setPreviewDoc({
       isOpen: true,
@@ -120,10 +138,10 @@ Verification Seal: SEAL-CBSE-CONSENT-APPROVED-2025`;
       fileName: `Signed_Consent_${notice.title.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 30)}.pdf`,
       content,
       studentMeta: {
-        name: "Aarav Sharma",
-        form: "Class 12-A",
-        rollNumber: "ADM-2024-001",
-        house: "Tagore House",
+        name: studentName,
+        form: studentForm,
+        rollNumber: studentRoll,
+        house: studentHouse,
       },
     });
   };
@@ -185,12 +203,14 @@ Verification Seal: SEAL-CBSE-CONSENT-APPROVED-2025`;
     }
   };
 
+  const activeWard = wards[0];
+
   return (
     <AppShell
       role="PARENT"
-      userName="Mr. Rajesh Sharma"
-      userRoleTitle="Parent • Aarav Sharma (Class 12-A)"
-      epochText="Academic Year 2024–2025 • Term 2 (CBSE Board)"
+      userName={profile?.full_name || "Parent"}
+      userRoleTitle={`Parent${activeWard?.name ? ` • ${activeWard.name}` : ""}`}
+      epochText="School Notices"
     >
       <div className="space-y-6">
         {/* Top Header Card */}
@@ -443,7 +463,7 @@ Verification Seal: SEAL-CBSE-CONSENT-APPROVED-2025`;
                       Parent Declaration
                     </span>
                     <p className="text-stone-500 dark:text-stone-400 leading-relaxed">
-                      I hereby grant permission for my child Aarav Sharma (Class 12-A) to participate in the ISRO educational tour and authorize accompanying teachers in case of any medical need as per CBSE safety guidelines.
+                      I hereby grant permission for my child {activeWard?.name || "my ward"}{activeWard?.form ? ` (${activeWard.form})` : ""} to participate in {selectedNotice.title} and authorize accompanying teachers in case of any emergency as per safety guidelines.
                     </p>
                   </div>
 
@@ -456,7 +476,7 @@ Verification Seal: SEAL-CBSE-CONSENT-APPROVED-2025`;
                       className="w-4 h-4 rounded border-amber-300 text-[#8C6D27] focus:ring-[#8C6D27]"
                     />
                     <label htmlFor="consentCheck" className="text-xs text-stone-800 dark:text-stone-200 font-medium cursor-pointer">
-                      I confirm and submit my digital signature as parent/guardian (Mr. Rajesh Sharma)
+                      I confirm and submit my digital signature as parent/guardian ({profile?.full_name || "Parent"})
                     </label>
                   </div>
 

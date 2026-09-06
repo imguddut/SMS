@@ -20,10 +20,12 @@ import {
   Eye,
 } from "lucide-react";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function ParentResultsPage() {
+  const { profile, currentSchool } = useAuth();
   const [wards, setWards] = React.useState<ParentWardProfile[]>([]);
-  const [selectedWardId, setSelectedWardId] = React.useState<string>("ward-01");
+  const [selectedWardId, setSelectedWardId] = React.useState<string>("");
   const [reportCard, setReportCard] = React.useState<WardAcademicReport | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [previewDoc, setPreviewDoc] = React.useState<{
@@ -39,9 +41,11 @@ export default function ParentResultsPage() {
       try {
         const wardsData = await fetchEnrolledWards();
         setWards(wardsData);
-        const activeId = selectedWardId || (wardsData[0] ? wardsData[0].id : "ward-01");
-        const report = await fetchWardReportCards(activeId);
-        setReportCard(report);
+        if (wardsData.length > 0) {
+          const activeId = selectedWardId || wardsData[0].id;
+          const report = await fetchWardReportCards(activeId);
+          setReportCard(report);
+        }
       } catch (err) {
         console.error("Failed to load report cards", err);
       } finally {
@@ -54,10 +58,10 @@ export default function ParentResultsPage() {
   const activeWard = wards.find((w) => w.id === selectedWardId) || wards[0];
 
   const handleDownloadTranscript = () => {
-    const wardName = activeWard ? activeWard.name : "Aarav Sharma";
-    const wardForm = activeWard ? activeWard.form : "Class 12-A";
-    const wardRoll = activeWard ? activeWard.rollNumber : "ADM-2024-001";
-    const wardHouse = activeWard ? activeWard.house : "Tagore House";
+    const wardName = activeWard?.name || "Student";
+    const wardForm = activeWard?.form || "Class";
+    const wardRoll = activeWard?.rollNumber || "N/A";
+    const wardHouse = activeWard?.house || "N/A";
 
     const subjectsSummary = (reportCard?.subjects || [])
       .map(
@@ -66,23 +70,21 @@ export default function ParentResultsPage() {
       )
       .join("\n\n");
 
-    const content = `AGRAGATI ACADEMY - OFFICIAL CBSE BOARD REPORT CARD
+    const content = `OFFICIAL ACADEMIC REPORT CARD
 =============================================================
 Student Name: ${wardName}
-Roll Number: ${wardRoll} (CBSE Roll: 12104928)
-Class: ${wardForm} (Science Stream & AI)
+Roll Number: ${wardRoll}
+Class: ${wardForm}
 House: ${wardHouse}
-Term: ${reportCard?.termName || "CBSE Class 12 Pre-Board Examination"}
-Overall Aggregate: ${reportCard?.overallGpa || "96.4%"}
-Total Marks: ${reportCard?.predictedIbTotal || 482} / 500
-Class Standing: Rank 1 in ${wardForm}
+Institution: ${currentSchool?.name || currentSchool?.legal_name || "School Administration"}
+Term: ${reportCard?.termName || "Term Results"}
+Overall Aggregate: ${reportCard?.overallGpa || "0.0%"}
 
 SUBJECT-WISE PERFORMANCE BREAKDOWN:
 -------------------------------------------------------------
-${subjectsSummary}
+${subjectsSummary || "No subject results published yet."}
 
-Principal & Headmaster: Dr. V. K. Malhotra
-Verification Hash: SEAL-PRINCIPAL-APAAR-998418-CBSE
+Verification Status: DIGITALLY VERIFIED RECORD
 Timestamp: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST`;
 
     setPreviewDoc({
@@ -134,9 +136,9 @@ Timestamp: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} I
   return (
     <AppShell
       role="PARENT"
-      userName="Mr. Rajesh Sharma"
-      userRoleTitle={`Parent • ${activeWard ? activeWard.name : "Aarav Sharma"}`}
-      epochText="Academic Year 2024–2025 • Term 2 (CBSE Board)"
+      userName={profile?.full_name || "Parent"}
+      userRoleTitle={`Parent${activeWard?.name ? ` • ${activeWard.name}` : ""}`}
+      epochText="Academic Results"
     >
       <div className="space-y-6">
         {/* Top Header Card */}
@@ -363,20 +365,20 @@ Timestamp: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} I
               </div>
               <div>
                 <span className="font-serif text-sm font-bold text-stone-900 dark:text-stone-100 block">
-                  Principal&apos;s Digital Verification &amp; APAAR ID Seal
+                  Digital Verification &amp; Sovereign ID Seal
                 </span>
                 <span className="font-mono text-[11px] text-stone-500 dark:text-stone-400 block">
-                  Verification Code: SEAL-PRINCIPAL-APAAR-998418-CBSE
+                  Verification Status: AUTHENTICATED ACADEMIC RECORD
                 </span>
               </div>
             </div>
 
             <div className="text-left md:text-right">
               <span className="font-serif text-sm font-bold text-stone-900 dark:text-stone-100 block italic">
-                Dr. V. K. Malhotra
+                Office of Academic Affairs
               </span>
               <span className="font-sans text-xs text-stone-500 dark:text-stone-400">
-                Principal &amp; Head of School • Delhi Public School, R.K. Puram
+                {currentSchool?.name || currentSchool?.legal_name || "School Administration"}
               </span>
             </div>
           </div>

@@ -20,10 +20,10 @@ export function PlatformAdminFooter() {
         </div>
         <div className="flex flex-col">
           <span className="font-semibold text-slate-900 dark:text-slate-100 text-xs">
-            The King&apos;s College &amp; Academy
+            Agragati School OS Fleet
           </span>
           <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium tracking-wider uppercase">
-            GENEVA CAMPUS
+            Multi-Tenant Enterprise Core
           </span>
         </div>
       </div>
