@@ -412,7 +412,7 @@ export async function updateApprovalStatus(
     }
   }
 
-  const supabase = createClient();
+   
   try {
     await supabase
       .from("approvals")

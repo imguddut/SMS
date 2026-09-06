@@ -1,22 +1,14 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { PlatformAdminFooter } from "@/components/layout/platform-admin-footer";
+import { ShieldCheck, Shield, Search, Clock, ArrowRight } from "lucide-react";
 import { SchoolCrest } from "@/components/ui/school-crest";
-import {
-  Shield,
-  Search,
-  ArrowRight,
-  Clock,
-  ShieldCheck,
-  Building2,
-} from "lucide-react";
-import {
-  fetchImpersonationDirectory,
-  ImpersonationUser,
-} from "@/lib/db/platform-admin";
+import { fetchImpersonationDirectory, ImpersonationUser } from "@/lib/db/platform-admin";
+import { startImpersonation } from "@/app/actions/impersonate";
 
 function getInitials(name: string) {
   return name.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase() || "U";

@@ -158,10 +158,10 @@ export default function PlatformAdminOverviewPage() {
             </div>
             <div className="mt-4">
               <div className="text-3xl font-bold text-purple-700">
-                ₹4.82 Cr
+                {loading ? <span className="opacity-50">...</span> : `₹${((stats?.arrInr || 0) / 100000).toFixed(2)} Lakhs`}
               </div>
               <p className="text-xs font-medium text-emerald-600 mt-2">
-                99.4% renewal rate
+                {loading ? "..." : "Based on settled invoices"}
               </p>
             </div>
           </div>
@@ -178,7 +178,7 @@ export default function PlatformAdminOverviewPage() {
             </div>
             <div className="mt-4">
               <div className="text-3xl font-bold text-slate-900">
-                100% Secure
+                {loading ? "..." : (stats?.hsmHealth === "N/A" ? "Standard Security" : "Bank-Grade Protected")}
               </div>
               <p className="text-xs text-slate-500 mt-2">
                 Bank-grade encryption active
@@ -198,7 +198,7 @@ export default function PlatformAdminOverviewPage() {
                     Revenue Trends
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Annual school contracts (FY 2024–2025)
+                    Total Platform Collections
                   </p>
                 </div>
                 <Link
@@ -224,43 +224,25 @@ export default function PlatformAdminOverviewPage() {
                       strokeWidth="16"
                       fill="transparent"
                     />
-                    {/* Blue segment: 75.7% (238 circumference * 0.757 = 180) */}
+                    {/* Total collected segment */}
                     <circle
                       cx="50"
                       cy="50"
                       r="38"
                       stroke="#3B82F6"
                       strokeWidth="16"
-                      strokeDasharray="180 238"
+                      strokeDasharray={stats?.arrInr > 0 ? "238 238" : "0 238"}
                       strokeDashoffset="0"
                       fill="transparent"
                     />
-                    {/* Green segment: 20.3% (238 * 0.203 = 48) */}
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="38"
-                      stroke="#10B981"
-                      strokeWidth="16"
-                      strokeDasharray="48 238"
-                      strokeDashoffset="-180"
-                      fill="transparent"
-                    />
-                    {/* Yellow segment: 4.0% (238 * 0.04 = 10) */}
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="38"
-                      stroke="#F59E0B"
-                      strokeWidth="16"
-                      strokeDasharray="10 238"
-                      strokeDashoffset="-228"
-                      fill="transparent"
-                    />
                   </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Total</span>
-                    <span className="text-xs font-bold text-slate-800">₹4.82 Cr</span>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <span className="text-xl font-bold text-slate-900">
+                      {loading ? "..." : (stats?.arrInr > 0 ? "100%" : "0%")}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-semibold uppercase">
+                      Collected
+                    </span>
                   </div>
                 </div>
 
@@ -270,76 +252,24 @@ export default function PlatformAdminOverviewPage() {
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0" />
                       <span className="text-xs font-medium text-slate-700">
-                        Metro Schools (Delhi &amp; Bengaluru)
+                        Paid Invoices
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs font-bold text-slate-900 block">₹3.65 Cr</span>
-                      <span className="text-[10px] text-slate-400">75.7% of total revenue</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
-                      <span className="text-xs font-medium text-slate-700">
-                        Regional Schools
+                      <span className="text-xs font-bold text-slate-900 block">
+                        {loading ? "..." : `₹${((stats?.arrInr || 0) / 100000).toFixed(2)} L`}
                       </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs font-bold text-slate-900 block">₹98 Lakhs</span>
-                      <span className="text-[10px] text-slate-400">20.3% of total revenue</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
-                      <span className="text-xs font-medium text-slate-700">
-                        Security Add-ons
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs font-bold text-slate-900 block">₹19 Lakhs</span>
-                      <span className="text-[10px] text-slate-400">100% margin</span>
+                      <span className="text-[10px] text-slate-400">Total collected revenue</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* Bottom Tier Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 mt-2 border-t border-slate-100">
-              <div className="bg-blue-50/50 border border-blue-100/80 rounded-xl p-3 flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                    <Shield className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <span className="text-xs font-bold text-slate-800 block">
-                      Full School Package (66.7%)
-                    </span>
-                    <span className="text-[10px] text-slate-500">
-                      ₹4,50,000 / yr / school
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-emerald-50/50 border border-emerald-100/80 rounded-xl p-3 flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                    <Building2 className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <span className="text-xs font-bold text-slate-800 block">
-                      Campus Standard Package (33.3%)
-                    </span>
-                    <span className="text-[10px] text-slate-500">
-                      ₹2,50,000 / yr / school
-                    </span>
-                  </div>
-                </div>
+            
+            <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-4">
+              <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                <span>Based on settled platform invoices</span>
               </div>
             </div>
           </div>
@@ -429,7 +359,7 @@ export default function PlatformAdminOverviewPage() {
                   Connected Schools Directory
                 </h2>
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  3 Active Schools
+                  {stats?.activeSchools || 0} Active Schools
                 </span>
               </div>
               <p className="text-xs text-slate-500">
@@ -472,30 +402,30 @@ export default function PlatformAdminOverviewPage() {
                     <tr key={sch.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
-                          <SchoolCrest slug={sch.id} name={sch.name} />
+                          <SchoolCrest slug={sch.id} name={sch.legal_name} />
                           <div>
                             <span className="font-bold text-slate-900 block text-xs">
-                              {sch.name}
+                              {sch.legal_name}
                             </span>
                             <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400">
-                              <span>code: {sch.code || sch.id.slice(0, 8)}</span>
+                              <span>code: {sch.slug || sch.id.slice(0, 8)}</span>
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="font-bold text-slate-800 block text-xs">{sch.board || "CBSE"}</span>
+                        <span className="font-bold text-slate-800 block text-xs">{(sch as any).board || "Unknown Board"}</span>
                         <span className="text-[10px] text-slate-400 uppercase tracking-wider">
-                          AFFILIATED
+                          {sch.domain || "No Website"}
                         </span>
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-1.5 text-slate-700">
                           <MapPin className="w-3 h-3 text-slate-400" />
-                          <span className="text-xs">{sch.city || sch.state || "Campus"}</span>
+                          <span className="text-xs">{(sch as any).city || (sch as any).state || "Campus"}</span>
                         </div>
                         <span className="text-[10px] text-slate-400 mt-0.5 block">
-                          Base: {sch.currency || "INR"}
+                          Base: {(sch as any).currency || "INR"}
                         </span>
                       </td>
                       <td className="py-4 px-6 font-semibold text-slate-800">

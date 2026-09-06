@@ -35,28 +35,28 @@ export default function PlatformAdminNewSchoolPage() {
   // Form State
   const [formData, setFormData] = React.useState({
     // Step 1: Institutional Identity
-    legal_name: "Sanskriti School, Chanakyapuri",
-    slug: "sanskriti-delhi",
-    domain: "sanskriti.edu.in",
+    legal_name: "",
+    slug: "",
+    domain: "",
     institution_type: "BOARDING_AND_DAY",
     curriculum_framework: "CBSE_AFFILIATED",
-    jurisdiction: "India (Delhi NCT)",
+    jurisdiction: "",
     base_currency: "INR",
 
     // Step 2: Executive Owner Authority
-    owner_name: "Dr. Shailaja Ramachandran",
-    owner_email: "trustee@sanskriti.edu.in",
-    owner_phone: "+91 11 2688 8983",
-    owner_title: "Trustee & Managing Director",
+    owner_name: "",
+    owner_email: "",
+    owner_phone: "",
+    owner_title: "",
     initial_password: "",
 
-    // Step 3: Sovereign Plan & Entitlements
-    plan_tier: "Sovereign Fleet",
-    capacity_target: 1850,
-    hsm_enclave: true,
-    biometric_sync: true,
+    // Step 3: Deployment Specifications
+    plan_tier: "Professional (2,000 students)",
+    capacity_target: 2000,
+    hsm_enclave: false,
+    biometric_sync: false,
     ai_insights: true,
-    isolated_ledger: true,
+    isolated_ledger: false,
   });
 
   const handleChange = (field: string, value: any) => {

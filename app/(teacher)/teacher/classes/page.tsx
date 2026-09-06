@@ -35,7 +35,7 @@ import { TeacherQuoteBanner } from "@/components/ui/teacher-quote-banner";
 import { useAuth } from "@/components/providers/auth-context";
 
 export default function TeacherClassesPage() {
-  const { user, profile, school } = useAuth();
+  const { profile, profile, school } = useAuth();
   const [classes, setClasses] = React.useState<TeacherClassOverview[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [previewOpen, setPreviewOpen] = React.useState(false);
@@ -72,7 +72,7 @@ FACULTY MASTER RECORD:
 Faculty Member: ${teacherName}
 Designation: ${teacherDesignation}
 Total Courses Assigned: ${classes.length} Form Courses
-Staff ID: ${user?.id || "N/A"}
+Staff ID: ${profile?.id || "N/A"}
 
 ALLOCATED COURSES & ACADEMIC STATUS:
 ================================================================================
@@ -187,7 +187,7 @@ Approved by Faculty: ${teacherName}`;
           content={previewData.content}
           studentMeta={{
             name: teacherName,
-            rollNumber: `Staff ID: ${user?.id || "N/A"}`,
+            rollNumber: `Staff ID: ${profile?.id || "N/A"}`,
             form: teacherDesignation,
             house: school?.name || "Faculty Wing",
             institutionName: schoolDisplayName,

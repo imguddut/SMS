@@ -28,7 +28,7 @@ import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
 import { useAuth } from "@/components/providers/auth-context";
 
 export default function TeacherMarksPage() {
-  const { user, profile, school } = useAuth();
+  const { profile, profile, school } = useAuth();
   const [rows, setRows] = React.useState<GradebookRow[]>([]);
   const [selectedClass, setSelectedClass] = React.useState("Mathematics Class Gradebook");
   const [isSubmitting, setIsSubmitting] = React.useState(false);

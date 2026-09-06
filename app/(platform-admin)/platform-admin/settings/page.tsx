@@ -39,6 +39,7 @@ import {
   DataVaultExportResult,
 } from "@/lib/db/security";
 import { fetchPlatformAuditLogs, PlatformAuditLog } from "@/lib/db/platform-admin";
+import { fetchSecuritySettings, updateSecuritySettings } from "@/lib/db/security-settings";
 
 export default function PlatformAdminSettingsPage() {
   const { profile } = useAuth();

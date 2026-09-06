@@ -167,7 +167,6 @@ Fee Schedule details available from institutional Bursar desk.`;
     });
   };
 
-  const activeWard = wards.find((w) => w.id === selectedWardId) || wards[0];
 
   const totalOutstanding = invoices
     .filter((i) => i.status === "PENDING" || i.status === "OVERDUE")

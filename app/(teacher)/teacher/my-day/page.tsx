@@ -39,7 +39,7 @@ import { TeacherQuoteBanner } from "@/components/ui/teacher-quote-banner";
 import { useAuth } from "@/components/providers/auth-context";
 
 export default function TeacherMyDayPage() {
-  const { user, profile, school } = useAuth();
+  const { profile, profile, school } = useAuth();
   const [schedule, setSchedule] = React.useState<{
     sessions: TeacherPeriodSession[];
     metrics: any;
@@ -50,7 +50,7 @@ export default function TeacherMyDayPage() {
   React.useEffect(() => {
     async function load() {
       try {
-        const data = await fetchTeacherDaySchedule(user?.id);
+        const data = await fetchTeacherDaySchedule(profile?.id);
         setSchedule(data);
       } catch (e) {
         console.error(e);
@@ -59,7 +59,7 @@ export default function TeacherMyDayPage() {
       }
     }
     load();
-  }, [user?.id]);
+  }, [profile?.id]);
 
   const teacherName = profile?.full_name || "Faculty Member";
   const teacherDesignation = profile?.role || "Faculty";
@@ -72,7 +72,7 @@ Generated: ${new Date().toLocaleDateString(undefined, { weekday: "long", year: "
 FACULTY DETAILS:
 Faculty Member: ${teacherName}
 Designation: ${teacherDesignation}
-Staff ID: ${user?.id || "N/A"}
+Staff ID: ${profile?.id || "N/A"}
 
 SUMMARY METRICS:
 Allocated Sessions Today: ${schedule?.metrics?.allocatedSessions ?? schedule?.sessions?.length ?? 0} Periods
@@ -165,7 +165,7 @@ Official Faculty Signature: ${teacherName}`;
           content={previewContent}
           studentMeta={{
             name: teacherName,
-            rollNumber: `Staff ID: ${user?.id || "N/A"}`,
+            rollNumber: `Staff ID: ${profile?.id || "N/A"}`,
             form: teacherDesignation,
             house: school?.name || "Faculty",
             institutionName: schoolDisplayName,

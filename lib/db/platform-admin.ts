@@ -53,26 +53,38 @@ export interface PlatformAuditLog {
 }
 
 // Clean fallback array (all dummy seed data cleared as requested)
-let FALLBACK_SCHOOLS: SchoolWithDetails[] = [];
-
-export function clearPlatformDummyData() {
-  FALLBACK_SCHOOLS.length = 0;
-}
 
 export async function fetchPlatformStats() {
   try {
     const supabase = createClient();
+    
+    // 1. Fetch real schools
     const { data: schools } = await supabase.from("schools").select("*");
+    const schoolList = schools || [];
+    
+    // 2. Fetch real counts
     const { count: studentCount } = await supabase.from("students").select("*", { count: "exact", head: true });
     const { count: userCount } = await supabase.from("users_profiles").select("*", { count: "exact", head: true });
+    
+    // 3. Fetch real revenue from platform_invoices
+    // Assuming 'amount' for PAID invoices represents revenue
+    const { data: invoices } = await supabase
+      .from("platform_invoices")
+      .select("amount, status");
+      
+    let arrInr = 0;
+    if (invoices && invoices.length > 0) {
+      const totalCollected = invoices
+        .filter(inv => inv.status === 'PAID')
+        .reduce((sum, inv) => sum + Number(inv.amount), 0);
+      arrInr = totalCollected; 
+    }
 
-    const schoolList = schools || [];
     const activeSchools = schoolList.filter((s) => s.status === "ACTIVE").length;
     const trialSchools = schoolList.filter((s) => s.status === "TRIAL").length;
     const totalStudents = studentCount || 0;
     const totalUsers = userCount || 0;
-    const monthlyRunRate = activeSchools * 45000 + trialSchools * 15000;
-    const arrInr = monthlyRunRate * 12;
+    const monthlyRunRate = arrInr > 0 ? arrInr / 12 : 0;
 
     return {
       totalSchools: schoolList.length,
@@ -82,9 +94,9 @@ export async function fetchPlatformStats() {
       totalUsers,
       monthlyRunRate,
       arrInr,
-      aiInferenceVolume: totalStudents > 0 ? `${(totalStudents * 120).toLocaleString()}` : "0",
-      hsmHealth: "100%",
-      clusterStatus: "Nominal",
+      aiInferenceVolume: "N/A",
+      hsmHealth: "N/A",
+      clusterStatus: "Operational",
       activeJurisdictions: new Set(schoolList.map((s) => s.jurisdiction).filter(Boolean)).size,
     };
   } catch (err) {
@@ -96,9 +108,9 @@ export async function fetchPlatformStats() {
       totalUsers: 0,
       monthlyRunRate: 0,
       arrInr: 0,
-      aiInferenceVolume: "0",
-      hsmHealth: "100%",
-      clusterStatus: "Nominal",
+      aiInferenceVolume: "N/A",
+      hsmHealth: "N/A",
+      clusterStatus: "Unknown",
       activeJurisdictions: 0,
     };
   }
@@ -139,7 +151,7 @@ export async function fetchAllSchools(filters?: { search?: string; status?: stri
 
     let results: SchoolWithDetails[] = [];
     if (error || !schools || schools.length === 0) {
-      results = [...FALLBACK_SCHOOLS];
+      results = [];
     } else {
       results = schools as SchoolWithDetails[];
     }
@@ -165,7 +177,7 @@ export async function fetchAllSchools(filters?: { search?: string; status?: stri
     return results;
   } catch (err) {
     console.error("fetchAllSchools catch:", err);
-    return FALLBACK_SCHOOLS.filter((s) => !deletedPlatformSchoolIds.has(s.id));
+    return [];
   }
 }
 
@@ -245,11 +257,6 @@ export async function createSchoolWithAdmin(payload: {
     throw new Error(`Failed to create school in Supabase: ${schoolErr.message}`);
   }
 
-  FALLBACK_SCHOOLS.unshift({
-    ...school,
-    student_count: 0,
-    faculty_count: 0,
-  });
 
   // 2. Insert Owner Profile
   const { data: profile, error: profErr } = await supabase
@@ -319,31 +326,17 @@ export async function createSchoolWithAdmin(payload: {
 }
 
 export async function updateSchoolStatus(id: string, status: SchoolStatus) {
-  if (typeof window !== "undefined") {
-    try {
-      await fetch("/api/schools", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ schoolId: id, status }),
-      });
-    } catch (err) {
-      console.warn("updateSchoolStatus API fetch warning:", err);
-    }
-  } else {
-    try {
-      const supabase = createClient();
-      await supabase
-        .from("schools")
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq("id", id);
-    } catch (err: any) {
-      console.warn("updateSchoolStatus offline fallback:", err.message);
-    }
-  }
+  const supabase = createClient();
+  const { data: school, error } = await supabase
+    .from("schools")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .single();
 
-  const school = FALLBACK_SCHOOLS.find((s) => s.id === id);
-  if (school) {
-    school.status = status;
+  if (error) {
+    console.error("updateSchoolStatus error:", error);
+    throw error;
   }
 
   await logAudit({
@@ -359,41 +352,28 @@ export async function updateSchoolStatus(id: string, status: SchoolStatus) {
 }
 
 export async function deleteSchool(id: string) {
-  if (typeof window !== "undefined") {
-    try {
-      await fetch(`/api/schools?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
-    } catch (err) {
-      console.warn("deleteSchool API fetch warning:", err);
-    }
-  } else {
-    try {
-      const supabase = createClient();
-      await supabase.from("sections").delete().eq("school_id", id);
-      await supabase.from("classes").delete().eq("school_id", id);
-      await supabase.from("academic_years").delete().eq("school_id", id);
-      await supabase.from("schools").delete().eq("id", id);
-    } catch (err: any) {
-      console.warn("deleteSchool fallback:", err.message);
-    }
+  try {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("schools")
+      .update({ deleted_at: new Date().toISOString(), status: 'ARCHIVED' })
+      .eq("id", id);
+      
+    if (error) throw error;
+    
+    await logAudit({
+      schoolId: id,
+      actorId: "b0000000-0000-0000-0000-000000000001",
+      action: "SCHOOL_ARCHIVED" as any,
+      entityTable: "schools",
+      entityId: id,
+    });
+    
+    return { success: true };
+  } catch (err) {
+    console.error("deleteSchool error:", err);
+    throw err;
   }
-
-  deletedPlatformSchoolIds.add(id);
-  const idx = FALLBACK_SCHOOLS.findIndex((s) => s.id === id);
-  if (idx !== -1) {
-    FALLBACK_SCHOOLS.splice(idx, 1);
-  }
-
-  await logAudit({
-    schoolId: id,
-    actorId: "b0000000-0000-0000-0000-000000000001",
-    action: "SCHOOL_DELETED" as any,
-    entityTable: "schools",
-    entityId: id,
-  });
-
-  return { success: true };
 }
 
 export async function updateSchoolSettings(id: string, settings: Record<string, any>) {
@@ -427,21 +407,36 @@ export async function updateSchoolSettings(id: string, settings: Record<string, 
 export async function fetchPlatformBilling(): Promise<PlatformBillingItem[]> {
   try {
     const supabase = createClient();
-    const { data: invoices } = await supabase.from("invoices").select("*, schools(name)");
+    const { data: invoices } = await supabase
+      .from("platform_invoices")
+      .select(`
+        *,
+        subscriptions (
+          plan_id,
+          subscription_plans (
+            name,
+            billing_interval
+          )
+        ),
+        organizations (
+          name
+        )
+      `);
+      
     if (invoices && invoices.length > 0) {
       return invoices.map((inv: any) => ({
         id: inv.id,
         invoice_number: inv.invoice_number || inv.id,
-        school_id: inv.school_id,
-        school_name: inv.schools?.name || "School Campus",
-        plan_tier: "Enterprise Tier",
+        school_id: inv.organization_id, // technically org ID
+        school_name: inv.organizations?.name || "Organization",
+        plan_tier: inv.subscriptions?.subscription_plans?.name || "Standard Plan",
         amount: Number(inv.amount || 0),
         currency: inv.currency || "INR",
-        status: inv.status || "PAID",
-        billing_cycle: "ANNUAL",
+        status: inv.status || "DRAFT",
+        billing_cycle: inv.subscriptions?.subscription_plans?.billing_interval || "MONTHLY",
         issue_date: inv.issue_date || new Date().toISOString().split("T")[0],
         due_date: inv.due_date || new Date().toISOString().split("T")[0],
-        payment_method: inv.payment_method || "Direct Bank Settlement",
+        payment_method: "Bank Transfer",
       }));
     }
   } catch (err) {
