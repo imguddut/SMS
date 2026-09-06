@@ -88,26 +88,62 @@ export interface CampusReportItem {
   fileSize: string;
 }
 
-// Data Fetchers with Real DB Query & Live Fallback
+// Data Fetchers with Real DB Query & Dynamic Data
 export async function fetchSchoolOperationsStats(schoolId?: string): Promise<SchoolOperationsStats> {
-  const pendingCount = sharedStore.getPendingApprovalsCount();
-  const treasury = sharedStore.getFinanceTreasuryStats();
+  try {
+    const supabase = createClient();
 
-  return {
-    morningAttendanceRate: "97.4%",
-    presentCount: 3165,
-    totalStudents: 3250,
-    pendingApprovalsCount: pendingCount,
-    activeRosterUnits: 96,
-    dailyVaultSettlement: treasury.dailyReconciledAmount || 426000,
-    currency: "INR",
-    houseAttendance: [
-      { house: "Tagore House (Senior Boys)", rate: "98.6%", present: 410, total: 416 },
-      { house: "Ashoka House (Senior Girls)", rate: "99.3%", present: 398, total: 401 },
-      { house: "Shivaji House (Junior Wing)", rate: "96.7%", present: 520, total: 538 },
-      { house: "Raman House (Middle Wing)", rate: "97.1%", present: 1837, total: 1895 },
-    ],
-  };
+    // Total students count
+    let queryStudents = supabase.from("students").select("id", { count: "exact", head: true });
+    if (schoolId) queryStudents = queryStudents.eq("school_id", schoolId);
+    const { count: studentCount } = await queryStudents;
+
+    // Attendance present count today
+    const today = new Date().toISOString().split("T")[0];
+    let queryAttendance = supabase.from("attendance_entries").select("id", { count: "exact", head: true }).eq("status", "PRESENT");
+    const { count: presentCount } = await queryAttendance;
+
+    // Pending approvals count
+    let queryApprovals = supabase.from("approvals").select("id", { count: "exact", head: true }).eq("status", "PENDING");
+    if (schoolId) queryApprovals = queryApprovals.eq("school_id", schoolId);
+    const { count: pendingCount } = await queryApprovals;
+
+    // Sections count
+    let querySections = supabase.from("sections").select("id", { count: "exact", head: true });
+    const { count: sectionsCount } = await querySections;
+
+    // Today payments settlement
+    let queryPayments = supabase.from("payments").select("amount").gte("created_at", today);
+    if (schoolId) queryPayments = queryPayments.eq("school_id", schoolId);
+    const { data: payments } = await queryPayments;
+    const dailyVaultSettlement = (payments || []).reduce((sum: number, p: any) => sum + Number(p.amount || 0), 0);
+
+    const totalStudents = studentCount || 0;
+    const actualPresent = presentCount || 0;
+    const morningAttendanceRate = totalStudents > 0 ? `${((actualPresent / totalStudents) * 100).toFixed(1)}%` : "0.0%";
+
+    return {
+      morningAttendanceRate,
+      presentCount: actualPresent,
+      totalStudents,
+      pendingApprovalsCount: pendingCount || 0,
+      activeRosterUnits: sectionsCount || 0,
+      dailyVaultSettlement,
+      currency: "INR",
+      houseAttendance: [],
+    };
+  } catch {
+    return {
+      morningAttendanceRate: "0.0%",
+      presentCount: 0,
+      totalStudents: 0,
+      pendingApprovalsCount: 0,
+      activeRosterUnits: 0,
+      dailyVaultSettlement: 0,
+      currency: "INR",
+      houseAttendance: [],
+    };
+  }
 }
 
 export async function fetchStudentsDirectory(filters?: {
@@ -116,224 +152,121 @@ export async function fetchStudentsDirectory(filters?: {
   house?: string;
   standing?: string;
 }): Promise<StudentRecord[]> {
-  const allStudents: StudentRecord[] = [
-    {
-      id: "std-01",
-      studentNumber: "ADM-2024-001",
-      fullName: "Aarav Sharma",
-      gender: "Male",
-      form: "Class 12-A (Science)",
-      gradeLevel: 12,
-      house: "Tagore House",
-      guardianName: "Rajesh Sharma",
-      guardianEmail: "parent@dpsrkp.net",
-      guardianPhone: "+91 98100 12348",
-      attendanceRate: "99.2%",
-      tuitionStatus: "PAID",
-      academicStanding: "HIGH_HONORS",
-      gpa: "98.4% (CBSE Science)",
-      status: "ACTIVE",
-    },
-    {
-      id: "std-02",
-      studentNumber: "ADM-2024-002",
-      fullName: "Ananya Iyer",
-      gender: "Female",
-      form: "Class 12-A (Science)",
-      gradeLevel: 12,
-      house: "Ashoka House",
-      guardianName: "Meenakshi Iyer",
-      guardianEmail: "m.iyer@techindia.in",
-      guardianPhone: "+91 98100 12349",
-      attendanceRate: "98.6%",
-      tuitionStatus: "PAID",
-      academicStanding: "HONORS",
-      gpa: "97.2% (CBSE Science)",
-      status: "ACTIVE",
-    },
-    {
-      id: "std-03",
-      studentNumber: "ADM-2024-003",
-      fullName: "Rohan Singhania",
-      gender: "Male",
-      form: "Class 12-A (Science)",
-      gradeLevel: 12,
-      house: "Ashoka House",
-      guardianName: "Sunita Singhania",
-      guardianEmail: "sunita@singhania-group.com",
-      guardianPhone: "+91 98100 12350",
-      attendanceRate: "96.4%",
-      tuitionStatus: "PARTIAL",
-      academicStanding: "HONORS",
-      gpa: "91.5% (CBSE Science)",
-      status: "ACTIVE",
-    },
-    {
-      id: "std-04",
-      studentNumber: "ADM-2024-004",
-      fullName: "Priya Patel",
-      gender: "Female",
-      form: "Class 11-A (Science)",
-      gradeLevel: 11,
-      house: "Shivaji House",
-      guardianName: "Suresh Patel",
-      guardianEmail: "suresh@patel-enterprises.in",
-      guardianPhone: "+91 98100 12351",
-      attendanceRate: "98.0%",
-      tuitionStatus: "PAID",
-      academicStanding: "GOOD_STANDING",
-      gpa: "94.0% (CBSE Science)",
-      status: "ACTIVE",
-    },
-    {
-      id: "std-05",
-      studentNumber: "ADM-2024-005",
-      fullName: "Devansh Gupta",
-      gender: "Male",
-      form: "Class 11-A (Science)",
-      gradeLevel: 11,
-      house: "Raman House",
-      guardianName: "Alok Gupta",
-      guardianEmail: "alok@gupta-trading.com",
-      guardianPhone: "+91 98100 12352",
-      attendanceRate: "95.2%",
-      tuitionStatus: "PARTIAL",
-      academicStanding: "GOOD_STANDING",
-      gpa: "88.5% (CBSE Science)",
-      status: "ACTIVE",
-    },
-    {
-      id: "std-06",
-      studentNumber: "ADM-2024-006",
-      fullName: "Kabir Mehta",
-      gender: "Male",
-      form: "Class 10-B (Secondary)",
-      gradeLevel: 10,
-      house: "Raman House",
-      guardianName: "Dr. Manish Mehta",
-      guardianEmail: "m.mehta@delhiclinic.in",
-      guardianPhone: "+91 98100 12353",
-      attendanceRate: "94.8%",
-      tuitionStatus: "OVERDUE",
-      academicStanding: "ACADEMIC_WARNING",
-      gpa: "78.2% (CBSE)",
-      status: "ACTIVE",
-    },
-  ];
+  try {
+    const supabase = createClient();
+    const { data: students } = await supabase
+      .from("students")
+      .select(`
+        *,
+        users_profiles:profile_id (*),
+        student_guardians (
+          guardians (*)
+        )
+      `);
 
-  if (!filters) return allStudents;
+    if (!students || students.length === 0) return [];
 
-  return allStudents.filter((student) => {
-    const matchesSearch =
-      !filters.search ||
-      student.fullName.toLowerCase().includes(filters.search.toLowerCase()) ||
-      student.studentNumber.toLowerCase().includes(filters.search.toLowerCase()) ||
-      student.guardianName.toLowerCase().includes(filters.search.toLowerCase());
+    const result: StudentRecord[] = students.map((s: any) => {
+      const prof = Array.isArray(s.users_profiles) ? s.users_profiles[0] : s.users_profiles;
+      const gLink = s.student_guardians?.[0]?.guardians;
+      return {
+        id: s.id,
+        studentNumber: s.admission_number || "N/A",
+        fullName: prof?.full_name || "Unknown Scholar",
+        gender: s.gender || "Not specified",
+        form: s.house || "General Section",
+        gradeLevel: 10,
+        house: s.house || "General House",
+        guardianName: gLink?.users_profiles?.full_name || "N/A",
+        guardianEmail: prof?.email || "",
+        guardianPhone: gLink?.emergency_contact || "",
+        attendanceRate: "0.0%",
+        tuitionStatus: "PAID",
+        academicStanding: "GOOD_STANDING",
+        gpa: "N/A",
+        status: s.status || "ACTIVE",
+      };
+    });
 
-    const matchesForm = !filters.form || filters.form === "ALL" || student.form.includes(filters.form);
-    const matchesHouse = !filters.house || filters.house === "ALL" || student.house.includes(filters.house);
-    const matchesStanding =
-      !filters.standing || filters.standing === "ALL" || student.academicStanding === filters.standing;
+    if (!filters) return result;
 
-    return matchesSearch && matchesForm && matchesHouse && matchesStanding;
-  });
+    return result.filter((student) => {
+      const matchesSearch =
+        !filters.search ||
+        student.fullName.toLowerCase().includes(filters.search.toLowerCase()) ||
+        student.studentNumber.toLowerCase().includes(filters.search.toLowerCase());
+
+      const matchesForm = !filters.form || filters.form === "ALL" || student.form.includes(filters.form);
+      const matchesHouse = !filters.house || filters.house === "ALL" || student.house.includes(filters.house);
+      const matchesStanding =
+        !filters.standing || filters.standing === "ALL" || student.academicStanding === filters.standing;
+
+      return matchesSearch && matchesForm && matchesHouse && matchesStanding;
+    });
+  } catch {
+    return [];
+  }
 }
 
 export const fetchClassesAndSections = fetchClassesSections;
 
 export async function fetchClassesSections(): Promise<ClassSectionInfo[]> {
-  return [
-    {
-      id: "cls-01",
-      className: "Class 12-A - Advanced Pure Mathematics & Physics",
-      form: "Class 12-A",
-      gradeLevel: 12,
-      curriculumTrack: "CBSE Senior Secondary Science",
-      roomNumber: "Physics Wing Rm 301",
-      formTutor: "Prof. Rajesh Verma",
-      formTutorEmail: "teacher@dpsrkp.net",
-      enrolledCount: 38,
-      maxCapacity: 40,
-      meetingSchedule: "Mon–Fri 08:30–10:00 IST",
-    },
-    {
-      id: "cls-02",
-      className: "Class 12-B - Accountancy, Economics & AI",
-      form: "Class 12-B",
-      gradeLevel: 12,
-      curriculumTrack: "CBSE Senior Secondary Commerce",
-      roomNumber: "Commerce Wing Rm 204",
-      formTutor: "Mr. Sanjay Tandon",
-      formTutorEmail: "sanjay@dpsrkp.net",
-      enrolledCount: 36,
-      maxCapacity: 40,
-      meetingSchedule: "Mon–Fri 10:15–11:45 IST",
-    },
-    {
-      id: "cls-03",
-      className: "Class 11-A - Chemistry & Wave Optics Lab",
-      form: "Class 11-A",
-      gradeLevel: 11,
-      curriculumTrack: "CBSE Senior Secondary Science",
-      roomNumber: "Chemistry Wing Rm 304",
-      formTutor: "Mrs. Sunita Deshmukh",
-      formTutorEmail: "admin@dpsrkp.net",
-      enrolledCount: 39,
-      maxCapacity: 40,
-      meetingSchedule: "Mon/Wed/Fri 12:30–14:00 IST",
-    },
-    {
-      id: "cls-04",
-      className: "Class 10-B - Secondary Mathematics & Social Science",
-      form: "Class 10-B",
-      gradeLevel: 10,
-      curriculumTrack: "CBSE Secondary Foundation",
-      roomNumber: "Main Block Rm 102",
-      formTutor: "Dr. Arvind Swaminathan",
-      formTutorEmail: "principal@dpsrkp.net",
-      enrolledCount: 40,
-      maxCapacity: 40,
-      meetingSchedule: "Mon–Fri 08:30–14:00 IST",
-    },
-  ];
+  try {
+    const supabase = createClient();
+    const { data: sections } = await supabase
+      .from("sections")
+      .select(`
+        *,
+        classes (*)
+      `);
+
+    if (!sections || sections.length === 0) return [];
+
+    return sections.map((sec: any) => ({
+      id: sec.id,
+      className: `${sec.classes?.name || "Class"} - Section ${sec.name}`,
+      form: sec.classes?.name || sec.name,
+      gradeLevel: sec.classes?.grade_level || 10,
+      curriculumTrack: sec.classes?.curriculum_code || "CBSE Standard",
+      roomNumber: sec.room_number || "Unassigned",
+      formTutor: "Unassigned",
+      formTutorEmail: "",
+      enrolledCount: 0,
+      maxCapacity: sec.max_capacity || 40,
+      meetingSchedule: "Mon–Fri Standard",
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function fetchNoticesBulletins(): Promise<CampusNoticeItem[]> {
-  return [
-    {
-      id: "not-01",
-      title: "CBSE Class 10 & 12 Board Practical Examination Schedule 2025",
-      content: "All Class 10 and 12 students are instructed to report in full school uniform for CBSE Board Practical Examinations. Internal & External examiners will verify project dossiers at 08:30 IST sharp.",
-      audience: "ALL_CAMPUS",
-      priority: "ACADEMIC",
-      authorName: "Dr. Arvind Swaminathan",
-      authorTitle: "Principal & Provost",
-      publishedAt: "Today, 08:00 IST",
-      isPinned: true,
-    },
-    {
-      id: "not-02",
-      title: "Republic Day Celebration & Inter-House March Past Rehearsal",
-      content: "House captains and squad leaders of Tagore, Ashoka, Shivaji, and Raman houses must assemble on the main school ground at 07:45 IST for final parade rehearsal.",
-      audience: "SENIOR_WING",
-      priority: "GENERAL",
-      authorName: "Mrs. Priya Nair",
-      authorTitle: "Head of Physical Education & Co-Curricular",
-      publishedAt: "Yesterday, 16:30 IST",
+  try {
+    const supabase = createClient();
+    const { data: notices } = await supabase
+      .from("notices")
+      .select(`
+        *,
+        users_profiles:author_id (full_name, title)
+      `)
+      .order("created_at", { ascending: false });
+
+    if (!notices || notices.length === 0) return [];
+
+    return notices.map((n: any) => ({
+      id: n.id,
+      title: n.title,
+      content: n.body,
+      audience: n.target_audience || "ALL_CAMPUS",
+      priority: n.priority || "GENERAL",
+      authorName: n.users_profiles?.full_name || "Administration",
+      authorTitle: n.users_profiles?.title || "Staff",
+      publishedAt: n.created_at ? new Date(n.created_at).toLocaleDateString() : "Recently",
       isPinned: false,
-    },
-    {
-      id: "not-03",
-      title: "Parent-Teacher Meeting (PTM) & Pre-Board Report Card Release",
-      content: "General Parent-Teacher Meeting for Classes 9 through 12 will take place on Saturday from 09:00 to 13:00 IST. Parents can view and sign report cards directly via the Agragati Parent Portal.",
-      audience: "PARENTS_ONLY",
-      priority: "URGENT",
-      authorName: "Mrs. Sunita Deshmukh",
-      authorTitle: "Vice Principal & Academic Dean",
-      publishedAt: "2 days ago",
-      isPinned: false,
-    },
-  ];
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function createNotice(payload: {
@@ -451,44 +384,28 @@ export async function updateApprovalStatus(
 }
 
 export async function fetchCampusReports(): Promise<CampusReportItem[]> {
-  return [
-    {
-      id: "rep-01",
-      title: "Daily Morning Biometric & Smart Gate Attendance Register",
-      category: "ATTENDANCE",
-      period: "Academic Session 2024–2025 (Daily Aggregate)",
-      generatedDate: "Today, 06:00 IST",
-      recordCount: 3250,
-      fileSize: "2.4 MB (PDF)",
-    },
-    {
-      id: "rep-02",
-      title: "Pre-Board Examination Marks & CBSE Grade Distribution",
-      category: "ACADEMIC",
-      period: "Term 2 (Pre-Boards)",
-      generatedDate: "Yesterday, 18:00 IST",
-      recordCount: 3250,
-      fileSize: "3.8 MB (PDF)",
-    },
-    {
-      id: "rep-03",
-      title: "Monthly School Fee Realization & UPI Reconciliation Ledger",
-      category: "FINANCIAL",
-      period: "FY 2024–2025 Q3",
-      generatedDate: "3 days ago",
-      recordCount: 3180,
-      fileSize: "1.6 MB (CSV)",
-    },
-    {
-      id: "rep-04",
-      title: "Campus Security, School Bus GPS & CCTV Safety Audit",
+  try {
+    const supabase = createClient();
+    const { data: logs } = await supabase
+      .from("audit_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (!logs || logs.length === 0) return [];
+
+    return logs.map((log: any) => ({
+      id: log.id,
+      title: log.action || "System Audit Log",
       category: "SAFETY",
-      period: "December 2024",
-      generatedDate: "1 week ago",
-      recordCount: 48,
-      fileSize: "920 KB (PDF)",
-    },
-  ];
+      period: "Current Session",
+      generatedDate: log.created_at ? new Date(log.created_at).toLocaleDateString() : "Recently",
+      recordCount: 1,
+      fileSize: "12 KB",
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function fetchSchoolOperationalSettings() {
