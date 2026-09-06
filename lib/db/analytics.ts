@@ -83,42 +83,47 @@ export async function fetchFleetInstitutionalBenchmarks(): Promise<FleetBenchmar
 }
 
 
-export function runExecutiveScenarioSimulation(params: ScenarioSimulationParams): ScenarioSimulationResult {
-  const baseArr = 158000000; // ₹15.8 Cr
-  const baseEbitMargin = 32.4; // 32.4%
-  const baseScholars = 3250;
+export function runExecutiveScenarioSimulation(
+  params: ScenarioSimulationParams,
+  customBase?: { baseArr?: number; baseScholars?: number; baseEbitMargin?: number }
+): ScenarioSimulationResult {
+  const baseArr = customBase?.baseArr ?? 0;
+  const baseEbitMargin = customBase?.baseEbitMargin ?? 0;
+  const baseScholars = customBase?.baseScholars ?? 0;
 
   // Price elasticity & expansion formula
   const feeDeltaMultiplier = 1 + params.feeAdjustmentPercent / 100;
   const expansionRevenue = params.boardingExpansionBeds * 145000;
   const facultyCostMultiplier = (params.facultySalaryIndex - 100) * 0.004;
-  const bursaryDeduction = params.bursaryAllocationInr || 500000;
+  const bursaryDeduction = params.bursaryAllocationInr || 0;
 
-  const projectedArr = Math.round(baseArr * feeDeltaMultiplier + expansionRevenue - bursaryDeduction);
-  const arrDeltaPercent = Number((((projectedArr - baseArr) / baseArr) * 100).toFixed(2));
+  const projectedArr = baseArr > 0 ? Math.round(baseArr * feeDeltaMultiplier + expansionRevenue - bursaryDeduction) : 0;
+  const arrDeltaPercent = baseArr > 0 ? Number((((projectedArr - baseArr) / baseArr) * 100).toFixed(2)) : 0;
 
   // EBIT margin calculation
   let calculatedEbit = baseEbitMargin + (params.feeAdjustmentPercent * 0.35) - (facultyCostMultiplier * 100);
-  if (params.boardingExpansionBeds > 30) calculatedEbit += 1.8; // Economies of scale
-  const ebitMargin = Number(Math.max(15, Math.min(45, calculatedEbit)).toFixed(1));
+  if (params.boardingExpansionBeds > 30) calculatedEbit += 1.8;
+  const ebitMargin = baseArr > 0 ? Number(Math.max(0, Math.min(100, calculatedEbit)).toFixed(1)) : 0;
 
   // Scholar retention probability
-  let retention = 98.8;
+  let retention = baseScholars > 0 ? 100.0 : 0.0;
   if (params.feeAdjustmentPercent > 8) retention -= (params.feeAdjustmentPercent - 8) * 0.3;
   if (params.bursaryAllocationInr > 1500000) retention += 0.6;
-  const scholarRetentionRate = Number(Math.min(99.9, Math.max(90.0, retention)).toFixed(1));
+  const scholarRetentionRate = baseScholars > 0 ? Number(Math.min(100.0, Math.max(0.0, retention)).toFixed(1)) : 0;
 
   const newNetScholarsCapacity = baseScholars + params.boardingExpansionBeds;
   const endowmentRealizationInr = Math.round(projectedArr * (ebitMargin / 100) * 0.4);
   const breakEvenMonths = params.boardingExpansionBeds > 0 ? Math.round(18 - (params.feeAdjustmentPercent * 0.3)) : 0;
 
   let advisory = "";
-  if (params.feeAdjustmentPercent >= 10 && params.bursaryAllocationInr < 1000000) {
-    advisory = "Caution: Significant fee increase without adequate RTE / Merit scholarship expansion risks a 1.2% attrition in day scholar cohort.";
+  if (baseArr === 0) {
+    advisory = "No active financial ledgers found in database to simulate scenarios.";
+  } else if (params.feeAdjustmentPercent >= 10 && params.bursaryAllocationInr < 1000000) {
+    advisory = "Caution: Significant fee increase without adequate RTE / Merit scholarship expansion risks attrition in day scholar cohort.";
   } else if (params.boardingExpansionBeds >= 40 && params.facultySalaryIndex >= 105) {
-    advisory = "Highly Recommended: Campus infrastructure expansion coupled with competitive faculty compensation yields +₹ 2.4 Cr in annual revenue.";
+    advisory = "Highly Recommended: Campus infrastructure expansion coupled with competitive faculty compensation yields positive annual growth.";
   } else {
-    advisory = "Balanced Executive Strategy: Preserves a robust 32%+ operating margin while maintaining 98%+ student retention.";
+    advisory = "Balanced Executive Strategy: Preserves operating margin while maintaining student retention.";
   }
 
   return {

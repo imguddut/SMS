@@ -514,12 +514,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const activeOrg =
             orgMemberships.find((o) => o.organization_id === savedOrgId)?.organization ||
             orgMemberships[0]?.organization ||
-            DEMO_ORGANIZATION_A;
+            null;
 
           const activeSch =
             schoolMemberships.find((s) => s.school_id === savedSchId)?.school ||
             schoolMemberships[0]?.school ||
-            DEMO_SCHOOL_A1;
+            null;
 
           const resolvedRole: UserRole =
             orgMemberships[0]?.role ||
@@ -530,7 +530,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUserId(user.id);
           setProfile({
             ...profData,
-            school_id: activeSch?.id || profData.school_id,
+            school_id: activeSch?.id || profData.school_id || null,
             role: resolvedRole,
           } as AuthProfile);
           setCurrentOrganization(activeOrg);
@@ -544,62 +544,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // 2. Cookie-based session check
-      const sessionCookie = getCookie("agragati_session");
-      if (!sessionCookie) {
-        setUserId(null);
-        setProfile(null);
-        setCurrentOrganization(null);
-        setCurrentSchool(null);
-        setOrganizations([]);
-        setSchools([]);
-        setActiveRole(null);
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        return;
-      }
-
-      const roleCookie = (getCookie("agragati_role") as UserRole | null) || "STUDENT";
-      const normalizedRole = normalizeRole(roleCookie);
-      const demoProfile = DEMO_PROFILES[normalizedRole] || DEMO_PROFILES.STUDENT;
-
-      const isOrgRole = isOrganizationScoped(normalizedRole);
-      const defaultOrg = DEMO_ORGANIZATION_A;
-      const defaultSch = normalizedRole === "PLATFORM_ADMIN" ? null : DEMO_SCHOOL_A1;
-
-      setUserId(demoProfile.auth_user_id);
-      setProfile({
-        ...demoProfile,
-        school_id: defaultSch?.id || null,
-        role: normalizedRole,
-      });
-      setCurrentOrganization(defaultOrg);
-      setCurrentSchool(defaultSch);
-      setOrganizations([
-        {
-          id: "om-01",
-          organization_id: defaultOrg.id,
-          profile_id: demoProfile.id,
-          role: isOrgRole ? (normalizedRole as any) : "ORGANIZATION_VIEWER",
-          status: "ACTIVE",
-          created_at: new Date().toISOString(),
-          organization: defaultOrg,
-        },
-      ]);
-      setSchools([
-        {
-          id: "sm-01",
-          school_id: DEMO_SCHOOL_A1.id,
-          profile_id: demoProfile.id,
-          role: !isOrgRole && normalizedRole !== "PLATFORM_ADMIN" ? (normalizedRole as any) : "SCHOOL_ADMIN",
-          status: "ACTIVE",
-          is_primary: true,
-          joined_at: new Date().toISOString(),
-          school: DEMO_SCHOOL_A1,
-        },
-      ]);
-      setActiveRole(normalizedRole);
-      setIsAuthenticated(true);
+      // Unauthenticated / No Supabase Auth user context
+      setUserId(null);
+      setProfile(null);
+      setCurrentOrganization(null);
+      setCurrentSchool(null);
+      setOrganizations([]);
+      setSchools([]);
+      setActiveRole(null);
+      setIsAuthenticated(false);
       setIsLoading(false);
     } catch (err) {
       console.warn("AuthProvider auth error:", err);

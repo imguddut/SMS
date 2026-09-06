@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import {
@@ -20,6 +20,7 @@ import {
   X,
   AlertCircle,
 } from "lucide-react";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   getAdmissions,
   createAdmission,
@@ -31,6 +32,7 @@ import {
 import { SharedAdmission } from "@/lib/db/shared-store";
 
 export default function AdmissionsPage() {
+  const { schoolId } = useAuth();
   const [admissions, setAdmissions] = useState<SharedAdmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -54,9 +56,15 @@ export default function AdmissionsPage() {
   });
 
   const loadData = async () => {
+    if (!schoolId) {
+      setAdmissions([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
-      const data = await getAdmissions();
+      const data = await getAdmissions(schoolId);
+      setAdmissions(data);
       setAdmissions(data);
     } catch (e) {
       console.error(e);

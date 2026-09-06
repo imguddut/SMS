@@ -1,4 +1,4 @@
-﻿/**
+/**
  * AGRAGATI SCHOOL OS — Admissions Domain Service
  *
  * Manages the student admission lifecycle:
@@ -39,7 +39,7 @@ export interface CreateAdmissionInput {
 }
 
 export async function getAdmissions(
-  schoolId: string = "11111111-1111-1111-1111-111111111111",
+  schoolId: string,
   statusFilter?: AdmissionStatus
 ): Promise<SharedAdmission[]> {
   try {
@@ -295,7 +295,7 @@ export async function enrollApplicant(
   return res;
 }
 
-export async function getAdmissionStats(schoolId: string = "11111111-1111-1111-1111-111111111111") {
+export async function getAdmissionStats(schoolId: string) {
   const admissions = await getAdmissions(schoolId);
   return {
     total: admissions.length,

@@ -23,7 +23,7 @@ export function useInvoices(options?: {
   guarantorId?: string;
 }) {
   const { schoolId } = useAuth();
-  const currentSchoolId = schoolId || "11111111-1111-1111-1111-111111111111";
+  const currentSchoolId = schoolId || "";
 
   const [invoices, setInvoices] = React.useState<Invoice[]>([]);
   const [feeStructures, setFeeStructures] = React.useState<FeeStructure[]>([]);
@@ -31,6 +31,13 @@ export function useInvoices(options?: {
   const [isLoading, setIsLoading] = React.useState(true);
 
   const loadData = React.useCallback(async () => {
+    if (!currentSchoolId) {
+      setInvoices([]);
+      setFeeStructures([]);
+      setLedger(null);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       const [invList, fsList] = await Promise.all([

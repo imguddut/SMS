@@ -18,7 +18,7 @@ import {
 
 export function useSchool() {
   const { schoolId } = useAuth();
-  const currentSchoolId = schoolId || "11111111-1111-1111-1111-111111111111";
+  const currentSchoolId = schoolId || "";
 
   const [classes, setClasses] = React.useState<SchoolClass[]>([]);
   const [sections, setSections] = React.useState<ClassSection[]>([]);
@@ -26,6 +26,13 @@ export function useSchool() {
   const [isLoading, setIsLoading] = React.useState(true);
 
   const loadData = React.useCallback(async () => {
+    if (!currentSchoolId) {
+      setClasses([]);
+      setSections([]);
+      setSubjects([]);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       const [cls, sec, sub] = await Promise.all([

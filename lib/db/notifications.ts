@@ -94,21 +94,10 @@ export async function fetchNotifications(
       }));
     }
 
-    // Fall back to mock if no real notifications exist yet
-    if (role) {
-      return MOCK_NOTIFICATIONS.filter(
-        (n) => n.roleTarget === role || n.roleTarget === "ALL"
-      );
-    }
-    return MOCK_NOTIFICATIONS;
+    return [];
   } catch (err) {
     console.warn("fetchNotifications fallback:", err);
-    if (role) {
-      return MOCK_NOTIFICATIONS.filter(
-        (n) => n.roleTarget === role || n.roleTarget === "ALL"
-      );
-    }
-    return MOCK_NOTIFICATIONS;
+    return [];
   }
 }
 

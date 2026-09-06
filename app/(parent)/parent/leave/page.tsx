@@ -16,12 +16,14 @@ import {
   X,
   Send,
 } from "lucide-react";
+import { useAuth } from "@/components/providers/auth-context";
 import { fetchEnrolledWards, ParentWardProfile, submitAbsenceExcuse } from "@/lib/db/parent";
 import { sharedStore, SharedLeaveRequest } from "@/lib/db/shared-store";
 
 export default function ParentLeavePage() {
+  const { schoolId } = useAuth();
   const [wards, setWards] = useState<ParentWardProfile[]>([]);
-  const [selectedWardId, setSelectedWardId] = useState<string>("ward-01");
+  const [selectedWardId, setSelectedWardId] = useState<string>("");
   const [leaveRequests, setLeaveRequests] = useState<SharedLeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -45,6 +47,8 @@ export default function ParentLeavePage() {
           setSelectedWardId(activeWard.id);
           const requests = sharedStore.getLeaveRequests();
           setLeaveRequests(requests);
+        } else {
+          setLeaveRequests([]);
         }
       } catch (err) {
         console.error("Failed to load wards", err);
@@ -73,10 +77,10 @@ export default function ParentLeavePage() {
     try {
       // 1. Create in sharedStore leave requests
       const newLeave = sharedStore.createLeaveRequest({
-        schoolId: "11111111-1111-1111-1111-111111111111",
+        schoolId: schoolId || "",
         applicantType: "STUDENT",
-        applicantId: selectedWardId === "ward-02" ? "std-02" : "std-01",
-        applicantName: activeWard ? activeWard.name : "Aarav Sharma",
+        applicantId: selectedWardId,
+        applicantName: activeWard ? activeWard.name : "Student",
         startDate,
         endDate,
         reason,

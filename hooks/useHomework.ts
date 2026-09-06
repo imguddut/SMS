@@ -23,13 +23,19 @@ export function useHomework(options?: {
   assignmentId?: string;
 }) {
   const { schoolId, userId } = useAuth();
-  const currentSchoolId = schoolId || "11111111-1111-1111-1111-111111111111";
+  const currentSchoolId = schoolId || "";
 
   const [assignments, setAssignments] = React.useState<HomeworkAssignment[]>([]);
   const [submissions, setSubmissions] = React.useState<HomeworkSubmission[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   const loadData = React.useCallback(async () => {
+    if (!currentSchoolId) {
+      setAssignments([]);
+      setSubmissions([]);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       if (options?.assignmentId) {

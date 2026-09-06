@@ -283,9 +283,9 @@ export async function markAttendance(
     if (entErr) throw entErr;
 
     return { recordId, entriesCreated: entries.length };
-  } catch (err) {
-    console.warn("markAttendance fallback:", err);
-    return { recordId: "mock-record-" + Date.now(), entriesCreated: entries.length };
+  } catch (err: any) {
+    console.error("markAttendance error:", err);
+    throw new Error(`Failed to mark attendance in Supabase: ${err?.message || err}`);
   }
 }
 

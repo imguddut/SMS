@@ -297,46 +297,7 @@ export async function createSchoolWithAdmin(payload: {
 
   if (schoolErr) {
     console.error("Error creating school:", schoolErr);
-    const mockId = "school-" + Math.random().toString(36).substring(2, 9);
-    const newSchoolItem: SchoolWithDetails = {
-      id: mockId,
-      legal_name: payload.legal_name,
-      slug: payload.slug,
-      domain: payload.domain,
-      institution_type: payload.institution_type,
-      curriculum_framework: payload.curriculum_framework,
-      jurisdiction: payload.jurisdiction,
-      base_currency: payload.base_currency,
-      capacity_target: payload.capacity_target,
-      status: "ACTIVE" as SchoolStatus,
-      hsm_enclave_enabled: payload.hsm_enclave ?? true,
-      logo_url: null,
-      settings: { plan_tier: payload.plan_tier },
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      student_count: 0,
-      faculty_count: 0,
-    };
-    FALLBACK_SCHOOLS.unshift(newSchoolItem);
-
-    return {
-      school: newSchoolItem,
-      profile: {
-        id: "user-" + Math.random().toString(36).substring(2, 9),
-        auth_user_id: "auth-" + Math.random().toString(36).substring(2, 9),
-        school_id: mockId,
-        role: "OWNER",
-        full_name: payload.owner_name,
-        email: payload.owner_email,
-        phone: payload.owner_phone || null,
-        title: payload.owner_title || "Chancellor",
-        status: "ACTIVE",
-        metadata: { initial_password: payload.initial_password || "" },
-        avatar_url: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-    };
+    throw new Error(`Failed to create school in Supabase: ${schoolErr.message}`);
   }
 
   FALLBACK_SCHOOLS.unshift({

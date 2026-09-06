@@ -21,10 +21,12 @@ import {
   ArrowUpRight,
   Filter,
 } from "lucide-react";
+import { useAuth } from "@/components/providers/auth-context";
 import { sharedStore, SharedExpense, SharedVendor } from "@/lib/db/shared-store";
 import { formatIndianCurrency } from "@/lib/utils";
 
 export default function FinanceExpensesPage() {
+  const { schoolId } = useAuth();
   const [activeTab, setActiveTab] = useState<"EXPENSES" | "VENDORS">("EXPENSES");
   const [expenses, setExpenses] = useState<SharedExpense[]>([]);
   const [vendors, setVendors] = useState<SharedVendor[]>([]);
@@ -83,7 +85,7 @@ export default function FinanceExpensesPage() {
 
     const expNum = `EXP-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
     const created = sharedStore.createExpense({
-      schoolId: "11111111-1111-1111-1111-111111111111",
+      schoolId: schoolId || "",
       expenseNumber: expNum,
       vendorId: expenseForm.vendorId || undefined,
       vendorName: expenseForm.vendorName,
@@ -130,7 +132,7 @@ export default function FinanceExpensesPage() {
     }
 
     const created = sharedStore.createVendor({
-      schoolId: "11111111-1111-1111-1111-111111111111",
+      schoolId: schoolId || "",
       name: vendorForm.name,
       category: vendorForm.category,
       contactPerson: vendorForm.contactPerson,

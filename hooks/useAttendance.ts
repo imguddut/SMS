@@ -25,7 +25,7 @@ export function useAttendance(options?: {
   endDate?: string;
 }) {
   const { schoolId, userId } = useAuth();
-  const currentSchoolId = schoolId || "11111111-1111-1111-1111-111111111111";
+  const currentSchoolId = schoolId || "";
 
   const [entries, setEntries] = React.useState<AttendanceEntry[]>([]);
   const [studentDays, setStudentDays] = React.useState<StudentAttendanceDay[]>([]);
@@ -33,6 +33,13 @@ export function useAttendance(options?: {
   const [isLoading, setIsLoading] = React.useState(true);
 
   const loadData = React.useCallback(async () => {
+    if (!currentSchoolId) {
+      setEntries([]);
+      setStudentDays([]);
+      setSummary(null);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       const sectionId = options?.sectionId;
@@ -79,7 +86,8 @@ export function useAttendance(options?: {
       }>,
       date?: string
     ) => {
-      const teacherId = userId || "c0000000-0000-0000-0000-000000000005";
+      const teacherId = userId || "";
+      if (!currentSchoolId) throw new Error("No active school session");
       const targetDate = date || new Date().toISOString().split("T")[0];
       const res = await markAttendance(
         currentSchoolId,

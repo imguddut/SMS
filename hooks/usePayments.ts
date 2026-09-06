@@ -16,12 +16,17 @@ import {
 
 export function usePayments() {
   const { schoolId } = useAuth();
-  const currentSchoolId = schoolId || "11111111-1111-1111-1111-111111111111";
+  const currentSchoolId = schoolId || "";
 
   const [bankTransactions, setBankTransactions] = React.useState<BankTransaction[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   const loadData = React.useCallback(async () => {
+    if (!currentSchoolId) {
+      setBankTransactions([]);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       const feed = await getReconciliation(currentSchoolId);

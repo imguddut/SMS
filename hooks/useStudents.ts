@@ -23,9 +23,14 @@ export function useStudents(options?: { sectionId?: string; house?: string; auto
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  const currentSchoolId = schoolId || "11111111-1111-1111-1111-111111111111";
+  const currentSchoolId = schoolId || "";
 
   const loadStudents = React.useCallback(async (searchQuery?: string) => {
+    if (!currentSchoolId) {
+      setStudents([]);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -50,7 +55,8 @@ export function useStudents(options?: { sectionId?: string; house?: string; auto
 
   const addStudent = React.useCallback(
     async (payload: CreateStudentPayload) => {
-      const actorId = userId || "b0000000-0000-0000-0000-000000000004";
+      const actorId = userId || "";
+      if (!currentSchoolId) throw new Error("No active school session");
       const newStd = await createStudent(currentSchoolId, actorId, payload);
       setStudents((prev) => [newStd, ...prev]);
       return newStd;
@@ -60,7 +66,8 @@ export function useStudents(options?: { sectionId?: string; house?: string; auto
 
   const editStudent = React.useCallback(
     async (studentId: string, payload: Partial<CreateStudentPayload>) => {
-      const actorId = userId || "b0000000-0000-0000-0000-000000000004";
+      const actorId = userId || "";
+      if (!currentSchoolId) throw new Error("No active school session");
       await updateStudent(currentSchoolId, studentId, actorId, payload);
       setStudents((prev) =>
         prev.map((s) => (s.id === studentId ? { ...s, ...payload } : s))

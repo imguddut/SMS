@@ -23,7 +23,7 @@ export function useMarks(options?: {
   termId?: string;
 }) {
   const { schoolId } = useAuth();
-  const currentSchoolId = schoolId || "11111111-1111-1111-1111-111111111111";
+  const currentSchoolId = schoolId || "";
 
   const [assessments, setAssessments] = React.useState<Assessment[]>([]);
   const [grid, setGrid] = React.useState<MarksGridRow[]>([]);
@@ -31,6 +31,13 @@ export function useMarks(options?: {
   const [isLoading, setIsLoading] = React.useState(true);
 
   const loadData = React.useCallback(async () => {
+    if (!currentSchoolId) {
+      setAssessments([]);
+      setGrid([]);
+      setResults([]);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       if (options?.studentId) {
