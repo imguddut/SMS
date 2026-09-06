@@ -5,9 +5,12 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Modal } from "@/components/ui/modal";
 import { triggerClientDownload } from "@/lib/utils";
 import { PdfPreviewModal, PDFStudentMetadata } from "@/components/ui/pdf-preview-modal";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   fetchStudentNotices,
+  fetchStudentProfile,
   StudentBulletinItem,
+  StudentProfile,
 } from "@/lib/db/student";
 import {
   Bell,
@@ -30,6 +33,8 @@ import {
 } from "lucide-react";
 
 export default function StudentNoticesPage() {
+  const { profile, school } = useAuth();
+  const [studentProfile, setStudentProfile] = React.useState<StudentProfile | null>(null);
   const [notices, setNotices] = React.useState<StudentBulletinItem[]>([]);
   const [categoryFilter, setCategoryFilter] = React.useState("ALL");
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -54,8 +59,12 @@ export default function StudentNoticesPage() {
   React.useEffect(() => {
     async function loadData() {
       try {
-        const data = await fetchStudentNotices();
+        const [data, sProfile] = await Promise.all([
+          fetchStudentNotices(),
+          fetchStudentProfile(),
+        ]);
         setNotices(data);
+        setStudentProfile(sProfile);
       } catch (err) {
         console.error("Failed to load student notices", err);
       } finally {
@@ -68,37 +77,39 @@ export default function StudentNoticesPage() {
   const handleDownloadCircular = (notice: StudentBulletinItem, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     const safeTitle = notice.title.replace(/[^a-zA-Z0-9]/g, "_");
-    const content = `=== AGRAGATI ACADEMY • OFFICIAL ADMINISTRATIVE CIRCULAR ===\nCircular Reference: CIR-${notice.id.toUpperCase()}-${notice.date.replace(/-/g, "")}\nDate: ${notice.date}\nCategory: ${notice.category}\nAuthority: ${notice.author}\nSubject: ${notice.title}\n\nOFFICIAL ANNOUNCEMENT SUMMARY:\n${notice.summary}\n\nCOMPLETE CIRCULAR DIRECTIVE:\n${notice.body}\n\nDIRECTIVES FOR STUDENTS & PARENTS:\n1. Compliance with the designated schedule is required.\n2. For queries, contact the Housemaster (Prof. Rajesh Verma) or Dean's Office.\n3. Keep this digital copy for campus verification.\n\nIssued by Order of Principal Dr. V. K. Malhotra\nAgragati Academy • Academic Administration`;
+    const content = `=== ${school?.name || "AGRAGATI ACADEMY"} • OFFICIAL ADMINISTRATIVE CIRCULAR ===\nCircular Reference: CIR-${notice.id.toUpperCase()}-${notice.date.replace(/-/g, "")}\nDate: ${notice.date}\nCategory: ${notice.category}\nAuthority: ${notice.author}\nSubject: ${notice.title}\n\nOFFICIAL ANNOUNCEMENT SUMMARY:\n${notice.summary}\n\nCOMPLETE CIRCULAR DIRECTIVE:\n${notice.body}\n\nDIRECTIVES FOR STUDENTS & PARENTS:\n1. Compliance with the designated schedule is required.\n2. For queries, contact the School Administration.\n3. Keep this digital copy for campus records.`;
 
+    const studentName = profile?.full_name || studentProfile?.name || "Student";
     setPreviewDoc({
       isOpen: true,
       title: "Official Academy Circular",
       fileName: `${safeTitle}_Circular.pdf`,
       content,
       studentMeta: {
-        name: "Aarav Sharma",
-        classSection: "Class 12-A (PCM-CS)",
-        rollNumber: "ADM-2024-001",
+        name: studentName,
+        classSection: studentProfile?.form || "",
+        rollNumber: studentProfile?.rollNumber || "",
         academicSession: "2024-2025",
-        institutionName: "AGRAGATI MODERN ACADEMY (CBSE AFFILIATED)",
+        institutionName: school?.name || "AGRAGATI MODERN ACADEMY",
       },
     });
   };
 
   const handleDownloadExcursionConsent = (notice: StudentBulletinItem) => {
-    const content = `=== AGRAGATI ACADEMY • ISRO STUDY TOUR CONSENT & ITINERARY FORM ===\nStudent: Aarav Sharma (Class 12-A, Roll: ADM-2024-001)\nEvent: ISRO Space Applications Centre Study Tour\nDate of Departure: 2025-02-15\nLocation: ISRO Space Applications Centre, SAC Ahmedabad / ISRO HQ\nHouse: Tagore House | Housemaster: Prof. Rajesh Verma\n\nPARENTAL CONSENT DECLARATION:\n"I hereby grant permission for Aarav Sharma to participate in the scientific study tour conducted by Agragati Academy."\n\nParent Signature: _______________________\nEmergency Contact: +91 98765 43210\nMedical Declaration: No acute conditions on record.`;
+    const studentName = profile?.full_name || studentProfile?.name || "Student";
+    const content = `=== ${school?.name || "AGRAGATI ACADEMY"} • STUDY TOUR & CONSENT FORM ===\nStudent: ${studentName} (${studentProfile?.form || ""})\nEvent: ${notice.title}\nCategory: ${notice.category}\nDate: ${notice.date}\n\nPARENTAL CONSENT DECLARATION:\n"I hereby grant permission for ${studentName} to participate in this school activity."\n\nParent Signature: _______________________\nDate: _______________________`;
 
     setPreviewDoc({
       isOpen: true,
-      title: "ISRO Study Tour Consent & Itinerary Slip",
-      fileName: "ISRO_Tour_Parental_Consent_Form.pdf",
+      title: "Study Tour Consent Form",
+      fileName: "Study_Tour_Consent_Form.pdf",
       content,
       studentMeta: {
-        name: "Aarav Sharma",
-        classSection: "Class 12-A (PCM-CS)",
-        rollNumber: "ADM-2024-001",
+        name: studentName,
+        classSection: studentProfile?.form || "",
+        rollNumber: studentProfile?.rollNumber || "",
         academicSession: "2024-2025",
-        institutionName: "AGRAGATI MODERN ACADEMY (CBSE AFFILIATED)",
+        institutionName: school?.name || "AGRAGATI MODERN ACADEMY",
       },
     });
   };
@@ -122,8 +133,8 @@ export default function StudentNoticesPage() {
   return (
     <AppShell
       role="STUDENT"
-      userName="Aarav Sharma"
-      userRoleTitle="SCHOLAR • CLASS 12-A (SCIENCE & AI) • TAGORE HOUSE"
+      userName={profile?.full_name || studentProfile?.name || "Student"}
+      userRoleTitle={studentProfile?.form ? `SCHOLAR • ${studentProfile.form.toUpperCase()}` : "STUDENT"}
       epochText="Official Academy Bulletins • Michaelmas & CBSE Term 2024–2025"
     >
       <div className="space-y-6">

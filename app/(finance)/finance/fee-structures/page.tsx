@@ -15,6 +15,7 @@ import {
 } from "@/lib/db/finance";
 import { PdfPreviewModal, PDFStudentMetadata } from "@/components/ui/pdf-preview-modal";
 import { FinanceQuoteBanner } from "@/components/ui/finance-quote-banner";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   Layers,
   Plus,
@@ -40,6 +41,7 @@ import {
 } from "lucide-react";
 
 export default function FeeStructuresPage() {
+  const { school } = useAuth();
   const [feeStructures, setFeeStructures] = React.useState<FeeStructureItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -148,16 +150,17 @@ export default function FeeStructuresPage() {
 
   const handleExportFeeSchedule = (tier?: FeeStructureItem) => {
     let content = "";
+    const instName = school?.name || "School";
     if (tier) {
       const components = tier.tuitionComponents
         .map((c) => `  - ${c.name}: ₹ ${c.amount.toLocaleString("en-IN")}`)
         .join("\n");
 
-      content = `DELHI PUBLIC SCHOOL, R.K. PURAM • OFFICIAL TUITION & FEE SCHEDULE
+      content = `${instName.toUpperCase()} • OFFICIAL TUITION & FEE SCHEDULE
 =============================================================
 Tier Schedule Name: ${tier.name}
 Target Classification: ${tier.formTarget}
-Academic Session: 2024–2025 (CBSE Curriculum)
+Academic Session: 2024–2025
 Enrolled Scholars in Tier: ${tier.activeScholarsCount} Students
 
 ANNUAL & TERM PRICING:
@@ -171,11 +174,10 @@ ${components}
 
 PAYMENT RULES & COMPLIANCE:
 1. Fees are payable quarterly in advance before the 10th of the starting month.
-2. Digital payments via BHIM UPI (dpsrkpuram.fees@sbi) or Net Banking Challan.
-3. Merit scholarships and RTE waivers apply as per school governing council rules.
+2. Digital payments via Net Banking or UPI.
+3. Merit scholarships and statutory waivers apply as per school rules.
 
-Authorized by: Accounts Officer & Bursar • Delhi Public School, R.K. Puram
-Affiliated to CBSE, New Delhi • Affiliation No: 2730017`;
+Authorized by: Accounts Officer & Bursar • ${instName}`;
     } else {
       const tiersSummary = feeStructures
         .map(
@@ -184,17 +186,17 @@ Affiliated to CBSE, New Delhi • Affiliation No: 2730017`;
         )
         .join("\n\n");
 
-      content = `DELHI PUBLIC SCHOOL, R.K. PURAM • COMPREHENSIVE ANNUAL FEE SCHEDULE
+      content = `${instName.toUpperCase()} • COMPREHENSIVE ANNUAL FEE SCHEDULE
 =============================================================
-Academic Session: 2024–2025 (Classes 1 to 12 CBSE Board)
-Governing Council Approved: Yes • Effective from 1st April 2024
+Academic Session: 2024–2025
+Governing Council Approved: Yes
 
 FEE TIERS & STRUCTURES:
 -------------------------------------------------------------
 ${tiersSummary}
 
 Accounts Office • Treasury & Receivables Division
-Delhi Public School, R.K. Puram, New Delhi • Managed via Agragati School OS`;
+${instName} • Managed via Agragati School OS`;
     }
 
     setPreviewDoc({
@@ -207,9 +209,9 @@ Delhi Public School, R.K. Puram, New Delhi • Managed via Agragati School OS`;
       studentMeta: {
         name: "School Accounts Bureau",
         form: tier ? tier.formTarget : "All Form Levels",
-        institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-        institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017 • School Code: 85214",
-        institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022",
+        institutionName: instName,
+        institutionAffiliation: "School OS Financial Management System",
+        institutionAddress: "",
         academicSession: "2024–2025",
       },
     });

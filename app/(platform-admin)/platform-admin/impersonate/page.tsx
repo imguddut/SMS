@@ -18,120 +18,30 @@ import {
   ImpersonationUser,
 } from "@/lib/db/platform-admin";
 
-const DEFAULT_USERS: Array<ImpersonationUser & { initials: string; avatarBg: string; rolePillClass: string }> = [
-  {
-    id: "usr-001",
-    full_name: "Vikramaditya Birla",
-    title: "Chairman & Managing Trustee",
-    email: "owner@dpsrkp.net",
-    role: "OWNER",
-    school_id: "dps-rkpuram",
-    school_name: "Delhi Public School, R.K. Puram",
-    status: "ACTIVE",
-    last_login: "Today, 11:20 IST",
-    initials: "VB",
-    avatarBg: "bg-purple-600",
-    rolePillClass: "bg-purple-50 text-purple-700 border border-purple-200",
-  },
-  {
-    id: "usr-002",
-    full_name: "Dr. Arvind Swaminathan",
-    title: "Principal & Provost",
-    email: "principal@dpsrkp.net",
-    role: "PRINCIPAL",
-    school_id: "dps-rkpuram",
-    school_name: "Delhi Public School, R.K. Puram",
-    status: "ACTIVE",
-    last_login: "Today, 08:45 IST",
-    initials: "DA",
-    avatarBg: "bg-teal-600",
-    rolePillClass: "bg-blue-50 text-blue-700 border border-blue-200",
-  },
-  {
-    id: "usr-003",
-    full_name: "Mrs. Sunita Deshmukh",
-    title: "Vice Principal & Academic Dean",
-    email: "admin@dpsrkp.net",
-    role: "SCHOOL_ADMIN",
-    school_id: "dps-rkpuram",
-    school_name: "Delhi Public School, R.K. Puram",
-    status: "ACTIVE",
-    last_login: "Yesterday, 17:10 IST",
-    initials: "MS",
-    avatarBg: "bg-amber-600",
-    rolePillClass: "bg-sky-50 text-sky-700 border border-sky-200",
-  },
-  {
-    id: "usr-004",
-    full_name: "Prof. Rajesh Verma",
-    title: "Senior PGT Mathematics & HOD",
-    email: "teacher@dpsrkp.net",
-    role: "TEACHER",
-    school_id: "dps-rkpuram",
-    school_name: "Delhi Public School, R.K. Puram",
-    status: "ACTIVE",
-    last_login: "Today, 13:05 IST",
-    initials: "PR",
-    avatarBg: "bg-emerald-600",
-    rolePillClass: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-  },
-  {
-    id: "usr-005",
-    full_name: "Rameshwar Gupta",
-    title: "Chief Accounts Officer",
-    email: "finance@dpsrkp.net",
-    role: "ACCOUNTANT",
-    school_id: "dps-rkpuram",
-    school_name: "Delhi Public School, R.K. Puram",
-    status: "ACTIVE",
-    last_login: "Today, 10:15 IST",
-    initials: "RG",
-    avatarBg: "bg-blue-600",
-    rolePillClass: "bg-amber-50 text-amber-700 border border-amber-200",
-  },
-  {
-    id: "usr-006",
-    full_name: "Rajesh Sharma",
-    title: "Parent • PTA Representative",
-    email: "parent@dpsrkp.net",
-    role: "PARENT",
-    school_id: "dps-rkpuram",
-    school_name: "Delhi Public School, R.K. Puram",
-    status: "ACTIVE",
-    last_login: "2 days ago",
-    initials: "RS",
-    avatarBg: "bg-rose-600",
-    rolePillClass: "bg-rose-50 text-rose-700 border border-rose-200",
-  },
-  {
-    id: "usr-007",
-    full_name: "Aarav Sharma",
-    title: "Head Boy Nominee • Class 12-A",
-    email: "student@dpsrkp.net",
-    role: "STUDENT",
-    school_id: "dps-rkpuram",
-    school_name: "Delhi Public School, R.K. Puram",
-    status: "ACTIVE",
-    last_login: "Today, 15:40 IST",
-    initials: "AS",
-    avatarBg: "bg-purple-600",
-    rolePillClass: "bg-purple-50 text-purple-700 border border-purple-200",
-  },
-  {
-    id: "usr-008",
-    full_name: "Dr. Rohini Nambiar",
-    title: "Managing Director & Trustee",
-    email: "owner.nps@npsindiranagar.com",
-    role: "OWNER",
-    school_id: "nps-indiranagar",
-    school_name: "National Public School, Indiranagar",
-    status: "ACTIVE",
-    last_login: "Today, 09:30 IST",
-    initials: "DR",
-    avatarBg: "bg-blue-700",
-    rolePillClass: "bg-purple-50 text-purple-700 border border-purple-200",
-  },
-];
+function getInitials(name: string) {
+  return name.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase() || "U";
+}
+
+function getRolePillClass(role: string) {
+  switch (role) {
+    case "OWNER":
+      return "bg-purple-50 text-purple-700 border border-purple-200";
+    case "PRINCIPAL":
+      return "bg-blue-50 text-blue-700 border border-blue-200";
+    case "SCHOOL_ADMIN":
+      return "bg-sky-50 text-sky-700 border border-sky-200";
+    case "TEACHER":
+      return "bg-emerald-50 text-emerald-700 border border-emerald-200";
+    case "ACCOUNTANT":
+      return "bg-amber-50 text-amber-700 border border-amber-200";
+    case "PARENT":
+      return "bg-rose-50 text-rose-700 border border-rose-200";
+    case "STUDENT":
+      return "bg-purple-50 text-purple-700 border border-purple-200";
+    default:
+      return "bg-slate-50 text-slate-700 border border-slate-200";
+  }
+}
 
 export default function PlatformAdminImpersonatePage() {
   return (
@@ -158,10 +68,26 @@ function PlatformAdminImpersonateContent() {
   const searchParams = useSearchParams();
   const defaultSchoolFilter = searchParams.get("school") || "ALL";
 
+  const [users, setUsers] = React.useState<ImpersonationUser[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [search, setSearch] = React.useState("");
   const [roleFilter, setRoleFilter] = React.useState("ALL");
   const [schoolFilter, setSchoolFilter] = React.useState(defaultSchoolFilter);
   const [impersonatingId, setImpersonatingId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    async function loadUsers() {
+      try {
+        const data = await fetchImpersonationDirectory();
+        setUsers(data);
+      } catch (err) {
+        console.error("Failed to load impersonation directory", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadUsers();
+  }, []);
 
   const handleImpersonate = (user: ImpersonationUser) => {
     setImpersonatingId(user.id);
@@ -211,7 +137,7 @@ function PlatformAdminImpersonateContent() {
     }, 400);
   };
 
-  const filteredUsers = DEFAULT_USERS.filter((u) => {
+  const filteredUsers = users.filter((u) => {
     if (roleFilter !== "ALL" && u.role !== roleFilter) return false;
     if (schoolFilter !== "ALL") {
       const matchSchool =
@@ -329,9 +255,9 @@ function PlatformAdminImpersonateContent() {
               className="w-full h-10 px-3 bg-white border border-slate-200/90 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs cursor-pointer"
             >
               <option value="ALL">All Schools</option>
-              <option value="dps-rkpuram">Delhi Public School, R.K. Puram</option>
-              <option value="nps-indiranagar">National Public School, Indiranagar</option>
-              <option value="cathedral-mumbai">The Cathedral &amp; John Connon School</option>
+              {Array.from(new Set(users.map((u) => u.school_name).filter(Boolean))).map((sName) => (
+                <option key={sName} value={sName}>{sName}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -359,43 +285,50 @@ function PlatformAdminImpersonateContent() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-slate-50/60 transition-colors">
-                    {/* User Profile */}
-                    <td className="py-4 px-5">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-8 h-8 rounded-full ${user.avatarBg} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs`}
-                        >
-                          {user.initials}
-                        </div>
-                        <div>
-                          <span className="font-bold text-slate-900 block text-xs">
-                            {user.full_name}
-                          </span>
-                          <span className="text-[10px] text-slate-500">
-                            {user.title} • {user.email}
-                          </span>
-                        </div>
-                      </div>
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-slate-400">
+                      {isLoading ? "Loading user accounts..." : "No user accounts found matching your filters."}
                     </td>
+                  </tr>
+                ) : (
+                  filteredUsers.map((user) => (
+                    <tr key={user.id} className="hover:bg-slate-50/60 transition-colors">
+                      {/* User Profile */}
+                      <td className="py-4 px-5">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-8 h-8 rounded-full bg-blue-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs"
+                          >
+                            {getInitials(user.full_name)}
+                          </div>
+                          <div>
+                            <span className="font-bold text-slate-900 block text-xs">
+                              {user.full_name}
+                            </span>
+                            <span className="text-[10px] text-slate-500">
+                              {user.title ? `${user.title} • ` : ""}{user.email}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
 
-                    {/* Institutional Node */}
-                    <td className="py-4 px-5">
-                      <div className="flex items-center gap-2.5">
-                        <SchoolCrest slug={user.school_id || ""} name={user.school_name} size="sm" />
-                        <span className="font-semibold text-slate-800 text-xs">
-                          {user.school_name}
+                      {/* Institutional Node */}
+                      <td className="py-4 px-5">
+                        <div className="flex items-center gap-2.5">
+                          <SchoolCrest slug={user.school_id || ""} name={user.school_name} size="sm" />
+                          <span className="font-semibold text-slate-800 text-xs">
+                            {user.school_name}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* System Role */}
+                      <td className="py-4 px-5">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getRolePillClass(user.role)}`}>
+                          {user.role}
                         </span>
-                      </div>
-                    </td>
-
-                    {/* System Role */}
-                    <td className="py-4 px-5">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${user.rolePillClass}`}>
-                        {user.role}
-                      </span>
-                    </td>
+                      </td>
 
                     {/* Last Activity */}
                     <td className="py-4 px-5 text-slate-500 text-xs">
@@ -417,8 +350,9 @@ function PlatformAdminImpersonateContent() {
                         <ArrowRight className="w-3.5 h-3.5 text-blue-600" />
                       </button>
                     </td>
-                  </tr>
-                ))}
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

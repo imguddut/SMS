@@ -121,19 +121,19 @@ export async function fetchStudentProfile(studentId?: string): Promise<StudentPr
       const profile = Array.isArray(data.users_profiles) ? data.users_profiles[0] : data.users_profiles;
       return {
         id: data.id,
-        name: profile?.full_name || "Aarav Sharma",
-        rollNumber: data.admission_number || "ADM-2024-001",
-        form: "Class 12-A",
-        grade: "Class 12 (CBSE Science & AI)",
-        house: data.house || "Tagore House",
-        housemaster: "Prof. Rajesh Verma, Senior PGT",
-        avatar: profile?.avatar_url || "AS",
-        honorsTitle: "Head Boy Nominee • Inter-School Science & Debate Captain",
-        housePoints: 142,
+        name: profile?.full_name || '',
+        rollNumber: data.admission_number || '',
+        form: '',
+        grade: '',
+        house: data.house || '',
+        housemaster: '',
+        avatar: profile?.avatar_url || 'ST',
+        honorsTitle: '',
+        housePoints: 0,
         attendanceRate: liveAttendanceRate,
-        consecutiveStreakDays: 24,
-        ibPredictedPoints: result?.weightedTotal ? Math.round(result.weightedTotal * 5) : 482,
-        termGpa: result ? `${result.weightedTotal}% (Pre-Board)` : "98.4% (Pre-Board)",
+        consecutiveStreakDays: 0,
+        ibPredictedPoints: result?.weightedTotal ? Math.round(result.weightedTotal) : 0,
+        termGpa: result ? `${result.weightedTotal}%` : '0.0%',
       };
     }
   } catch (err) {
@@ -192,10 +192,10 @@ export async function fetchStudentSchedule(): Promise<StudentSessionItem[]> {
           time: `${t.start_time?.slice(0, 5)} – ${t.end_time?.slice(0, 5)}`,
           subject: sub?.name || "Academic Subject",
           code: sub?.code || `SUB-${t.period_number}`,
-          room: t.room_location || `Room ${300 + idx}`,
-          teacher: prof?.full_name || "Faculty Instructor",
+          room: t.room_location || '',
+          teacher: prof?.full_name || '',
           status: idx === 0 ? "COMPLETED" : idx === 1 ? "ACTIVE" : "UPCOMING",
-          topic: idx === 0 ? "Vectors & 3D Geometry" : idx === 1 ? "Wave Optics & Diffraction" : "Advanced Laboratory & Theory",
+          topic: sub?.name ? `${sub.name} - Session` : 'Scheduled Period',
         };
       });
     }
@@ -236,9 +236,9 @@ export async function fetchStudentAttendanceRadar(studentId: string = "std-01"):
           date: entryDate,
           dayOfWeek,
           status: (entry.status as any) || "PRESENT",
-          turnstileGate: entry.verification_method || "Smart Gate 01 (Main Quad)",
-          timestamp: entry.time_in ? `${entry.time_in} IST` : "08:08 IST",
-          remarks: entry.reason || "On-time RFID swipe verified.",
+          turnstileGate: entry.verification_method || '',
+          timestamp: entry.time_in ? `${entry.time_in} IST` : '',
+          remarks: entry.reason || '',
         };
       });
 
@@ -336,8 +336,8 @@ export async function fetchStudentHomeworkList(studentId: string = "std-01"): Pr
           maxScore: Number(hw.max_points) || 50,
           score: localSubmission?.marksAwarded ?? submission?.score ?? (isGraded ? 49 : undefined),
           rubricSummary: hw.brief_markdown?.slice(0, 120) || "Complete all NCERT Exemplar proofs.",
-          teacherFeedback: localSubmission?.feedback || submission?.teacher_feedback || (isGraded ? "Excellent proofs and clean notation." : undefined),
-          submittedFileName: localSubmission?.fileName || "Aarav_Sharma_Solution.pdf",
+          teacherFeedback: localSubmission?.feedback || submission?.teacher_feedback || undefined,
+          submittedFileName: localSubmission?.fileName || undefined,
           submissionDate: localSubmission?.submittedAt || submission?.submitted_at?.split("T")[0],
         };
       });
@@ -358,7 +358,7 @@ export async function fetchStudentHomeworkList(studentId: string = "std-01"): Pr
       id: hw.id,
       title: hw.title,
       subject: hw.subject,
-      teacherName: "Prof. Rajesh Verma",
+      teacherName: '',
       assignedDate: hw.assignedDate,
       dueDate: hw.dueDate,
       cutoffCountdown: isGraded ? "Completed & Evaluated" : isSubmitted ? "Submitted for Review" : "3 days remaining",
@@ -385,8 +385,8 @@ export async function submitHomeworkSolution(payload: {
   const sub = sharedStore.submitHomework({
     homeworkId: payload.homeworkId,
     studentId: "std-01",
-    studentName: "Aarav Sharma",
-    form: "Class 12-A",
+    studentName: 'Student',
+    form: '',
     fileName: payload.fileName,
     notes: payload.notes,
   });
@@ -408,8 +408,8 @@ export async function submitHomeworkSolution(payload: {
   }
 
   await logAudit({
-    schoolId: "11111111-1111-1111-1111-111111111111",
-    actorId: "b0000000-0000-0000-0000-000000000008",
+    schoolId: '',
+    actorId: '',
     action: AuditAction.HOMEWORK_SUBMITTED,
     entityTable: "homework_submissions",
     entityId: sub.id,
@@ -454,22 +454,22 @@ export async function fetchStudentResults(studentId: string = "std-01"): Promise
           level: "Core",
           grade: score,
           percentage: pct,
-          termAverage: `${pct - 7}%`,
-          classRank: "1st in Cohort",
-          teacherName: "Faculty Department Chair",
+          termAverage: `${pct}%`,
+          classRank: "",
+          teacherName: "",
           masteryRadar: pct,
-          evaluativeComments: entry.faculty_comment || "Exemplary analytical rigour and speed.",
+          evaluativeComments: entry.faculty_comment || "",
         };
       });
 
       return {
-        termName: "CBSE Class 12 Pre-Board Examination",
-        academicYear: "2024–2025",
-        overallGpa: result ? `${result.weightedTotal}% (Aggregate Score)` : "96.4% (Aggregate Score)",
-        predictedIbTotal: result ? Math.round(result.weightedTotal * 5) : 482,
-        cohortRank: "1st in Class 12 (320 Students)",
+        termName: "Term Results",
+        academicYear: new Date().getFullYear().toString(),
+        overallGpa: result ? `${result.weightedTotal}%` : "0.0%",
+        predictedIbTotal: result ? Math.round(result.weightedTotal) : 0,
+        cohortRank: "",
         conductRating: "EXEMPLARY",
-        proviseurSeal: "SEAL-PRINCIPAL-APAAR-998418-CBSE",
+        proviseurSeal: "",
         subjects,
       };
     }
@@ -477,73 +477,15 @@ export async function fetchStudentResults(studentId: string = "std-01"): Promise
     console.warn("Supabase query fallback for fetchStudentResults:", err);
   }
 
-  const baseSubjects: StudentSubjectScore[] = [
-    {
-      subject: "Mathematics (041)",
-      level: "Core",
-      grade: result ? result.paper1 : 98,
-      percentage: result ? result.weightedTotal : 98.0,
-      termAverage: "88.2%",
-      classRank: "1st in Cohort",
-      teacherName: "Prof. Rajesh Verma",
-      masteryRadar: result ? Math.round(result.weightedTotal) : 98,
-      evaluativeComments: "Exceptional mathematical rigour and speed in calculus and 3D geometry.",
-    },
-    {
-      subject: "Physics (042)",
-      level: "Core",
-      grade: 96,
-      percentage: 96.0,
-      termAverage: "84.1%",
-      classRank: "1st in Cohort",
-      teacherName: "Mrs. Sunita Deshmukh",
-      masteryRadar: 96,
-      evaluativeComments: "Demonstrates deep conceptual mastery of electromagnetic waves and optics.",
-    },
-    {
-      subject: "Chemistry (043)",
-      level: "Core",
-      grade: 94,
-      percentage: 94.0,
-      termAverage: "85.0%",
-      classRank: "2nd in Cohort",
-      teacherName: "Dr. Arvind Swaminathan",
-      masteryRadar: 94,
-      evaluativeComments: "Strong grasp of organic reaction mechanisms and chemical kinetics.",
-    },
-    {
-      subject: "Computer Science (083)",
-      level: "Elective",
-      grade: 99,
-      percentage: 99.0,
-      termAverage: "89.5%",
-      classRank: "1st in Cohort",
-      teacherName: "Mr. Anand Sen",
-      masteryRadar: 99,
-      evaluativeComments: "Outstanding programming logic, data structures, and SQL optimization.",
-    },
-    {
-      subject: "English Core (301)",
-      level: "Core",
-      grade: 95,
-      percentage: 95.0,
-      termAverage: "86.0%",
-      classRank: "1st in Cohort",
-      teacherName: "Mrs. Priya Nair",
-      masteryRadar: 95,
-      evaluativeComments: "Sophisticated critical synthesis and creative expression in literature.",
-    },
-  ];
-
   return {
-    termName: "CBSE Class 12 Pre-Board Examination",
-    academicYear: "2024–2025",
-    overallGpa: result ? `${result.weightedTotal}% (Aggregate Score)` : "96.4% (Aggregate Score)",
-    predictedIbTotal: result ? Math.round(result.weightedTotal * 5) : 482,
-    cohortRank: "1st in Class 12 (320 Students)",
+    termName: "Term Results",
+    academicYear: new Date().getFullYear().toString(),
+    overallGpa: "0.0%",
+    predictedIbTotal: 0,
+    cohortRank: "",
     conductRating: "EXEMPLARY",
-    proviseurSeal: "SEAL-PRINCIPAL-APAAR-998418-CBSE",
-    subjects: baseSubjects,
+    proviseurSeal: "",
+    subjects: [],
   };
 }
 

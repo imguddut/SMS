@@ -127,23 +127,23 @@ export async function fetchEnrolledWards(): Promise<ParentWardProfile[]> {
       .limit(5);
 
     if (!error && data && data.length > 0) {
-      return data.map((st, idx) => {
+      return data.map((st) => {
         const prof = Array.isArray(st.users_profiles) ? st.users_profiles[0] : st.users_profiles;
-        const wardId = idx === 0 ? "ward-01" : "ward-02";
+        const wardId = st.id;
         const digest = sharedStore.getParentDigest(wardId);
         const result = sharedStore.getStudentResult(st.id);
         return {
           id: st.id,
-          name: prof?.full_name || (idx === 0 ? "Aarav Sharma" : "Ananya Sharma"),
-          rollNumber: st.admission_number || (idx === 0 ? "ADM-2024-001" : "ADM-2024-042"),
-          form: idx === 0 ? "Class 12-A" : "Class 10-B",
-          grade: idx === 0 ? "Class 12 (CBSE Science & AI)" : "Class 10 (CBSE Secondary)",
-          house: st.house || (idx === 0 ? "Tagore House" : "Ashoka House"),
-          housemaster: idx === 0 ? "Prof. Rajesh Verma, Senior PGT" : "Mrs. Priya Nair",
-          avatar: prof?.avatar_url || "AS",
+          name: prof?.full_name || "",
+          rollNumber: st.admission_number || "",
+          form: "",
+          grade: "",
+          house: st.house || "",
+          housemaster: "",
+          avatar: prof?.avatar_url || "",
           attendanceRate: digest.attendanceRate,
-          termGpa: result ? `${result.weightedTotal}% (Pre-Board)` : idx === 0 ? "98.4% (Pre-Board)" : "94.2% (Pre-Board)",
-          predictedIbPoints: result?.weightedTotal ? Math.round(result.weightedTotal * 5) : idx === 0 ? 482 : 470,
+          termGpa: result ? `${result.weightedTotal}% (Pre-Board)` : "",
+          predictedIbPoints: result?.weightedTotal ? Math.round(result.weightedTotal * 5) : 0,
           unsettledFees: digest.unpaidBalance,
           currency: "INR",
         };
@@ -190,9 +190,9 @@ export async function fetchWardAttendanceHistory(wardId: string): Promise<WardAt
           date: entryDate,
           dayOfWeek,
           status: (entry.status as any) || "PRESENT",
-          turnstileGate: entry.verification_method || "Smart Gate 01 (Main Quad)",
-          timestamp: entry.time_in ? `${entry.time_in} IST` : "08:08 IST",
-          sessionRemarks: entry.reason || "Full day school attendance recorded.",
+          turnstileGate: entry.verification_method || "",
+          timestamp: entry.time_in ? `${entry.time_in} IST` : "",
+          sessionRemarks: entry.reason || "",
         };
       });
 
@@ -209,7 +209,7 @@ export async function fetchWardAttendanceHistory(wardId: string): Promise<WardAt
     status: s.status,
     turnstileGate: s.turnstileGate,
     timestamp: s.timestamp,
-    sessionRemarks: s.remarks || "Full day school attendance recorded.",
+    sessionRemarks: s.remarks || "",
   }));
 }
 
@@ -243,8 +243,8 @@ export async function submitAbsenceExcuse(payload: {
   }
 
   await logAudit({
-    schoolId: "11111111-1111-1111-1111-111111111111",
-    actorId: "b0000000-0000-0000-0000-000000000007",
+    schoolId: "",
+    actorId: "",
     action: AuditAction.ATTENDANCE_UPDATED,
     entityTable: "approvals",
     entityId: approval.id,
@@ -284,16 +284,16 @@ export async function fetchWardInvoices(wardId: string): Promise<WardFeeInvoice[
         return {
           id: inv.id,
           invoiceNumber: inv.invoice_number,
-          termName: "Term 2 (Quarter 3 & 4)",
-          amount: Number(inv.total_amount) || 36250,
+          termName: "",
+          amount: Number(inv.total_amount) || 0,
           currency: "INR",
-          issueDate: inv.issue_date || "2025-01-10",
-          dueDate: inv.due_date || "2025-02-28",
+          issueDate: inv.issue_date || "",
+          dueDate: inv.due_date || "",
           status: (isPaid ? "PAID" : inv.status || "PENDING") as "PAID" | "PENDING" | "OVERDUE",
-          description: inv.notes || "Class 12 Term 2 Final CBSE Board Examination & Tuition Levy",
+          description: inv.notes || "",
           paymentMethod: isPaid ? "Direct Debit / UPI" : "Pending Selection",
           paidDate: isPaid ? new Date().toISOString().split("T")[0] : undefined,
-          swissQrIban: "dps.fees@hdfcbank",
+          swissQrIban: "",
           swissQrRef: `UPI-${inv.invoice_number}`,
         };
       });
@@ -310,7 +310,7 @@ export async function fetchWardInvoices(wardId: string): Promise<WardFeeInvoice[
         description: si.description,
         paymentMethod: si.paymentMethod,
         paidDate: si.paidDate,
-        swissQrIban: "dps.fees@hdfcbank",
+        swissQrIban: "",
         swissQrRef: si.receiptRef || `UPI-${si.invoiceNumber}`,
       })), ...dbInvs.filter(d => !storeInvoices.some(si => si.id === d.id))];
     }
@@ -330,7 +330,7 @@ export async function fetchWardInvoices(wardId: string): Promise<WardFeeInvoice[
     description: inv.description,
     paymentMethod: inv.paymentMethod,
     paidDate: inv.paidDate,
-    swissQrIban: "dps.fees@hdfcbank",
+    swissQrIban: "",
     swissQrRef: inv.receiptRef || `UPI-${inv.invoiceNumber}`,
   }));
 }
@@ -352,7 +352,7 @@ export async function payInvoice(
     await supabase.from("payments").insert({
       invoice_id: invId,
       receipt_number: result.receiptRef,
-      amount: 36250,
+      amount: 0,
       payment_method: "BANK_TRANSFER",
       transaction_reference: result.receiptRef,
       status: "SETTLED",
@@ -362,8 +362,8 @@ export async function payInvoice(
   }
 
   await logAudit({
-    schoolId: "11111111-1111-1111-1111-111111111111",
-    actorId: "b0000000-0000-0000-0000-000000000007",
+    schoolId: "",
+    actorId: "",
     action: AuditAction.PAYMENT_RECORDED,
     entityTable: "payments",
     entityId: invId,
@@ -388,11 +388,11 @@ export async function fetchWardHomework(wardId: string): Promise<WardHomeworkIte
       id: hw.id,
       title: hw.title,
       subject: hw.subject,
-      teacherName: "Prof. Rajesh Verma",
+      teacherName: "",
       assignedDate: hw.assignedDate,
       dueDate: hw.dueDate,
       status: isGraded ? "GRADED" : isSubmitted ? "SUBMITTED" : "PENDING",
-      score: sub?.marksAwarded ?? (isGraded ? 49 : undefined),
+      score: sub?.marksAwarded ?? undefined,
       maxScore: hw.maxMarks,
       rubricSummary: hw.rubric,
       teacherFeedback: sub?.feedback,
@@ -407,64 +407,13 @@ export async function fetchWardReportCards(wardId: string): Promise<WardAcademic
   const result = sharedStore.getStudentResult(stdId);
 
   return {
-    termName: "CBSE Class 12 Pre-Board Examination",
-    academicYear: "2024–2025",
-    overallGpa: result ? `${result.weightedTotal}% (Aggregate Score)` : "96.4% (Aggregate Score)",
-    predictedIbTotal: result ? Math.round(result.weightedTotal * 5) : 482,
+    termName: "",
+    academicYear: "",
+    overallGpa: result ? `${result.weightedTotal}% (Aggregate Score)` : "",
+    predictedIbTotal: result ? Math.round(result.weightedTotal * 5) : 0,
     conductRating: "EXEMPLARY",
-    proviseurSeal: "SEAL-PRINCIPAL-APAAR-998418-CBSE",
-    subjects: [
-      {
-        subject: "Mathematics (041)",
-        level: "Core",
-        grade: result ? result.paper1 : 98,
-        percentage: result ? result.weightedTotal : 98.0,
-        termAverage: "88.2%",
-        classRank: "1st in Section",
-        teacherName: "Prof. Rajesh Verma",
-        evaluativeComments: "Exceptional mathematical rigour, speed, and accuracy in calculus and 3D geometry.",
-      },
-      {
-        subject: "Physics (042)",
-        level: "Core",
-        grade: 96,
-        percentage: 96.0,
-        termAverage: "84.1%",
-        classRank: "1st in Section",
-        teacherName: "Mrs. Sunita Deshmukh",
-        evaluativeComments: "Demonstrates deep conceptual mastery of electromagnetic waves and wave optics.",
-      },
-      {
-        subject: "Chemistry (043)",
-        level: "Core",
-        grade: 94,
-        percentage: 94.0,
-        termAverage: "85.0%",
-        classRank: "2nd in Section",
-        teacherName: "Dr. Arvind Swaminathan",
-        evaluativeComments: "Strong grasp of organic synthesis mechanisms and electrochemistry principles.",
-      },
-      {
-        subject: "Computer Science with Python (083)",
-        level: "Elective",
-        grade: 99,
-        percentage: 99.0,
-        termAverage: "89.5%",
-        classRank: "1st in Section",
-        teacherName: "Mr. Anand Sen",
-        evaluativeComments: "Outstanding programming logic, data structures application, and SQL optimization.",
-      },
-      {
-        subject: "English Core (301)",
-        level: "Core",
-        grade: 95,
-        percentage: 95.0,
-        termAverage: "86.0%",
-        classRank: "1st in Section",
-        teacherName: "Mrs. Priya Nair",
-        evaluativeComments: "Sophisticated critical analysis in literary appreciation and creative writing.",
-      },
-    ],
+    proviseurSeal: "",
+    subjects: [],
   };
 }
 
@@ -521,7 +470,7 @@ export async function signNoticeConsent(
   noticeIdOrPayload: string | { noticeId: string; digitalSignature?: string; wardId?: string }
 ): Promise<{ success: boolean; signedDate: string }> {
   const notId = typeof noticeIdOrPayload === "string" ? noticeIdOrPayload : noticeIdOrPayload.noticeId;
-  const signerName = typeof noticeIdOrPayload === "string" ? "Dr. Vikram Sharma" : (noticeIdOrPayload.digitalSignature || "Dr. Vikram Sharma");
+  const signerName = typeof noticeIdOrPayload === "string" ? "" : (noticeIdOrPayload.digitalSignature || "");
   const signedDate = new Date().toISOString().split("T")[0];
 
   // Sync to shared reactive store
@@ -540,8 +489,8 @@ export async function signNoticeConsent(
   }
 
   await logAudit({
-    schoolId: "11111111-1111-1111-1111-111111111111",
-    actorId: "b0000000-0000-0000-0000-000000000007",
+    schoolId: "",
+    actorId: "",
     action: "NOTICE_CONSENT_SIGNED",
     entityTable: "notices",
     entityId: notId,

@@ -35,8 +35,8 @@ export default function AddSchoolWizardPage() {
   const [successResult, setSuccessResult] = React.useState<any>(null);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
 
-  const orgId = currentOrganization?.id || "e0000000-0000-0000-0000-000000000001";
-  const actorId = profile?.id || "b0000000-0000-0000-0000-000000000002";
+  const orgId = currentOrganization?.id || "";
+  const actorId = profile?.id || "";
 
   // Simplified Form State: 10+2 Institutional Standard with Classes 1 to 12
   const [formData, setFormData] = React.useState<ProvisionSchoolPayload>({
@@ -53,7 +53,7 @@ export default function AddSchoolWizardPage() {
     state: "",
     country: "India",
     postalCode: "",
-    academicYearName: "Academic Year 2025–2026",
+    academicYearName: "2025-2026",
     startDate: "2025-04-01",
     endDate: "2026-03-31",
     classes: DEFAULT_10_PLUS_2_CLASSES,
@@ -70,8 +70,12 @@ export default function AddSchoolWizardPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name) {
-      setSubmitError("Please enter a valid school name.");
+    if (!formData.name || !formData.slug) {
+      setSubmitError("School name and URL slug are strictly required.");
+      return;
+    }
+    if (!orgId) {
+      setSubmitError("Organization context required. Please ensure you belong to an organization.");
       return;
     }
 
@@ -94,8 +98,8 @@ export default function AddSchoolWizardPage() {
   return (
     <AppShell
       role="ORGANIZATION_OWNER"
-      userName="Julian Vance-Moreau, D.Phil"
-      userRoleTitle="Chancellor & Trust Chairman"
+      userName={profile?.full_name || "Organization Owner"}
+      userRoleTitle={currentOrganization?.name ? `Owner • ${currentOrganization.name}` : "Organization Owner"}
       epochText="Multi-School Network • Add New Campus"
     >
       <div className="max-w-4xl mx-auto space-y-6 pb-16">

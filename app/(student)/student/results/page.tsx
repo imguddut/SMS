@@ -6,8 +6,10 @@ import { Modal } from "@/components/ui/modal";
 import { triggerClientDownload } from "@/lib/utils";
 import {
   fetchStudentResults,
+  fetchStudentProfile,
   StudentResultMatrix,
   StudentSubjectScore,
+  StudentProfile,
 } from "@/lib/db/student";
 import {
   Award,
@@ -33,8 +35,11 @@ import {
   Eye,
 } from "lucide-react";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function StudentResultsPage() {
+  const { profile, school } = useAuth();
+  const [studentProfile, setStudentProfile] = React.useState<StudentProfile | null>(null);
   const [results, setResults] = React.useState<StudentResultMatrix | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isDetailedModalOpen, setIsDetailedModalOpen] = React.useState(false);
@@ -56,8 +61,12 @@ export default function StudentResultsPage() {
   React.useEffect(() => {
     async function loadData() {
       try {
-        const data = await fetchStudentResults();
+        const [data, sProfile] = await Promise.all([
+          fetchStudentResults(),
+          fetchStudentProfile(),
+        ]);
         setResults(data);
+        setStudentProfile(sProfile);
       } catch (err) {
         console.error("Failed to load results", err);
       } finally {
@@ -77,65 +86,53 @@ export default function StudentResultsPage() {
       )
       .join("\n\n");
 
-    const content = `AGRAGATI ACADEMY - OFFICIAL CBSE BOARD PRE-BOARD REPORT CARD
+    const studentName = profile?.full_name || studentProfile?.name || "Student";
+    const content = `${(school?.name || "AGRAGATI ACADEMY").toUpperCase()} - OFFICIAL REPORT CARD
 =============================================================
-Student Name: Aarav Sharma
-Roll Number: ADM-2024-001 (CBSE Roll: 12104928)
-Class: Class 12-A (Senior Secondary Science & Artificial Intelligence)
-House: Tagore House | Housemaster: Prof. Rajesh Verma
+Student Name: ${studentName}
+Roll Number: ${studentProfile?.rollNumber || "N/A"}
+Class: ${studentProfile?.form || "N/A"}
+House: ${studentProfile?.house || "N/A"}
 Academic Term: ${results.termName} (${results.academicYear})
 Overall Aggregate GPA: ${results.overallGpa}
-Cohort Standing: ${results.cohortRank}
+Cohort Standing: ${results.cohortRank || "N/A"}
 Conduct & Diligence: ${results.conductRating}
 
 SUBJECT-WISE PERFORMANCE BREAKDOWN:
 -------------------------------------------------------------
-${subjectsSummary}
+${subjectsSummary || "No subject marks recorded."}
 
-INSTITUTIONAL COMMENDATION:
-"Aarav Sharma has demonstrated extraordinary academic discipline, securing the 1st Rank across Class 12. His conceptual clarity in Mathematics, Computer Science, and Physics represents the highest standards of the Academy."
-
-Principal & Headmaster: Dr. V. K. Malhotra
-Verification Hash: ${results.proviseurSeal}
 Timestamp: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST
-Sealed by Examination Directorate • Agragati Academy`;
+Sealed by Examination Directorate`;
 
     setPreviewDoc({
       isOpen: true,
-      title: "CBSE Class 12 Pre-Board Transcript & Report Card",
-      fileName: "Aarav_Sharma_Class12_PreBoard_Transcript.pdf",
+      title: "Academic Transcript & Report Card",
+      fileName: `${studentName.replace(/\s+/g, "_")}_Transcript.pdf`,
       content,
       studentMeta: {
-        name: "Aarav Sharma",
-        form: "Class 12-A",
-        rollNumber: "ADM-2024-001",
-        house: "Tagore House",
+        name: studentName,
+        form: studentProfile?.form || "",
+        rollNumber: studentProfile?.rollNumber || "",
+        house: studentProfile?.house || "",
       },
     });
   };
 
   const handleDownloadSubjectReport = (subject: StudentSubjectScore) => {
+    const studentName = profile?.full_name || studentProfile?.name || "Student";
     const safeName = subject.subject.replace(/[^a-zA-Z0-9]/g, "_");
-    const content = `AGRAGATI ACADEMY - SUBJECT MASTERY & SYLLABUS AUDIT
+    const content = `${(school?.name || "AGRAGATI ACADEMY").toUpperCase()} - SUBJECT MASTERY & SYLLABUS AUDIT
 Subject: ${subject.subject}
-Instructor: ${subject.teacherName}
-Student: Aarav Sharma (Class 12-A)
+Instructor: ${subject.teacherName || "Faculty"}
+Student: ${studentName} (${studentProfile?.form || ""})
 Score: ${subject.grade} / 100 (${subject.percentage}%)
-Class Cohort Rank: ${subject.classRank}
+Class Cohort Rank: ${subject.classRank || "N/A"}
 Term Average: ${subject.termAverage}
 Syllabus Mastery Index: ${subject.masteryRadar}%
 
-CURRICULUM BREAKDOWN:
-- Theory Examination: ${Math.round(subject.grade * 0.7)} / 70 Marks
-- Practical & Laboratory Assessment: ${Math.round(subject.grade * 0.3)} / 30 Marks
-
 FACULTY COMMENTS:
-"${subject.evaluativeComments}"
-
-MODEL ANSWERS & RECOMMENDED STUDY REFERENCES:
-1. NCERT Exemplar Problems & Previous 10 Years Board Papers
-2. Standard Reference Solutions verified by CBSE Curriculum Committee
-Verified by Senior Subject Master • Agragati Academy`;
+"${subject.evaluativeComments || "Completed."}"`;
 
     setPreviewDoc({
       isOpen: true,
@@ -143,10 +140,10 @@ Verified by Senior Subject Master • Agragati Academy`;
       fileName: `${safeName}_Mastery_Report.pdf`,
       content,
       studentMeta: {
-        name: "Aarav Sharma",
-        form: "Class 12-A",
-        rollNumber: "ADM-2024-001",
-        house: "Tagore House",
+        name: studentName,
+        form: studentProfile?.form || "",
+        rollNumber: studentProfile?.rollNumber || "",
+        house: studentProfile?.house || "",
       },
     });
   };
@@ -154,9 +151,9 @@ Verified by Senior Subject Master • Agragati Academy`;
   return (
     <AppShell
       role="STUDENT"
-      userName="Aarav Sharma"
-      userRoleTitle="SCHOLAR • CLASS 12-A (SCIENCE & AI) • TAGORE HOUSE"
-      epochText="Pre-Board & Term II Terminal Examination Matrix (2024–2025)"
+      userName={profile?.full_name || studentProfile?.name || "Student"}
+      userRoleTitle={studentProfile?.form ? `SCHOLAR • ${studentProfile.form.toUpperCase()}` : "STUDENT"}
+      epochText="Terminal Examination Matrix"
     >
       <div className="space-y-6">
         {/* Toast Alert Feedback */}
@@ -722,19 +719,19 @@ Verified by Senior Subject Master • Agragati Academy`;
         <Modal
           isOpen={isDetailedModalOpen}
           onClose={() => setIsDetailedModalOpen(false)}
-          title="Class 12 Pre-Board Comprehensive Evaluation Report"
+          title={results?.termName ? `${results.termName} Comprehensive Evaluation Report` : "Terminal Evaluation Report"}
           description="Detailed breakdown of theoretical examinations, practical labs, and cohort percentiles."
           maxWidth="2xl"
         >
           <div className="space-y-6 font-sans text-xs">
             <div className="p-4 bg-amber-50/50 rounded-2xl border border-amber-200/70 flex flex-wrap items-center justify-between gap-4">
               <div>
-                <span className="font-bold text-stone-900 text-sm font-serif block">Aarav Sharma</span>
-                <span className="text-stone-500 text-[11px]">Class 12-A • Roll: ADM-2024-001 • Tagore House</span>
+                <span className="font-bold text-stone-900 text-sm font-serif block">{profile?.full_name || studentProfile?.name || "Student"}</span>
+                <span className="text-stone-500 text-[11px]">{studentProfile?.form || "Student"} {studentProfile?.rollNumber ? `• Roll: ${studentProfile.rollNumber}` : ""} {studentProfile?.house ? `• ${studentProfile.house}` : ""}</span>
               </div>
               <div className="text-right">
                 <span className="text-[10px] text-stone-500 uppercase tracking-wider block font-bold">Aggregate Score</span>
-                <span className="font-serif text-2xl font-bold text-amber-900">482 / 500 (96.4%)</span>
+                <span className="font-serif text-2xl font-bold text-amber-900">{results?.overallGpa || "0.0%"}</span>
               </div>
             </div>
 

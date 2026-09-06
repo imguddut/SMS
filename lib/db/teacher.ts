@@ -129,23 +129,23 @@ export async function fetchTeacherDailyAgenda(userId?: string): Promise<{
           id: t.id,
           periodNumber: t.period_number,
           timeRange: `${t.start_time?.slice(0, 5)} – ${t.end_time?.slice(0, 5)} IST`,
-          className: sec?.name ? `${sec.name} - ${sub?.name || "Mathematics"}` : "Class 12-A - CBSE Mathematics",
-          form: sec?.name || "Class 12-A",
+          className: sec?.name ? `${sec.name} - ${sub?.name || 'Subject'}` : 'Unknown Class',
+          form: sec?.name || 'Unknown',
           roomNumber: t.room_location || `Wing Rm ${301 + idx}`,
-          enrolledCount: 38 + idx,
-          attendanceMarked: idx === 0,
-          status: idx === 0 ? "COMPLETED" : idx === 1 ? "ACTIVE_NOW" : "UPCOMING",
-          topic: idx === 0 ? "Vectors & Three-Dimensional Geometry (CBSE Unit 4)" : idx === 1 ? "Limits, Derivatives & Continuity" : "Doubt Resolution & Board Exam Prep",
+          enrolledCount: 0,
+          attendanceMarked: false,
+          status: "UPCOMING",
+          topic: sub?.name ? `${sub.name} - Session` : 'Scheduled Session',
         };
       });
 
       return {
         metrics: {
           allocatedSessions: sessions.length,
-          scholarsUnderCare: 154,
-          pendingMarking: 14,
-          officeHours: "13:00 – 14:00 IST",
-          attendanceRateToday: "98.4%",
+          scholarsUnderCare: 0,
+          pendingMarking: 0,
+          officeHours: "N/A",
+          attendanceRateToday: "0.0%",
         },
         sessions,
       };
@@ -189,16 +189,16 @@ export async function fetchTeacherClasses(): Promise<TeacherClassOverview[]> {
         const cls = Array.isArray(s.classes) ? s.classes[0] : s.classes;
         return {
           id: s.id,
-          className: `${cls?.name || `Class ${12 - idx}`} - Advanced Mathematics`,
-          form: s.name || `Class ${12 - idx}-A`,
-          gradeLevel: cls?.grade_level || (12 - idx),
-          curriculumCode: cls?.curriculum_code || "CBSE_SCI",
-          roomNumber: s.room_number || `Wing Rm ${301 + idx}`,
-          enrolledCount: s.max_capacity ? Math.min(s.max_capacity, 38) : 38,
-          syllabusProgressPct: 94 - idx * 4,
-          averageGrade: `${89 - idx * 2}.4% (CBSE Average)`,
-          nextAssignment: "Integration by Parts & Definite Integrals (PS-06)",
-          nextDue: "Monday, 17:00 IST",
+          className: cls?.name ? `${cls.name} - ${s.name || 'Class'}` : 'Unknown Class',
+          form: s.name || '',
+          gradeLevel: cls?.grade_level || 0,
+          curriculumCode: cls?.curriculum_code || "",
+          roomNumber: s.room_number || "",
+          enrolledCount: s.max_capacity || 0,
+          syllabusProgressPct: 0,
+          averageGrade: 'N/A',
+          nextAssignment: 'No upcoming assignments',
+          nextDue: 'N/A',
         };
       });
     }
@@ -206,60 +206,7 @@ export async function fetchTeacherClasses(): Promise<TeacherClassOverview[]> {
     console.warn("Supabase query fallback for fetchTeacherClasses:", err);
   }
 
-  return [
-    {
-      id: "cls-01",
-      className: "Class 12-A - Advanced Pure Mathematics & Physics",
-      form: "Class 12-A (Science)",
-      gradeLevel: 12,
-      curriculumCode: "CBSE_SCI",
-      roomNumber: "Physics Wing Rm 301",
-      enrolledCount: 38,
-      syllabusProgressPct: 94,
-      averageGrade: "89.4% (CBSE Average)",
-      nextAssignment: "Integration by Parts & Definite Integrals (PS-06)",
-      nextDue: "Monday, 17:00 IST",
-    },
-    {
-      id: "cls-02",
-      className: "Class 12-B - Applied Mathematics for Commerce",
-      form: "Class 12-B (Commerce)",
-      gradeLevel: 12,
-      curriculumCode: "CBSE_COMM",
-      roomNumber: "Commerce Wing Rm 204",
-      enrolledCount: 36,
-      syllabusProgressPct: 91,
-      averageGrade: "86.2% (CBSE Average)",
-      nextAssignment: "Financial Mathematics & Annuity Problems",
-      nextDue: "Tuesday, 16:00 IST",
-    },
-    {
-      id: "cls-03",
-      className: "Class 11-A - Calculus & Coordinate Geometry",
-      form: "Class 11-A (Science)",
-      gradeLevel: 11,
-      curriculumCode: "CBSE_SCI",
-      roomNumber: "Chemistry Wing Rm 304",
-      enrolledCount: 39,
-      syllabusProgressPct: 82,
-      averageGrade: "84.8% (CBSE Average)",
-      nextAssignment: "Conic Sections: Ellipse & Hyperbola Problem Set",
-      nextDue: "Wednesday, 18:00 IST",
-    },
-    {
-      id: "cls-04",
-      className: "Class 10-B - Secondary Mathematics Foundation",
-      form: "Class 10-B (Secondary)",
-      gradeLevel: 10,
-      curriculumCode: "CBSE_GEN",
-      roomNumber: "Main Block Rm 102",
-      enrolledCount: 40,
-      syllabusProgressPct: 88,
-      averageGrade: "81.6% (CBSE Average)",
-      nextAssignment: "Surface Areas and Volumes Board Exercises",
-      nextDue: "Thursday, 14:00 IST",
-    },
-  ];
+  return [];
 }
 
 // READ: Class Attendance Roster
@@ -286,12 +233,12 @@ export async function fetchClassAttendanceRoster(classId?: string): Promise<Stud
         return {
           id: `att-0${idx + 1}`,
           studentId: st.id,
-          studentName: matched?.studentName || prof?.full_name || (idx === 0 ? "Aarav Sharma" : "Student " + (idx + 1)),
-          form: "Class 12-A",
-          house: matched?.house || st.house || (idx % 2 === 0 ? "Tagore House" : "Ashoka House"),
-          turnstileTime: matched?.turnstileTime || `08:${10 + idx * 3} IST (Smart Gate 0${(idx % 3) + 1})`,
-          status: matched?.status || (idx === 4 ? "LATE" : idx === 5 ? "EXCUSED" : "PRESENT"),
-          remarks: matched?.remarks || (idx === 4 ? "School Bus Route 14 delayed in traffic" : idx === 5 ? "Parent submitted medical slip" : undefined),
+          studentName: matched?.studentName || prof?.full_name || '',
+          form: '',
+          house: matched?.house || st.house || '',
+          turnstileTime: matched?.turnstileTime || '',
+          status: matched?.status || 'PRESENT',
+          remarks: matched?.remarks,
         };
       });
     }
@@ -358,8 +305,8 @@ export async function submitAttendance(payload: {
   }
 
   await logAudit({
-    schoolId: "11111111-1111-1111-1111-111111111111",
-    actorId: "b0000000-0000-0000-0000-000000000005",
+    schoolId: "",
+    actorId: "",
     action: AuditAction.ATTENDANCE_MARKED,
     entityTable: "attendance_records",
     entityId: payload.classId,
@@ -395,14 +342,14 @@ export async function fetchTeacherHomeworkList(): Promise<HomeworkAssignmentItem
         return {
           id: hw.id,
           title: hw.title,
-          className: "Class 12-A - Advanced Pure Mathematics & Physics",
-          form: "Class 12-A",
+          className: sub?.name ? `Subject: ${sub.name}` : 'Homework Assignment',
+          form: '',
           subject: sub?.name || "Mathematics",
           assignedDate: hw.created_at?.split("T")[0] || "2025-01-20",
           dueDate: hw.due_datetime?.split("T")[0] || "2025-01-27",
           maxMarks: Number(hw.max_points) || 50,
-          submissionsCount: 38,
-          totalStudents: 38,
+          submissionsCount: 0,
+          totalStudents: 0,
           status: "REVIEW_PENDING" as const,
         };
       });
@@ -416,8 +363,8 @@ export async function fetchTeacherHomeworkList(): Promise<HomeworkAssignmentItem
         assignedDate: h.assignedDate,
         dueDate: h.dueDate,
         maxMarks: h.maxMarks,
-        submissionsCount: 38,
-        totalStudents: 38,
+        submissionsCount: 0,
+        totalStudents: 0,
         status: h.status,
       })), ...dbItems.filter(d => !sharedHw.some(s => s.id === d.id))];
     }
@@ -434,8 +381,8 @@ export async function fetchTeacherHomeworkList(): Promise<HomeworkAssignmentItem
     assignedDate: h.assignedDate,
     dueDate: h.dueDate,
     maxMarks: h.maxMarks,
-    submissionsCount: 38,
-    totalStudents: 38,
+    submissionsCount: 0,
+    totalStudents: 0,
     status: h.status,
   }));
 }
@@ -473,7 +420,7 @@ export async function createHomeworkAssignment(payload: {
     dueDate: created.dueDate,
     maxMarks: created.maxMarks,
     submissionsCount: 0,
-    totalStudents: 38,
+    totalStudents: 0,
     status: "ACTIVE",
   };
 
@@ -490,8 +437,8 @@ export async function createHomeworkAssignment(payload: {
   }
 
   await logAudit({
-    schoolId: "11111111-1111-1111-1111-111111111111",
-    actorId: "b0000000-0000-0000-0000-000000000005",
+    schoolId: "",
+    actorId: "",
     action: AuditAction.HOMEWORK_CREATED,
     entityTable: "homework_assignments",
     entityId: newHw.id,
@@ -539,8 +486,8 @@ export async function fetchHomeworkSubmissions(homeworkId?: string): Promise<Stu
           homeworkId: sub.homework_id || "hw-01",
           homeworkTitle: hw?.title || "Homework Assignment",
           studentId: sub.student_id,
-          studentName: prof?.full_name || "Aarav Sharma",
-          form: "Class 12-A",
+          studentName: prof?.full_name || '',
+          form: '',
           submittedAt: sub.submitted_at ? new Date(sub.submitted_at).toLocaleDateString() : "2025-01-27",
           isLate: false,
           fileName: sub.file_urls?.[0] || "solution.pdf",
@@ -587,8 +534,8 @@ export async function gradeSubmission(
   }
 
   await logAudit({
-    schoolId: "11111111-1111-1111-1111-111111111111",
-    actorId: "b0000000-0000-0000-0000-000000000005",
+    schoolId: "",
+    actorId: "",
     action: AuditAction.HOMEWORK_GRADED,
     entityTable: "homework_submissions",
     entityId: subId,
@@ -674,8 +621,8 @@ export async function saveGradebookMarks(payload: {
   }
 
   await logAudit({
-    schoolId: "11111111-1111-1111-1111-111111111111",
-    actorId: "b0000000-0000-0000-0000-000000000005",
+    schoolId: "",
+    actorId: "",
     action: AuditAction.MARKS_ENTERED,
     entityTable: "marks_entries",
     entityId: payload.classId,

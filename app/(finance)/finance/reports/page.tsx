@@ -10,6 +10,7 @@ import { Modal } from "@/components/ui/modal";
 import { formatIndianCurrency } from "@/lib/utils";
 import { PdfPreviewModal, PDFStudentMetadata } from "@/components/ui/pdf-preview-modal";
 import { FinanceQuoteBanner } from "@/components/ui/finance-quote-banner";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   BarChart3,
   Download,
@@ -34,6 +35,7 @@ import {
 } from "lucide-react";
 
 export default function FinancialReportsPage() {
+  const { school } = useAuth();
   const [selectedTab, setSelectedTab] = React.useState("ALL");
   const [isGeneratingModal, setIsGeneratingModal] = React.useState(false);
   const [generationSuccess, setGenerationSuccess] = React.useState(false);
@@ -65,11 +67,11 @@ export default function FinancialReportsPage() {
       btnBg: "bg-[#2563EB] hover:bg-[#1D4ED8] text-white",
       sideIllustrationType: "velocity",
       sideDesc: "Shows fee collection progress and trends",
-      getContent: () => `DELHI PUBLIC SCHOOL, R.K. PURAM • FEE REALIZATION STATEMENT
+      getContent: () => `${(school?.name || "School").toUpperCase()} • FEE REALIZATION STATEMENT
 =============================================================
-Report Period: Term 2 (Oct 2024 - Dec 2024)
-Generated: Today, 05:00 IST • Principal e-Signed & Sealed
-Session: 2024–2025 (CBSE Board)
+Report Period: Term 2
+Generated: Today • Principal e-Signed & Sealed
+Session: 2024–2025
 
 EXECUTIVE COLLECTION VELOCITY:
 -------------------------------------------------------------
@@ -84,7 +86,7 @@ WING REALIZATION BREAKDOWN:
 2. Secondary Wing (Classes 9 & 10):    ₹ 1,34,00,000 (93.8%)
 3. Middle Wing (Classes 6 to 8):       ₹   76,81,000 (91.4%)
 
-Verified by: Principal & Bursar • Delhi Public School, R.K. Puram
+Verified by: Principal & Bursar • ${school?.name || "School"}
 Managed via Agragati School OS`,
     },
     {
@@ -100,10 +102,10 @@ Managed via Agragati School OS`,
       btnBg: "bg-[#059669] hover:bg-[#047857] text-white",
       sideIllustrationType: "bank",
       sideDesc: "Complete financial position of the school",
-      getContent: () => `DELHI PUBLIC SCHOOL, R.K. PURAM • ANNUAL TRIAL BALANCE
+      getContent: () => `${(school?.name || "School").toUpperCase()} • ANNUAL TRIAL BALANCE
 =============================================================
 Financial Year: 2024–2025 (Year-to-Date)
-Standard: Ind AS / CBSE Institutional Accounting Guidelines
+Standard: Ind AS / Institutional Accounting Guidelines
 
 ACCOUNT HEAD                    DEBIT (₹)          CREDIT (₹)
 -------------------------------------------------------------
@@ -132,24 +134,20 @@ Signatory: External Statutory Auditor & Bursar • DPS R.K. Puram`,
       btnBg: "bg-[#A36829] hover:bg-[#8C531B] text-white",
       sideIllustrationType: "hourglass",
       sideDesc: "List of pending fees and overdue accounts",
-      getContent: () => `DELHI PUBLIC SCHOOL, R.K. PURAM • AGED DEBTORS REGISTER
+      getContent: () => `${(school?.name || "School").toUpperCase()} • AGED DEBTORS REGISTER
 =============================================================
 Aging Analysis: As of Today
-Total Overdue Student Accounts: 28 Accounts
-Cumulative Outstanding Balance: ₹ 7,95,000.00
+Total Overdue Student Accounts: 0 Accounts
+Cumulative Outstanding Balance: ₹ 0.00
 
 AGING BUCKETS:
 -------------------------------------------------------------
-• 0–30 Days (Standard Grace):   ₹ 18,24,000 (Follow-up SMS sent)
-• 31–60 Days (Notice Issued):   ₹  4,85,000 (18 Accounts)
-• 61–90 Days (Dean Escalation): ₹  2,10,000 (7 Accounts)
-• 90+ Days (Legal & Freeze):    ₹  1,00,000 (3 Accounts)
+• 0–30 Days (Standard Grace):   ₹ 0.00
+• 31–60 Days (Notice Issued):   ₹ 0.00
+• 61–90 Days (Escalation):      ₹ 0.00
+• 90+ Days (Legal & Freeze):    ₹ 0.00
 
-REPRESENTATIVE OPEN ACCOUNTS:
-- Rohan Singhania (Class 12-A, ADM-2024-002): ₹ 36,250 [31–60 Days]
-- Kabir Mehta (Class 10-B, ADM-2024-006): ₹ 23,750 [31–60 Days]
-
-Bursary Collections Desk • Delhi Public School, R.K. Puram`,
+Bursary Collections Desk • ${school?.name || "School"}`,
     },
     {
       id: "rep-04",
@@ -164,20 +162,20 @@ Bursary Collections Desk • Delhi Public School, R.K. Puram`,
       btnBg: "bg-[#DC2626] hover:bg-[#B91C1C] text-white",
       sideIllustrationType: "tax",
       sideDesc: "For government compliance & filing",
-      getContent: () => `DELHI PUBLIC SCHOOL, R.K. PURAM • RTE SECTION 12(1)(C) STATUTORY REIMBURSEMENT
+      getContent: () => `${(school?.name || "School").toUpperCase()} • RTE SECTION 12(1)(C) STATUTORY REIMBURSEMENT
 =============================================================
-Academic Year: 2024–2025 • Directorate of Education, Delhi
-Filing Category: Section 12(1)(c) 25% Economically Weaker Section
+Academic Year: 2024–2025
+Filing Category: Section 12(1)(c) Economically Weaker Section
 
 BENEFICIARY DATA:
 -------------------------------------------------------------
-Total RTE Enrolled Scholars:    142 Students (Classes 1 to 8)
-Government Notified Unit Cost:  ₹ 2,250 per pupil / month
-Total Annual Claim Filed:       ₹ 38,34,000.00
+Total RTE Enrolled Scholars:    0 Students
+Government Notified Unit Cost:  ₹ 0 per pupil / month
+Total Annual Claim Filed:       ₹ 0.00
 State Directorate Approval:     Verified & Certified
 
 Authorized Signatory: Principal & Chairman, Managing Committee
-Delhi Public School, Sector XII, R.K. Puram, New Delhi - 110022`,
+${school?.name || "School"}`,
     },
   ];
 
@@ -199,9 +197,9 @@ Delhi Public School, Sector XII, R.K. Puram, New Delhi - 110022`,
       studentMeta: {
         name: "Directorate of Finance & Audits",
         form: "All Campus Divisions",
-        institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-        institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017 • School Code: 85214",
-        institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022",
+        institutionName: school?.name || "School",
+        institutionAffiliation: "School OS Financial Management System",
+        institutionAddress: "",
         academicSession: "2024–2025",
       },
     });
@@ -217,20 +215,20 @@ Delhi Public School, Sector XII, R.K. Puram, New Delhi - 110022`,
         isOpen: true,
         title: customReportConfig.title,
         fileName: `${customReportConfig.title.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`,
-        content: `DELHI PUBLIC SCHOOL, R.K. PURAM • STATUTORY AUDIT REPORT
+        content: `${(school?.name || "School").toUpperCase()} • STATUTORY AUDIT REPORT
 =============================================================
 Report: ${customReportConfig.title}
 Period: ${customReportConfig.dateRange}
-Auditor Attestation: In full compliance with Indian Accounting Standards and CBSE Board mandates.
+Auditor Attestation: In full compliance with Accounting Standards.
 
-Signatory: Mr. Suresh Menon • Bursar & Accounts Bureau
-Delhi Public School, R.K. Puram, New Delhi • Agragati OS`,
+Signatory: Bursar & Accounts Bureau
+${school?.name || "School"} • Agragati OS`,
         studentMeta: {
           name: "Bursar Audit Bureau",
           form: "All Institutional Accounts",
-          institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-          institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017 • School Code: 85214",
-          institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022",
+          institutionName: school?.name || "School",
+          institutionAffiliation: "School OS Financial Management System",
+          institutionAddress: "",
           academicSession: "2024–2025",
         },
       });

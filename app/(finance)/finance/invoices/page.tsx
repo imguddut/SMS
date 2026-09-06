@@ -15,6 +15,7 @@ import {
 } from "@/lib/db/finance";
 import { PdfPreviewModal, PDFStudentMetadata } from "@/components/ui/pdf-preview-modal";
 import { FinanceQuoteBanner } from "@/components/ui/finance-quote-banner";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   Receipt,
   Plus,
@@ -35,6 +36,7 @@ import {
 } from "lucide-react";
 
 export default function InvoicesPage() {
+  const { profile, school } = useAuth();
   const [invoices, setInvoices] = React.useState<FinanceInvoiceItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -146,9 +148,10 @@ export default function InvoicesPage() {
   };
 
   const handleInspectInvoice = (inv: FinanceInvoiceItem) => {
-    const admNo = inv.admissionNumber || "ADM-2024-001";
+    const admNo = inv.admissionNumber || "N/A";
     const parent = inv.parentName || inv.guardianName || "Guardian";
-    const content = `DELHI PUBLIC SCHOOL, R.K. PURAM • OFFICIAL FEE DEMAND INVOICE
+    const instName = school?.name || "School";
+    const content = `${instName.toUpperCase()} • OFFICIAL FEE DEMAND INVOICE
 =============================================================
 Invoice Number: ${inv.invoiceNumber}
 Issue Date: 2024-10-01
@@ -165,19 +168,14 @@ Guardian / Debtor: ${parent}
 
 FINANCIAL DEMAND BREAKDOWN:
 -------------------------------------------------------------
-Term Tuition Component: ₹ ${(inv.amount * 0.7).toLocaleString("en-IN")}
-STEM Robotics & Smart Classroom Levy: ₹ ${(inv.amount * 0.2).toLocaleString("en-IN")}
-Sports & Co-Curricular Assessment: ₹ ${(inv.amount * 0.1).toLocaleString("en-IN")}
--------------------------------------------------------------
-NET INVOICE DEMAND PAYABLE: ₹ ${inv.amount.toLocaleString("en-IN")}
+Total Net Demand Payable: ₹ ${inv.amount.toLocaleString("en-IN")}
 
 PAYMENT CHANNELS & SETTLEMENT:
-• Virtual Account Number: DPSRKP${admNo.replace(/[^a-zA-Z0-9]/g, "")}
-• BHIM UPI VPA: dpsrkpuram.fees@sbi
-• IFSC Code: SBIN0001234 (State Bank of India, R.K. Puram Branch)
+• Direct Net Banking or UPI Transfer
+• Receipt will be issued on confirmation
 
-Accounts Officer: Mr. Suresh Menon • Bursar
-Delhi Public School, R.K. Puram, New Delhi • Agragati School Management OS`;
+Accounts Officer / Bursar
+${instName} • Agragati School Management OS`;
 
     setPreviewDoc({
       isOpen: true,
@@ -188,9 +186,9 @@ Delhi Public School, R.K. Puram, New Delhi • Agragati School Management OS`;
         name: inv.studentName,
         form: inv.form,
         house: inv.house,
-        institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-        institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017 • School Code: 85214",
-        institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022",
+        institutionName: instName,
+        institutionAffiliation: "School OS Financial Management System",
+        institutionAddress: "",
         academicSession: "2024–2025",
       },
     });
@@ -209,7 +207,7 @@ Delhi Public School, R.K. Puram, New Delhi • Agragati School Management OS`;
   return (
     <AppShell
       role="ACCOUNTANT"
-      userName="Mr. Suresh Menon"
+      userName={profile?.full_name || "Accounts Officer"}
       userRoleTitle="Accounts Officer & Bursar"
       epochText="Term 2 (CBSE) • Academic Year 2024–2025"
     >

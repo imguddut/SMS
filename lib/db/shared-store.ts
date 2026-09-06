@@ -289,9 +289,9 @@ class SharedDataStore {
       date: activeItem ? activeItem.date : today,
       dayOfWeek,
       status: activeItem ? activeItem.status : "PRESENT" as const,
-      turnstileGate: activeItem?.turnstileTime || "Smart Gate 01 (Main Quad)",
-      timestamp: activeItem?.turnstileTime ? activeItem.turnstileTime.split(" ")[0] : "08:14 IST",
-      remarks: activeItem?.remarks || "On-time RFID swipe verified.",
+      turnstileGate: activeItem?.turnstileTime || "",
+      timestamp: activeItem?.turnstileTime ? activeItem.turnstileTime.split(" ")[0] : "",
+      remarks: activeItem?.remarks || "",
     };
 
     const pastEntries: any[] = [];
@@ -693,7 +693,7 @@ class SharedDataStore {
       studentId: newStudentId,
       studentName: adm.applicantName,
       studentNumber: `SCH-${new Date().getFullYear()}-${newStudentId.slice(-3)}`,
-      house: "Tagore House",
+      house: "",
       paper1: 0,
       paper2: 0,
       internalAssessment: 0,
@@ -709,7 +709,7 @@ class SharedDataStore {
       studentId: newStudentId,
       studentName: adm.applicantName,
       form: adm.gradeApplyingFor,
-      house: "Tagore House",
+      house: "",
       turnstileTime: "Enrolled",
       status: "PRESENT",
       date: new Date().toISOString().split("T")[0],
@@ -765,7 +765,7 @@ class SharedDataStore {
   public createExpense(input: Partial<Omit<SharedExpense, "id" | "createdAt">> & { vendorName: string; amount: number; invoiceNumber?: string; submittedBy?: string }): SharedExpense {
     const id = `exp-${Date.now()}`;
     const newExpense: SharedExpense = {
-      schoolId: input.schoolId || "11111111-1111-1111-1111-111111111111",
+      schoolId: input.schoolId || "",
       expenseNumber: input.expenseNumber || `EXP-${Date.now().toString().slice(-4)}`,
       vendorId: input.vendorId || `ven-${Date.now()}`,
       vendorName: input.vendorName,
@@ -818,7 +818,7 @@ class SharedDataStore {
   public createLeaveRequest(input: Partial<Omit<SharedLeaveRequest, "id" | "createdAt">> & { reason: string; studentId?: string; studentName?: string; form?: string }): SharedLeaveRequest {
     const id = `lve-${Date.now()}`;
     const newLeave: SharedLeaveRequest = {
-      schoolId: input.schoolId || "11111111-1111-1111-1111-111111111111",
+      schoolId: input.schoolId || "",
       applicantType: input.applicantType || "STUDENT",
       applicantId: input.applicantId || input.studentId || "std-01",
       applicantName: input.applicantName || input.studentName || "Student",

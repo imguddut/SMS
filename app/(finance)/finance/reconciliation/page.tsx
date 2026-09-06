@@ -12,9 +12,12 @@ import {
   fetchBankReconciliationFeed,
   reconcileTransaction,
   BankReconciliationItem,
+  fetchFinanceInvoices,
+  FinanceInvoiceItem,
 } from "@/lib/db/finance";
 import { PdfPreviewModal, PDFStudentMetadata } from "@/components/ui/pdf-preview-modal";
 import { FinanceQuoteBanner } from "@/components/ui/finance-quote-banner";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   CreditCard,
   RefreshCw,
@@ -41,7 +44,9 @@ import {
 } from "lucide-react";
 
 export default function BankReconciliationPage() {
+  const { profile, school } = useAuth();
   const [feedItems, setFeedItems] = React.useState<BankReconciliationItem[]>([]);
+  const [openInvoices, setOpenInvoices] = React.useState<FinanceInvoiceItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isReconciling, setIsReconciling] = React.useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = React.useState("ALL");
@@ -49,7 +54,7 @@ export default function BankReconciliationPage() {
 
   // Manual Match Modal
   const [selectedException, setSelectedException] = React.useState<BankReconciliationItem | null>(null);
-  const [targetStudent, setTargetStudent] = React.useState("Rohan Singhania — Class 10-A (INV-2025-004)");
+  const [targetStudent, setTargetStudent] = React.useState("");
   const [matchSuccess, setMatchSuccess] = React.useState(false);
 
   const [previewDoc, setPreviewDoc] = React.useState<{
@@ -63,8 +68,16 @@ export default function BankReconciliationPage() {
   React.useEffect(() => {
     async function loadData() {
       try {
-        const data = await fetchBankReconciliationFeed();
+        const [data, invData] = await Promise.all([
+          fetchBankReconciliationFeed(),
+          fetchFinanceInvoices(),
+        ]);
         setFeedItems(data);
+        const pending = invData.filter((i) => i.status !== "PAID");
+        setOpenInvoices(pending);
+        if (pending.length > 0) {
+          setTargetStudent(`${pending[0].studentName} (${pending[0].invoiceNumber})`);
+        }
       } catch (err) {
         console.error("Failed to load bank feed", err);
       } finally {
@@ -78,14 +91,16 @@ export default function BankReconciliationPage() {
     setIsReconciling(item.id);
     try {
       await reconcileTransaction(item.id);
+      const studentName = targetStudent ? targetStudent.split(" (")[0] : (item.matchedStudentName || "Student");
+      const invNo = targetStudent && targetStudent.includes("(") ? targetStudent.split("(")[1].replace(")", "") : (item.matchedInvoiceNo || "INV");
       setFeedItems((prev) =>
         prev.map((f) =>
           f.id === item.id
             ? {
                 ...f,
                 status: "RECONCILED",
-                matchedStudentName: "Rohan Singhania",
-                matchedInvoiceNo: "INV-2025-004",
+                matchedStudentName: studentName,
+                matchedInvoiceNo: invNo,
                 confidenceScore: "100% (Manual Match Sealed)",
               }
             : f
@@ -123,7 +138,8 @@ export default function BankReconciliationPage() {
   });
 
   const handleViewReconciliationDetail = (item: BankReconciliationItem) => {
-    const content = `DELHI PUBLIC SCHOOL, R.K. PURAM • BANK CLEARING & SETTLEMENT SLIP
+    const instName = school?.name || "School";
+    const content = `${instName.toUpperCase()} • BANK CLEARING & SETTLEMENT SLIP
 =============================================================
 Transaction Reference: ${item.transactionRef}
 Bank Channel: ${item.bankSource}
@@ -138,12 +154,11 @@ Matched Scholar: ${item.matchedStudentName || "Suspense Desk / Unidentified Remi
 Linked Fee Invoice: ${item.matchedInvoiceNo || "Pending Allocation"}
 Clearing Confidence: ${item.confidenceScore}
 
-NPCI UPI & BANK CLEARING CERTIFICATION:
+BANK CLEARING CERTIFICATION:
 This transaction has been cryptographically validated and posted into the General Ledger.
-Clearing Partner: ${item.bankSource} • Compliant with RBI/NPCI Core Settlement Mandates.
 
-Accounts Officer: Mr. Suresh Menon • Bursar
-Delhi Public School, Sector XII, R.K. Puram, New Delhi`;
+Accounts Officer / Bursar
+${instName}`;
 
     setPreviewDoc({
       isOpen: true,
@@ -153,9 +168,9 @@ Delhi Public School, Sector XII, R.K. Puram, New Delhi`;
       studentMeta: {
         name: item.matchedStudentName || "Treasury Clearing Desk",
         form: "All Forms",
-        institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-        institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017 • School Code: 85214",
-        institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022",
+        institutionName: instName,
+        institutionAffiliation: "School OS Financial Management System",
+        institutionAddress: "",
         academicSession: "2024–2025",
       },
     });
@@ -174,41 +189,39 @@ Delhi Public School, Sector XII, R.K. Puram, New Delhi`;
       })
       .join("\n\n");
 
-    const content = `DELHI PUBLIC SCHOOL, R.K. PURAM • BANK & UPI CLEARING STATEMENT
+    const instName = school?.name || "School";
+    const content = `${instName.toUpperCase()} • BANK CLEARING STATEMENT
 =============================================================
 Academic Session: 2024–2025 • Daily Clearing Report
 Audit Timestamp: ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}
-Clearing Accounts: State Bank of India (A/C: 38291048201) & HDFC Bank (A/C: 50100239102)
 
 SUMMARY TELEMETRY:
 -------------------------------------------------------------
-Total Feed Volume: ₹ 2,15,000.00 (3 Settlement Batches)
 Auto-Reconciled & Posted: ${reconciledCount} Transactions
 Pending Unmatched Exceptions: ${unmatchedCount} Items
 
 ITEMIZED TRANSACTION REGISTER:
 -------------------------------------------------------------
-${lines}
+${lines || "No clearing transactions recorded."}
 
 AUDIT CERTIFICATION & GOVERNANCE:
 1. Reconciled entries are irreversibly locked and timestamped in double-entry ledgers.
 2. Unmatched credits are held in Treasury Suspense A/C pending guardian identity verification.
-3. Automated clearing engine is compliant with RBI NEFT/RTGS and NPCI UPI 2.0 Settlement Mandates.
 
-Accounts Officer: Mr. Suresh Menon • Bursar
-Delhi Public School, R.K. Puram, New Delhi • Agragati School Management OS`;
+Accounts Officer / Bursar
+${instName} • Agragati School Management OS`;
 
     setPreviewDoc({
       isOpen: true,
-      title: "Bank & UPI Clearing Audit Statement",
+      title: "Bank Clearing Audit Statement",
       fileName: `Bank_Reconciliation_Audit_${new Date().toISOString().split("T")[0]}.pdf`,
       content,
       studentMeta: {
         name: "Treasury Clearing Bureau",
         form: "All Bank Clearing Accounts",
-        institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-        institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017 • School Code: 85214",
-        institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022",
+        institutionName: instName,
+        institutionAffiliation: "School OS Financial Management System",
+        institutionAddress: "",
         academicSession: "2024–2025",
       },
     });
@@ -250,7 +263,7 @@ Delhi Public School, R.K. Puram, New Delhi • Agragati School Management OS`;
   return (
     <AppShell
       role="ACCOUNTANT"
-      userName="Mr. Suresh Menon"
+      userName={profile?.full_name || "Accounts Officer"}
       userRoleTitle="Accounts Officer & Bursar"
       epochText="Term 2 (CBSE) • Academic Year 2024–2025"
     >
@@ -554,7 +567,7 @@ Delhi Public School, R.K. Puram, New Delhi • Agragati School Management OS`;
                   </div>
                   <h3 className="font-serif text-xl font-bold text-[#0F172A]">Payment Reconciled &amp; Settled</h3>
                   <p className="font-sans text-xs text-slate-500">
-                    Invoice INV-2025-004 has been marked as PAID and Rohan Singhania&apos;s ledger has been credited {formatIndianCurrency(selectedException.amount)}.
+                    The transaction has been reconciled and the student account credited {formatIndianCurrency(selectedException.amount)}.
                   </p>
                 </div>
               ) : (
@@ -592,12 +605,15 @@ Delhi Public School, R.K. Puram, New Delhi • Agragati School Management OS`;
                       value={targetStudent}
                       onChange={(e) => setTargetStudent(e.target.value)}
                     >
-                      <option value="Rohan Singhania — Class 10-A (INV-2025-004)">
-                        Rohan Singhania — Class 10-A (INV-2025-004 • ₹65,000 Due)
-                      </option>
-                      <option value="Ananya Iyer — Class 11-A (INV-2025-002)">
-                        Ananya Iyer — Class 11-A (INV-2025-002 • ₹75,000 Due)
-                      </option>
+                      {openInvoices.length === 0 ? (
+                        <option value="">No open invoices available</option>
+                      ) : (
+                        openInvoices.map((inv) => (
+                          <option key={inv.id} value={`${inv.studentName} (${inv.invoiceNumber})`}>
+                            {inv.studentName} — {inv.form || "Class"} ({inv.invoiceNumber} • {formatIndianCurrency(inv.amount)} Due)
+                          </option>
+                        ))
+                      )}
                     </select>
                   </div>
 

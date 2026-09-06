@@ -110,9 +110,7 @@ export interface FinanceReportItem {
   fileSize: string;
 }
 
-// In-Memory Live State Cache for offline/hybrid fallback
-let memoryFeeStructures: FeeStructureItem[] = [];
-let memoryReconciledTransactions: Record<string, boolean> = {};
+
 
 // ============================================================================
 // FINANCE PORTAL SUPABASE CRUD OPERATIONS (WITH REACTIVE SHARED STORE)
@@ -198,13 +196,13 @@ export async function fetchFeeStructures(): Promise<FeeStructureItem[]> {
         };
       });
 
-      return [...memoryFeeStructures, ...dbItems];
+      return dbItems;
     }
   } catch (err) {
     console.warn("Supabase query fallback for fetchFeeStructures:", err);
   }
 
-  return memoryFeeStructures;
+  return [];
 }
 
 // CREATE: Create Fee Structure
@@ -221,8 +219,6 @@ export async function createFeeStructure(payload: Partial<FeeStructureItem>): Pr
     tuitionComponents: payload.tuitionComponents || [{ name: "Core Tuition", amount: payload.annualFee || 75000 }],
     activeScholarsCount: 0,
   };
-
-  memoryFeeStructures.unshift(newItem);
 
   const supabase = createClient();
   try {
@@ -280,14 +276,14 @@ export async function fetchFinanceInvoices(filters?: { status?: string; search?:
           id: inv.id,
           invoiceNumber: inv.invoice_number,
           studentId: inv.student_id,
-          studentName: prof?.full_name || "Aarav Sharma",
-          admissionNumber: st?.admission_number || "ADM-2024-001",
-          form: "Class 12-A",
-          house: st?.house || "Tagore House",
-          guardianName: "Dr. Vikram Sharma",
-          parentName: "Dr. Vikram Sharma",
-          termName: "Term 2 (Quarter 3)",
-          amount: Number(inv.total_amount) || 36250,
+          studentName: prof?.full_name || "",
+          admissionNumber: st?.admission_number || "",
+          form: "",
+          house: st?.house || "",
+          guardianName: "",
+          parentName: "",
+          termName: "",
+          amount: Number(inv.total_amount) || 0,
           currency: "INR",
           issueDate: inv.issue_date,
           dueDate: inv.due_date,
@@ -330,7 +326,7 @@ export async function fetchFinanceInvoices(filters?: { status?: string; search?:
     invoiceNumber: inv.invoiceNumber,
     studentId: inv.studentId,
     studentName: inv.studentName,
-    admissionNumber: inv.admissionNumber || "ADM-2024-001",
+    admissionNumber: inv.admissionNumber || "",
     form: inv.form,
     house: inv.house,
     guardianName: inv.guardianName,
@@ -365,25 +361,25 @@ export async function generateInvoice(payload: Partial<FinanceInvoiceItem>): Pro
 
 export async function createFinanceInvoice(payload: Partial<FinanceInvoiceItem>): Promise<{ success: boolean; id: string; invoiceNumber?: string }> {
   const newId = `inv-${Date.now()}`;
-  const invNumber = payload.invoiceNumber || `INV-2025-${Math.floor(100 + Math.random() * 900)}`;
+  const invNumber = payload.invoiceNumber || `INV-${Date.now().toString().slice(-6)}`;
   const newItem: SharedInvoice = {
     id: newId,
     invoiceNumber: invNumber,
-    studentId: payload.studentId || "std-01",
-    studentName: payload.studentName || "Aarav Sharma",
-    admissionNumber: payload.admissionNumber || "ADM-2024-001",
-    form: payload.form || "Class 12-A",
-    house: payload.house || "Tagore House",
-    guardianName: payload.guardianName || "Dr. Vikram Sharma",
-    parentName: payload.parentName || "Dr. Vikram Sharma",
-    termName: payload.termName || "Term 2 (Quarter 4)",
-    amount: payload.amount || 36250,
+    studentId: payload.studentId || "",
+    studentName: payload.studentName || "",
+    admissionNumber: payload.admissionNumber || "",
+    form: payload.form || "",
+    house: payload.house || "",
+    guardianName: payload.guardianName || "",
+    parentName: payload.parentName || "",
+    termName: payload.termName || "",
+    amount: payload.amount || 0,
     currency: payload.currency || "INR",
     issueDate: payload.issueDate || new Date().toISOString().split("T")[0],
-    dueDate: payload.dueDate || "2025-02-28",
+    dueDate: payload.dueDate || "",
     paymentMethod: payload.paymentMethod || "Direct Debit / UPI",
     status: payload.status || "PENDING",
-    description: "Class 12 Term 2 Final CBSE Board Examination & Tuition Levy",
+    description: "",
   };
 
   // Sync to shared reactive store (instantly visible in Parent portal fees and digest)
@@ -405,8 +401,8 @@ export async function createFinanceInvoice(payload: Partial<FinanceInvoiceItem>)
   }
 
   await logAudit({
-    schoolId: "11111111-1111-1111-1111-111111111111",
-    actorId: "b0000000-0000-0000-0000-000000000006",
+    schoolId: "",
+    actorId: "",
     action: AuditAction.INVOICE_CREATED,
     entityTable: "invoices",
     entityId: newId,
@@ -418,174 +414,98 @@ export async function createFinanceInvoice(payload: Partial<FinanceInvoiceItem>)
 
 // READ: Student Ledgers Summary
 export async function fetchStudentLedgers(filters?: { search?: string; status?: string }): Promise<StudentLedgerSummary[]> {
-  const std01Txs = sharedStore.getStudentLedgerTransactions("std-01");
-  const totalBilled = std01Txs.reduce((sum, t) => sum + (t.debit || 0), 0) || 145000;
-  const totalSettled = std01Txs.reduce((sum, t) => sum + (t.credit || 0), 0) || 145000;
-  const balanceDue = std01Txs.length > 0 ? std01Txs[0].runningBalance : 0;
+  const supabase = createClient();
+  try {
+    let query = supabase
+      .from("students")
+      .select(`
+        id,
+        admission_number,
+        house,
+        users_profiles:profile_id (
+          full_name
+        ),
+        invoices (
+          id,
+          total_amount,
+          status,
+          issue_date
+        )
+      `);
 
-  const ledgers: StudentLedgerSummary[] = [
-    {
-      id: "led-01",
-      studentId: "std-01",
-      studentName: "Aarav Sharma",
-      studentNumber: "ADM-2024-001",
-      admissionNumber: "ADM-2024-001",
-      house: "Tagore House",
-      form: "Class 12-A",
-      guardianName: "Dr. Vikram Sharma",
-      parentName: "Dr. Vikram Sharma",
-      totalBilled,
-      totalPaid: totalSettled,
-      totalSettled,
-      balanceDue,
-      currency: "INR",
-      status: balanceDue === 0 ? "BALANCED" : "OVERDUE",
-      lastTransactionDate: std01Txs[0]?.date || "2025-01-12",
-      transactions: std01Txs.map((t) => ({
-        id: t.id,
-        date: t.date,
-        type: t.type,
-        description: t.description,
-        debit: t.debit,
-        credit: t.credit,
-        runningBalance: t.runningBalance,
-        reference: t.reference,
-        referenceNo: t.referenceNo,
-        amount: t.amount,
-      })),
-    },
-    {
-      id: "led-02",
-      studentId: "std-02",
-      studentName: "Rohan Singhania",
-      studentNumber: "ADM-2024-002",
-      admissionNumber: "ADM-2024-002",
-      house: "Ashoka House",
-      form: "Class 12-A",
-      guardianName: "Sunita Singhania",
-      parentName: "Sunita Singhania",
-      totalBilled: 145000,
-      totalPaid: 108750,
-      totalSettled: 108750,
-      balanceDue: 36250,
-      currency: "INR",
-      status: "OVERDUE",
-      lastTransactionDate: "2024-11-20",
-      transactions: [
-        {
-          id: "tx-r1",
-          date: "2024-07-01",
-          type: "INVOICE_BILLED",
-          description: "Term 1 (Quarter 1 & 2) Tuition Demand (INV-2024-043)",
-          debit: 72500,
-          credit: null,
-          runningBalance: 72500,
-          reference: "INV-2024-043",
-          referenceNo: "INV-2024-043",
-          amount: 72500,
-        },
-        {
-          id: "tx-r2",
-          date: "2024-07-15",
-          type: "CREDIT_PAYMENT",
-          description: "Net Banking Payment (HDFC Bank)",
-          debit: null,
-          credit: 72500,
-          runningBalance: 0,
-          reference: "NEFT-HDFC-99210",
-          referenceNo: "NEFT-HDFC-99210",
-          amount: 72500,
-        },
-        {
-          id: "tx-r3",
-          date: "2024-10-01",
-          type: "INVOICE_BILLED",
-          description: "Term 2 (Quarter 3) Tuition Demand (INV-2025-002)",
-          debit: 36250,
-          credit: null,
-          runningBalance: 36250,
-          reference: "INV-2025-002",
-          referenceNo: "INV-2025-002",
-          amount: 36250,
-        },
-      ],
-    },
-    {
-      id: "led-03",
-      studentId: "std-03",
-      studentName: "Priya Patel",
-      studentNumber: "ADM-2024-003",
-      admissionNumber: "ADM-2024-003",
-      house: "Shivaji House",
-      form: "Class 11-A",
-      guardianName: "Suresh Patel",
-      parentName: "Suresh Patel",
-      totalBilled: 125000,
-      totalPaid: 125000,
-      totalSettled: 125000,
-      balanceDue: 0,
-      currency: "INR",
-      status: "BALANCED",
-      lastTransactionDate: "2025-01-08",
-      transactions: [
-        {
-          id: "tx-p1",
-          date: "2024-07-01",
-          type: "INVOICE_BILLED",
-          description: "Term 1 Tuition Demand (INV-2024-045)",
-          debit: 62500,
-          credit: null,
-          runningBalance: 62500,
-          reference: "INV-2024-045",
-          amount: 62500,
-        },
-      ],
-    },
-    {
-      id: "led-04",
-      studentId: "std-06",
-      studentName: "Kabir Mehta",
-      studentNumber: "ADM-2024-006",
-      admissionNumber: "ADM-2024-006",
-      house: "Raman House",
-      form: "Class 10-B",
-      guardianName: "Dr. Manish Mehta",
-      parentName: "Dr. Manish Mehta",
-      totalBilled: 95000,
-      totalPaid: 71250,
-      totalSettled: 71250,
-      balanceDue: 23750,
-      currency: "INR",
-      status: "OVERDUE",
-      lastTransactionDate: "2024-10-10",
-      transactions: [
-        {
-          id: "tx-k1",
-          date: "2024-07-01",
-          type: "INVOICE_BILLED",
-          description: "Term 1 Tuition Demand (INV-2024-046)",
-          debit: 47500,
-          credit: null,
-          runningBalance: 47500,
-          reference: "INV-2024-046",
-          amount: 47500,
-        },
-      ],
-    },
-  ];
+    const { data, error } = await query;
 
-  if (!filters) return ledgers;
+    if (!error && data && data.length > 0) {
+      const ledgers: StudentLedgerSummary[] = data.map((student) => {
+        const prof = Array.isArray(student.users_profiles) ? student.users_profiles[0] : student.users_profiles;
+        const invoices = Array.isArray(student.invoices) ? student.invoices : [];
+        const totalBilled = invoices.reduce((sum, inv) => sum + (Number(inv.total_amount) || 0), 0);
+        const totalPaid = invoices
+          .filter((inv) => inv.status === "PAID")
+          .reduce((sum, inv) => sum + (Number(inv.total_amount) || 0), 0);
+        const balanceDue = totalBilled - totalPaid;
+        const sortedInvoices = [...invoices].sort((a, b) =>
+          new Date(b.issue_date || 0).getTime() - new Date(a.issue_date || 0).getTime()
+        );
 
-  return ledgers.filter((l) => {
-    const matchesSearch =
-      !filters.search ||
-      l.studentName.toLowerCase().includes(filters.search.toLowerCase()) ||
-      l.studentNumber.toLowerCase().includes(filters.search.toLowerCase()) ||
-      l.guardianName.toLowerCase().includes(filters.search.toLowerCase());
+        // Merge shared-store transactions for this student
+        const storeTxs = sharedStore.getStudentLedgerTransactions(student.id);
 
-    const matchesStatus = !filters.status || filters.status === "ALL" || l.status === filters.status;
-    return matchesSearch && matchesStatus;
-  });
+        let status: "BALANCED" | "CREDIT" | "OVERDUE" = "BALANCED";
+        if (balanceDue > 0) status = "OVERDUE";
+        else if (balanceDue < 0) status = "CREDIT";
+
+        return {
+          id: `led-${student.id}`,
+          studentId: student.id,
+          studentName: prof?.full_name || "",
+          studentNumber: student.admission_number || "",
+          admissionNumber: student.admission_number || "",
+          house: student.house || "",
+          form: "",
+          guardianName: "",
+          parentName: "",
+          totalBilled,
+          totalPaid,
+          totalSettled: totalPaid,
+          balanceDue,
+          currency: "INR",
+          status,
+          lastTransactionDate: sortedInvoices[0]?.issue_date || storeTxs[0]?.date || "",
+          transactions: storeTxs.map((t) => ({
+            id: t.id,
+            date: t.date,
+            type: t.type,
+            description: t.description,
+            debit: t.debit,
+            credit: t.credit,
+            runningBalance: t.runningBalance,
+            reference: t.reference,
+            referenceNo: t.referenceNo,
+            amount: t.amount,
+          })),
+        };
+      });
+
+      const filtered = !filters
+        ? ledgers
+        : ledgers.filter((l) => {
+            const matchesSearch =
+              !filters.search ||
+              l.studentName.toLowerCase().includes(filters.search.toLowerCase()) ||
+              l.studentNumber.toLowerCase().includes(filters.search.toLowerCase()) ||
+              l.guardianName.toLowerCase().includes(filters.search.toLowerCase());
+            const matchesStatus = !filters.status || filters.status === "ALL" || l.status === filters.status;
+            return matchesSearch && matchesStatus;
+          });
+
+      return filtered;
+    }
+  } catch (err) {
+    console.warn("Supabase query fallback for fetchStudentLedgers:", err);
+  }
+
+  return [];
 }
 
 // READ: Student Ledger Detail
@@ -644,8 +564,8 @@ export async function postLedgerTransaction(
   }
 
   await logAudit({
-    schoolId: "11111111-1111-1111-1111-111111111111",
-    actorId: "b0000000-0000-0000-0000-000000000006",
+    schoolId: "",
+    actorId: "",
     action: "LEDGER_TRANSACTION_POSTED",
     entityTable: "payments",
     entityId: sharedTx.id,
@@ -665,70 +585,25 @@ export async function fetchBankReconciliationFeed(): Promise<BankReconciliationI
       .order("transaction_date", { ascending: false });
 
     if (!error && data && data.length > 0) {
-      return data.map((tx) => {
-        const isReconciled = tx.is_reconciled || !!memoryReconciledTransactions[tx.id];
-        return {
-          id: tx.id,
-          transactionRef: `UTR-${tx.id.slice(0, 8)}`,
-          bankSource: "HDFC Bank (School Collection A/c)",
-          remittanceInfo: tx.reference_text,
-          amount: Number(tx.credit_amount) || Number(tx.debit_amount) || 36250,
-          currency: "INR",
-          timestamp: tx.transaction_date,
-          matchedStudentName: "Aarav Sharma",
-          matchedInvoiceNo: "INV-2025-001",
-          status: isReconciled ? "RECONCILED" : "UNMATCHED",
-          confidenceScore: isReconciled ? "100% (Exact Match)" : "Manual Review Required",
-        };
-      });
+      return data.map((tx) => ({
+        id: tx.id,
+        transactionRef: `UTR-${tx.id.slice(0, 8)}`,
+        bankSource: "HDFC Bank (School Collection A/c)",
+        remittanceInfo: tx.reference_text || "",
+        amount: Number(tx.credit_amount) || Number(tx.debit_amount) || 0,
+        currency: "INR",
+        timestamp: tx.transaction_date,
+        matchedStudentName: null,
+        matchedInvoiceNo: null,
+        status: tx.is_reconciled ? "RECONCILED" : "UNMATCHED",
+        confidenceScore: tx.is_reconciled ? "100% (Exact Match)" : "Manual Review Required",
+      }));
     }
   } catch (err) {
     console.warn("Supabase query fallback for fetchBankReconciliationFeed:", err);
   }
 
-  const baseFeed: BankReconciliationItem[] = [
-    {
-      id: "rec-01",
-      transactionRef: "UPI-UTR-402918827391",
-      bankSource: "HDFC Bank (School Collection A/c)",
-      remittanceInfo: "Rajesh Sharma — Aarav Sharma Class 12-A Q3 Fees",
-      amount: 36250,
-      currency: "INR",
-      timestamp: "Today, 09:12 IST",
-      matchedStudentName: "Aarav Sharma",
-      matchedInvoiceNo: "INV-2025-001",
-      status: "RECONCILED",
-      confidenceScore: "100% (Exact Match)",
-    },
-    {
-      id: "rec-02",
-      transactionRef: "NEFT-SBI-2025-984210",
-      bankSource: "State Bank of India (Main Branch)",
-      remittanceInfo: "Suresh Patel — Priya Patel Class 11-A Tuition",
-      amount: 31250,
-      currency: "INR",
-      timestamp: "Today, 10:15 IST",
-      matchedStudentName: "Priya Patel",
-      matchedInvoiceNo: "INV-2025-003",
-      status: "RECONCILED",
-      confidenceScore: "100% (Exact Match)",
-    },
-    {
-      id: "rec-03",
-      transactionRef: "IMPS-ICICI-2025-559102",
-      bankSource: "ICICI Bank Gateway",
-      remittanceInfo: "Online Transfer Ref 559102 — Unverified Admission No",
-      amount: 23750,
-      currency: "INR",
-      timestamp: "Yesterday, 17:40 IST",
-      matchedStudentName: memoryReconciledTransactions["rec-03"] ? "Kabir Mehta" : null,
-      matchedInvoiceNo: memoryReconciledTransactions["rec-03"] ? "INV-2025-004" : null,
-      status: memoryReconciledTransactions["rec-03"] ? "RECONCILED" : "UNMATCHED",
-      confidenceScore: memoryReconciledTransactions["rec-03"] ? "100% (Manual Match)" : "Manual Review Required",
-    },
-  ];
-
-  return baseFeed;
+  return [];
 }
 
 // UPDATE: Reconcile Bank Transaction
@@ -736,7 +611,6 @@ export async function reconcileTransaction(
   idOrPayload: string | { transactionId: string; ledgerEntryId?: string; matchStatus?: string }
 ): Promise<{ success: boolean }> {
   const id = typeof idOrPayload === "string" ? idOrPayload : idOrPayload.transactionId;
-  memoryReconciledTransactions[id] = true;
 
   const supabase = createClient();
   try {
@@ -751,8 +625,8 @@ export async function reconcileTransaction(
   }
 
   await logAudit({
-    schoolId: "11111111-1111-1111-1111-111111111111",
-    actorId: "b0000000-0000-0000-0000-000000000006",
+    schoolId: "",
+    actorId: "",
     action: AuditAction.RECONCILIATION_COMPLETED,
     entityTable: "bank_transactions",
     entityId: id,

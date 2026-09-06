@@ -5,10 +5,13 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Modal } from "@/components/ui/modal";
 import { triggerClientDownload } from "@/lib/utils";
 import { PdfPreviewModal, PDFStudentMetadata } from "@/components/ui/pdf-preview-modal";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   fetchStudentHomeworkList,
+  fetchStudentProfile,
   submitHomeworkSolution,
   StudentHomeworkTask,
+  StudentProfile,
 } from "@/lib/db/student";
 import {
   BookOpen,
@@ -36,6 +39,8 @@ import {
 } from "lucide-react";
 
 export default function StudentHomeworkPage() {
+  const { profile, school } = useAuth();
+  const [studentProfile, setStudentProfile] = React.useState<StudentProfile | null>(null);
   const [tasks, setTasks] = React.useState<StudentHomeworkTask[]>([]);
   const [statusFilter, setStatusFilter] = React.useState("ALL");
   const [sortBy, setSortBy] = React.useState<"soonest" | "latest" | "marks">("soonest");
@@ -45,7 +50,7 @@ export default function StudentHomeworkPage() {
   const [selectedTask, setSelectedTask] = React.useState<StudentHomeworkTask | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [submitSuccess, setSubmitSuccess] = React.useState(false);
-  const [fileName, setFileName] = React.useState("Aarav_Sharma_Solution.pdf");
+  const [fileName, setFileName] = React.useState("Solution.pdf");
   const [fileSize, setFileSize] = React.useState("1.8 MB");
   const [notes, setNotes] = React.useState("");
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -70,8 +75,12 @@ export default function StudentHomeworkPage() {
   React.useEffect(() => {
     async function loadData() {
       try {
-        const data = await fetchStudentHomeworkList();
+        const [data, sProfile] = await Promise.all([
+          fetchStudentHomeworkList(),
+          fetchStudentProfile(),
+        ]);
         setTasks(data);
+        setStudentProfile(sProfile);
       } catch (err) {
         console.error("Failed to load homework tasks", err);
       } finally {
@@ -84,7 +93,8 @@ export default function StudentHomeworkPage() {
   const handleOpenSubmit = (task: StudentHomeworkTask) => {
     setSelectedTask(task);
     const cleanSubject = task.subject.replace(/[^a-zA-Z0-9]/g, "_");
-    setFileName(`Aarav_Sharma_${cleanSubject}_Solution.pdf`);
+    const stName = profile?.full_name || studentProfile?.name || "Student";
+    setFileName(`${stName.replace(/\s+/g, "_")}_${cleanSubject}_Solution.pdf`);
     setFileSize("1.8 MB");
     setNotes("");
     setSubmitSuccess(false);
@@ -138,26 +148,28 @@ export default function StudentHomeworkPage() {
 
   const handleDownloadWorksheet = (task: StudentHomeworkTask) => {
     const safeTitle = task.title.replace(/[^a-zA-Z0-9]/g, "_");
-    const content = `=== AGRAGATI ACADEMY • COURSEWORK WORKSHEET ===\nSubject: ${task.subject}\nTitle: ${task.title}\nInstructor: ${task.teacherName}\nAssigned Date: ${task.assignedDate}\nDue Date: ${task.dueDate}\nMaximum Marks: ${task.maxScore}\n\nRUBRIC CRITERIA & INSTRUCTIONS:\n${task.rubricSummary}\n\nInstructions for Submission:\n1. Show all step-by-step mathematical derivations or code routines.\n2. Compile work into a clean, single-page or multi-page PDF document.\n3. Submit prior to the deadline on the Student Portal.\n\nSealed by Dean of Academics • Agragati Academy`;
+    const content = `=== ${school?.name || "AGRAGATI ACADEMY"} • COURSEWORK WORKSHEET ===\nSubject: ${task.subject}\nTitle: ${task.title}\nInstructor: ${task.teacherName}\nAssigned Date: ${task.assignedDate}\nDue Date: ${task.dueDate}\nMaximum Marks: ${task.maxScore}\n\nRUBRIC CRITERIA & INSTRUCTIONS:\n${task.rubricSummary}\n\nInstructions for Submission:\n1. Show all step-by-step mathematical derivations or routines.\n2. Compile work into a clean PDF document.\n3. Submit prior to the deadline on the Student Portal.`;
 
+    const stName = profile?.full_name || studentProfile?.name || "Student";
     setPreviewDoc({
       isOpen: true,
       title: `${task.subject} Homework Worksheet`,
       fileName: `${safeTitle}_Worksheet.pdf`,
       content,
       studentMeta: {
-        name: "Aarav Sharma",
-        classSection: "Class 12-A (PCM-CS)",
-        rollNumber: "ADM-2024-001",
+        name: stName,
+        classSection: studentProfile?.form || "",
+        rollNumber: studentProfile?.rollNumber || "",
         academicSession: "2024-2025",
-        institutionName: "AGRAGATI MODERN ACADEMY (CBSE AFFILIATED)",
+        institutionName: school?.name || "AGRAGATI MODERN ACADEMY",
       },
     });
   };
 
   const handleDownloadGradedScript = (task: StudentHomeworkTask) => {
     const safeTitle = task.title.replace(/[^a-zA-Z0-9]/g, "_");
-    const content = `=== AGRAGATI ACADEMY • EVALUATED SCRIPT & FACULTY FEEDBACK ===\nStudent: Aarav Sharma (Class 12-A, Roll: ADM-2024-001)\nSubject: ${task.subject}\nCoursework: ${task.title}\nEvaluator: ${task.teacherName}\nScore Awarded: ${task.score ?? task.maxScore} / ${task.maxScore} Marks (${Math.round(((task.score ?? task.maxScore) / task.maxScore) * 100)}%)\n\nMASTER EVALUATIVE FEEDBACK:\n"${task.teacherFeedback || "Excellent analytical work and clear methodology."}"\n\nRUBRIC FULFILLMENT:\n- Technical Rigour: 10/10\n- Methodology & Proofs: 10/10\n- Syntax & Presentation: 9/10\n- Timeliness: Completed on schedule\n\nVerification Hash: CBSE-EVAL-2025-${task.id.toUpperCase()}-VERIFIED`;
+    const stName = profile?.full_name || studentProfile?.name || "Student";
+    const content = `=== ${school?.name || "AGRAGATI ACADEMY"} • EVALUATED SCRIPT & FACULTY FEEDBACK ===\nStudent: ${stName} (${studentProfile?.form || ""})\nSubject: ${task.subject}\nCoursework: ${task.title}\nEvaluator: ${task.teacherName}\nScore Awarded: ${task.score ?? task.maxScore} / ${task.maxScore} Marks (${Math.round(((task.score ?? task.maxScore) / task.maxScore) * 100)}%)\n\nFEEDBACK:\n"${task.teacherFeedback || "Evaluated on schedule."}"`;
 
     setPreviewDoc({
       isOpen: true,
@@ -165,17 +177,18 @@ export default function StudentHomeworkPage() {
       fileName: `${safeTitle}_Evaluated_Scorecard.pdf`,
       content,
       studentMeta: {
-        name: "Aarav Sharma",
-        classSection: "Class 12-A (PCM-CS)",
-        rollNumber: "ADM-2024-001",
+        name: stName,
+        classSection: studentProfile?.form || "",
+        rollNumber: studentProfile?.rollNumber || "",
         academicSession: "2024-2025",
-        institutionName: "AGRAGATI MODERN ACADEMY (CBSE AFFILIATED)",
+        institutionName: school?.name || "AGRAGATI MODERN ACADEMY",
       },
     });
   };
 
   const handleDownloadReceipt = (task: StudentHomeworkTask, scriptFileName: string) => {
-    const content = `=== AGRAGATI ACADEMY • DIGITAL SUBMISSION RECEIPT ===\nReceipt Ref: SUB-${Date.now()}\nStudent: Aarav Sharma (Class 12-A, Tagore House)\nSubject: ${task.subject}\nAssignment: ${task.title}\nUploaded File: ${scriptFileName}\nTimestamp: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST\nServer Verification: SHA-256 Validated • Master Evaluation Desk`;
+    const stName = profile?.full_name || studentProfile?.name || "Student";
+    const content = `=== ${school?.name || "AGRAGATI ACADEMY"} • DIGITAL SUBMISSION RECEIPT ===\nReceipt Ref: SUB-${Date.now()}\nStudent: ${stName} (${studentProfile?.form || ""})\nSubject: ${task.subject}\nAssignment: ${task.title}\nUploaded File: ${scriptFileName}\nTimestamp: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST\nServer Verification: Confirmed by Evaluation Desk`;
 
     setPreviewDoc({
       isOpen: true,
@@ -183,11 +196,11 @@ export default function StudentHomeworkPage() {
       fileName: `Submission_Receipt_${task.id}.pdf`,
       content,
       studentMeta: {
-        name: "Aarav Sharma",
-        classSection: "Class 12-A (PCM-CS)",
-        rollNumber: "ADM-2024-001",
+        name: stName,
+        classSection: studentProfile?.form || "",
+        rollNumber: studentProfile?.rollNumber || "",
         academicSession: "2024-2025",
-        institutionName: "AGRAGATI MODERN ACADEMY (CBSE AFFILIATED)",
+        institutionName: school?.name || "AGRAGATI MODERN ACADEMY",
       },
     });
   };
@@ -211,8 +224,8 @@ export default function StudentHomeworkPage() {
   return (
     <AppShell
       role="STUDENT"
-      userName="Aarav Sharma"
-      userRoleTitle="SCHOLAR • CLASS 12-A (SCIENCE & AI) • TAGORE HOUSE"
+      userName={profile?.full_name || studentProfile?.name || "Student"}
+      userRoleTitle={studentProfile?.form ? `SCHOLAR • ${studentProfile.form.toUpperCase()}` : "STUDENT"}
       epochText="Academic Submissions • CBSE Board Term II (2024–2025)"
     >
       <div className="space-y-6">
@@ -602,7 +615,7 @@ export default function StudentHomeworkPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-stone-400">Candidate:</span>
-                      <span className="font-semibold">Aarav Sharma (12-A)</span>
+                      <span className="font-semibold">{profile?.full_name || studentProfile?.name || "Student"} {studentProfile?.form ? `(${studentProfile.form})` : ""}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-stone-400">Status:</span>

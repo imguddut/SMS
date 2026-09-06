@@ -16,6 +16,7 @@ import {
 } from "@/lib/db/finance";
 import { PdfPreviewModal, PDFStudentMetadata } from "@/components/ui/pdf-preview-modal";
 import { FinanceQuoteBanner } from "@/components/ui/finance-quote-banner";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   Calculator,
   Search,
@@ -41,6 +42,7 @@ import {
 } from "lucide-react";
 
 export default function StudentLedgersPage() {
+  const { school } = useAuth();
   const [ledgers, setLedgers] = React.useState<StudentLedgerSummary[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -175,13 +177,14 @@ export default function StudentLedgersPage() {
       )
       .join("\n\n");
 
-    const content = `DELHI PUBLIC SCHOOL, R.K. PURAM • OFFICIAL STUDENT ACCOUNT LEDGER
+    const instName = school?.name || "School";
+    const content = `${instName.toUpperCase()} • OFFICIAL STUDENT ACCOUNT LEDGER
 =============================================================
 Student Name: ${student.studentName}
 Admission No: ${student.admissionNumber}
 Class & Form: ${student.form} (${student.house} House)
 Guardian / Debtor: ${student.parentName}
-Academic Session: 2024–2025 (CBSE)
+Academic Session: 2024–2025
 
 FINANCIAL POSITION SUMMARY:
 -------------------------------------------------------------
@@ -194,8 +197,8 @@ CHRONOLOGICAL TRANSACTION TIMELINE:
 -------------------------------------------------------------
 ${txLines}
 
-Accounts Officer: Mr. Suresh Menon • Bursar
-Delhi Public School, Sector XII, R.K. Puram, New Delhi • Agragati OS`;
+Accounts Officer / Bursar
+${instName} • Agragati OS`;
 
     setPreviewDoc({
       isOpen: true,
@@ -206,9 +209,9 @@ Delhi Public School, Sector XII, R.K. Puram, New Delhi • Agragati OS`;
         name: student.studentName,
         form: student.form,
         house: student.house,
-        institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-        institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017 • School Code: 85214",
-        institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022",
+        institutionName: instName,
+        institutionAffiliation: "School OS Financial Management System",
+        institutionAddress: "",
         academicSession: "2024–2025",
       },
     });
@@ -222,9 +225,10 @@ Delhi Public School, Sector XII, R.K. Puram, New Delhi • Agragati OS`;
       )
       .join("\n\n");
 
-    const content = `DELHI PUBLIC SCHOOL, R.K. PURAM • CONSOLIDATED STUDENT LEDGERS REGISTER
+    const instName = school?.name || "School";
+    const content = `${instName.toUpperCase()} • CONSOLIDATED STUDENT LEDGERS REGISTER
 =============================================================
-Academic Session: 2024–2025 • Term 2 Fiscal Report
+Academic Session: 2024–2025 Fiscal Report
 Total Tracked Scholars: ${ledgers.length}
 Total Billed Demand: ₹ ${totalBilled.toLocaleString("en-IN")}
 Total Settled Credits: ₹ ${totalSettled.toLocaleString("en-IN")}
@@ -234,7 +238,7 @@ STUDENT-WISE LEDGER SUMMARY:
 -------------------------------------------------------------
 ${lines}
 
-Bursary & Accounts Division • Delhi Public School, R.K. Puram
+Bursary & Accounts Division • ${instName}
 Managed via Agragati School Management OS`;
 
     setPreviewDoc({
@@ -245,9 +249,9 @@ Managed via Agragati School Management OS`;
       studentMeta: {
         name: "Consolidated Accounts Register",
         form: "All Forms & Sections",
-        institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-        institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017 • School Code: 85214",
-        institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022",
+        institutionName: instName,
+        institutionAffiliation: "School OS Financial Management System",
+        institutionAddress: "",
         academicSession: "2024–2025",
       },
     });

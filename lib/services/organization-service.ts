@@ -149,8 +149,8 @@ export async function listOrganizations(): Promise<OrganizationSummary[]> {
         subscription_status: org.subscription_status,
         created_at: org.created_at,
         school_count: org.schools?.length || 0,
-        student_count: 1500 * (org.schools?.length || 1),
-        faculty_count: 100 * (org.schools?.length || 1),
+        student_count: 0,
+        faculty_count: 0,
       }));
     }
   } catch (err) {
@@ -423,28 +423,113 @@ export async function getOrganizationMetrics(orgId: string) {
   const org = await getOrganization(orgId);
   const schools = await listOrganizationSchools(orgId);
 
+  let totalStudents = 0;
+  let totalTeachers = 0;
+  let totalBilled = 0;
+  let totalCollected = 0;
+
+  const schoolIds = schools.map((s) => s.id);
+  const schoolMetricsMap: Record<
+    string,
+    { students: number; teachers: number; totalBilled: number; totalCollected: number; attendanceRate: string }
+  > = {};
+
+  schools.forEach((s) => {
+    schoolMetricsMap[s.id] = {
+      students: 0,
+      teachers: 0,
+      totalBilled: 0,
+      totalCollected: 0,
+      attendanceRate: "0.0%",
+    };
+  });
+
+  if (schoolIds.length > 0) {
+    try {
+      const supabase = createClient();
+      const { data: stdData } = await supabase
+        .from("students")
+        .select("school_id")
+        .in("school_id", schoolIds);
+      if (stdData) {
+        totalStudents = stdData.length;
+        stdData.forEach((row: any) => {
+          if (schoolMetricsMap[row.school_id]) {
+            schoolMetricsMap[row.school_id].students += 1;
+          }
+        });
+      }
+
+      const { data: teacherData } = await supabase
+        .from("users_profiles")
+        .select("school_id")
+        .in("school_id", schoolIds)
+        .eq("role", "TEACHER");
+      if (teacherData) {
+        totalTeachers = teacherData.length;
+        teacherData.forEach((row: any) => {
+          if (schoolMetricsMap[row.school_id]) {
+            schoolMetricsMap[row.school_id].teachers += 1;
+          }
+        });
+      }
+
+      const { data: invData } = await supabase
+        .from("invoices")
+        .select("school_id, total_amount, paid_amount, status")
+        .in("school_id", schoolIds);
+      if (invData) {
+        invData.forEach((inv: any) => {
+          const billed = Number(inv.total_amount) || 0;
+          const paid = Number(inv.paid_amount) || (inv.status === "PAID" ? billed : 0);
+          totalBilled += billed;
+          totalCollected += paid;
+          if (schoolMetricsMap[inv.school_id]) {
+            schoolMetricsMap[inv.school_id].totalBilled += billed;
+            schoolMetricsMap[inv.school_id].totalCollected += paid;
+          }
+        });
+      }
+    } catch (err) {
+      console.warn("getOrganizationMetrics error:", err);
+    }
+  }
+
+  const collectionRate = totalBilled > 0 ? `${Math.round((totalCollected / totalBilled) * 100)}%` : "0%";
+  const outstandingBalance = Math.max(0, totalBilled - totalCollected);
+
   return {
     organizationId: orgId,
     organizationName: org?.name || "Educational Trust",
     totalSchools: schools.length,
-    totalStudents: (org?.student_count || 1200),
-    totalTeachers: (org?.faculty_count || 95),
-    averageAttendanceRate: "96.4%",
-    totalBilled: 48500000,
-    totalCollected: 45200000,
-    collectionRate: "93.2%",
-    outstandingBalance: 3300000,
-    schoolsSummary: schools.map((s, idx) => ({
-      id: s.id,
-      name: s.legal_name,
-      code: s.school_code || `SCH-0${idx + 1}`,
-      city: s.city || "Main Campus",
-      status: s.status,
-      students: 600 + idx * 300,
-      teachers: 45 + idx * 20,
-      attendanceRate: idx === 0 ? "97.2%" : "95.6%",
-      feeCollectionRate: idx === 0 ? "94.5%" : "91.8%",
-    })),
+    totalStudents,
+    totalTeachers,
+    averageAttendanceRate: "0.0%",
+    totalBilled,
+    totalCollected,
+    collectionRate,
+    outstandingBalance,
+    schoolsSummary: schools.map((s, idx) => {
+      const m = schoolMetricsMap[s.id] || {
+        students: 0,
+        teachers: 0,
+        totalBilled: 0,
+        totalCollected: 0,
+        attendanceRate: "0.0%",
+      };
+      const feeRate = m.totalBilled > 0 ? `${Math.round((m.totalCollected / m.totalBilled) * 100)}%` : "0%";
+      return {
+        id: s.id,
+        name: s.legal_name,
+        code: s.school_code || `SCH-0${idx + 1}`,
+        city: s.city || "Main Campus",
+        status: s.status,
+        students: m.students,
+        teachers: m.teachers,
+        attendanceRate: m.attendanceRate,
+        feeCollectionRate: feeRate,
+      };
+    }),
   };
 }
 

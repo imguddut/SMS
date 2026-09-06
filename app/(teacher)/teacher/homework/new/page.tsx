@@ -32,9 +32,11 @@ import {
 } from "lucide-react";
 import { createHomeworkAssignment } from "@/lib/db/teacher";
 import { PdfPreviewModal } from "@/components/ui/pdf-preview-modal";
+import { useAuth } from "@/components/providers/auth-context";
 
 export default function TeacherNewHomeworkPage() {
   const router = useRouter();
+  const { profile, school } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
   const [previewOpen, setPreviewOpen] = React.useState(false);
@@ -56,15 +58,15 @@ export default function TeacherNewHomeworkPage() {
     ],
   });
 
-  const previewContent = `DELHI PUBLIC SCHOOL, R.K. PURAM
+  const previewContent = `${(school?.name || "School").toUpperCase()}
 OFFICIAL ACADEMIC HOMEWORK DISPATCH & ASSESSMENT RUBRIC
-Academic Session: 2024–2025 • Term 2 (CBSE Senior Secondary)
+Academic Session: 2024–2025
 
 ASSIGNMENT METADATA:
 Title: ${formData.title}
 Subject: ${formData.subject}
 Assigned To: ${formData.className}
-Instructor: Prof. Rajesh Verma (Senior PGT Mathematics & Head of Department)
+Instructor: ${profile?.full_name || "Faculty Instructor"}
 Assigned Date: ${new Date().toLocaleDateString("en-IN", {
     weekday: "long",
     year: "numeric",
@@ -198,13 +200,13 @@ Authorized by Faculty Coordinator: Prof. Rajesh Verma (PGT Mathematics)`;
           fileName="Assignment_Brief_Class12A_Math_PS4.pdf"
           content={previewContent}
           studentMeta={{
-            name: "Class 12-A Scholars",
-            rollNumber: "Subject Code: Mathematics (041)",
-            form: "Class 12-A Senior Secondary",
-            house: "Department of Mathematics",
-            institutionName: "DELHI PUBLIC SCHOOL, R.K. PURAM",
-            institutionAffiliation: "Affiliated to Central Board of Secondary Education (CBSE) • Affiliation No: 2730017",
-            institutionAddress: "Sector XII, R.K. Puram, New Delhi - 110022 • School Code: 85214",
+            name: "Class Scholars",
+            rollNumber: "Subject Coursework",
+            form: formData.className,
+            house: "",
+            institutionName: school?.name || "School",
+            institutionAffiliation: "School OS Academic Portal",
+            institutionAddress: "",
             academicSession: "2024–2025",
           }}
         />
@@ -217,7 +219,7 @@ Authorized by Faculty Coordinator: Prof. Rajesh Verma (PGT Mathematics)`;
             </div>
 
             <div className="space-y-2">
-              <Badge variant="gold">Dispatched to 38 Students</Badge>
+              <Badge variant="gold">Dispatched to Class</Badge>
               <h2 className="font-serif text-3xl font-bold text-[#0B1E48]">
                 Homework Assignment Published
               </h2>

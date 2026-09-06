@@ -6,11 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import {
   fetchStudentAttendanceRadar,
+  fetchStudentProfile,
   submitGatePassRequest,
   StudentAttendanceEntry,
+  StudentProfile,
 } from "@/lib/db/student";
 import { triggerClientDownload } from "@/lib/utils";
 import { PdfPreviewModal, PDFStudentMetadata } from "@/components/ui/pdf-preview-modal";
+import { useAuth } from "@/components/providers/auth-context";
 import {
   CalendarDays,
   Calendar,
@@ -28,6 +31,8 @@ import {
 } from "lucide-react";
 
 export default function StudentAttendancePage() {
+  const { profile, school } = useAuth();
+  const [studentProfile, setStudentProfile] = React.useState<StudentProfile | null>(null);
   const [logs, setLogs] = React.useState<StudentAttendanceEntry[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -38,10 +43,10 @@ export default function StudentAttendancePage() {
   const [generatedPassId, setGeneratedPassId] = React.useState("");
   const [passData, setPassData] = React.useState({
     passType: "WEEKEND_EXEAT" as "WEEKEND_EXEAT" | "TOWN_LEAVE" | "ACADEMIC_VISIT",
-    destination: "Vasant Kunj / Sharma Family Residence, New Delhi",
-    departureTime: "2025-01-17T17:00",
-    returnTime: "2025-01-19T20:30",
-    emergencyContact: "+91 11 2617 8812 (Mr. Rajesh Sharma)",
+    destination: "",
+    departureTime: "",
+    returnTime: "",
+    emergencyContact: "",
   });
 
   const [previewDoc, setPreviewDoc] = React.useState<{
@@ -55,8 +60,12 @@ export default function StudentAttendancePage() {
   React.useEffect(() => {
     async function loadData() {
       try {
-        const data = await fetchStudentAttendanceRadar();
+        const [data, sProfile] = await Promise.all([
+          fetchStudentAttendanceRadar(),
+          fetchStudentProfile(),
+        ]);
         setLogs(data);
+        setStudentProfile(sProfile);
       } catch (err) {
         console.error("Failed to load attendance radar", err);
       } finally {
@@ -81,33 +90,38 @@ export default function StudentAttendancePage() {
   };
 
   const handleDownloadGatePass = () => {
+    const studentName = profile?.full_name || studentProfile?.name || "Student";
     setPreviewDoc({
       isOpen: true,
       title: "Campus Gate Pass Slip",
-      fileName: `Gate_Pass_${generatedPassId || "EXEAT-2025"}.pdf`,
-      content: `=== AGRAGATI SCHOOL OS • DIGITAL CAMPUS GATE PASS ===\n\nPass Identifier: ${generatedPassId || "PASS-EXEAT-2025-001"}\nStudent: Aarav Sharma (Roll No: ADM-2024-001)\nClass & House: Class 12-A • Tagore House\nPass Category: ${passData.passType}\nDestination: ${passData.destination}\nDeparture: ${passData.departureTime}\nReturn Deadline: ${passData.returnTime}\nGuardian Emergency Contact: ${passData.emergencyContact}\n\nStatus: AUTHORIZED BY SENIOR HOUSEMASTER (PROF. RAJESH VERMA)\nSmart RFID Turnstile Sync: ACTIVE`,
+      fileName: `Gate_Pass_${generatedPassId || "EXEAT"}.pdf`,
+      content: `=== ${school?.name || "AGRAGATI SCHOOL OS"} • DIGITAL CAMPUS GATE PASS ===\n\nPass Identifier: ${generatedPassId || "PASS-EXEAT"}\nStudent: ${studentName}\nDestination: ${passData.destination}\nDeparture: ${passData.departureTime}\nReturn Deadline: ${passData.returnTime}\nGuardian Emergency Contact: ${passData.emergencyContact}\n\nStatus: PENDING HOUSEMASTER AUTHORIZATION\nSmart RFID Turnstile Sync: ACTIVE`,
       studentMeta: {
-        name: "Aarav Sharma",
-        classSection: "Class 12-A • Tagore House",
-        rollNumber: "ADM-2024-001",
+        name: studentName,
+        classSection: studentProfile?.form || "",
+        rollNumber: studentProfile?.rollNumber || "",
         academicSession: "2024-2025",
-        institutionName: "AGRAGATI MODERN ACADEMY (CBSE AFFILIATED)",
+        institutionName: school?.name || "AGRAGATI MODERN ACADEMY",
       },
     });
   };
 
   const handleDownloadAttendanceStatement = () => {
+    const studentName = profile?.full_name || studentProfile?.name || "Student";
+    const presentCount = logs.filter((l) => l.status === "PRESENT").length;
+    const totalCount = logs.length;
+    const rate = totalCount > 0 ? `${Math.round((presentCount / totalCount) * 100)}%` : "0%";
     setPreviewDoc({
       isOpen: true,
       title: "Monthly Attendance & Gate RFID Statement",
-      fileName: "Aarav_Sharma_Attendance_Statement_Jan2025.pdf",
-      content: `=== DELHI PUBLIC SCHOOL / AGRAGATI • OFFICIAL ATTENDANCE STATEMENT ===\nStudent Name: Aarav Sharma\nClass: 12-A Science\nRoll Number: ADM-2024-001\nMonth: January 2025\n\nTotal Working Days: 18\nDays Attended: 18 (98.4% Attendance)\nLate Arrivals: 1\nApproved Medical Leaves: 1\nAttendance Compliance: FULL TERM COMPLIANCE\n\nPrincipal Verification: SEAL-PRINCIPAL-APAAR-998418-CBSE`,
+      fileName: `${studentName.replace(/\s+/g, "_")}_Attendance_Statement.pdf`,
+      content: `=== ${school?.name || "AGRAGATI SCHOOL OS"} • OFFICIAL ATTENDANCE STATEMENT ===\nStudent Name: ${studentName}\nClass: ${studentProfile?.form || "Enrolled Class"}\nRoll Number: ${studentProfile?.rollNumber || "N/A"}\n\nTotal Recorded Days: ${totalCount}\nDays Attended: ${presentCount} (${rate} Attendance)\nLate Arrivals: ${logs.filter((l) => l.status === "LATE").length}\nApproved Leaves: ${logs.filter((l) => l.status === "EXCUSED").length}`,
       studentMeta: {
-        name: "Aarav Sharma",
-        classSection: "Class 12-A (PCM-CS)",
-        rollNumber: "ADM-2024-001",
+        name: studentName,
+        classSection: studentProfile?.form || "",
+        rollNumber: studentProfile?.rollNumber || "",
         academicSession: "2024-2025",
-        institutionName: "AGRAGATI MODERN ACADEMY (CBSE AFFILIATED)",
+        institutionName: school?.name || "AGRAGATI MODERN ACADEMY",
       },
     });
   };
@@ -115,8 +129,8 @@ export default function StudentAttendancePage() {
   return (
     <AppShell
       role="STUDENT"
-      userName="Aarav Sharma"
-      userRoleTitle="Student • Class 12-A • Tagore House"
+      userName={profile?.full_name || studentProfile?.name || "Student"}
+      userRoleTitle={studentProfile?.form ? `Student • ${studentProfile.form}${studentProfile.house ? ` • ${studentProfile.house}` : ""}` : "Student"}
       epochText="Academic Year 2024–2025 • Term 2 (CBSE Board)"
     >
       <div className="space-y-6">

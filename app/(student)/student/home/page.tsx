@@ -116,7 +116,7 @@ export default function StudentHomePage() {
     if (!selectedTask) return;
     setIsSubmitting(true);
     try {
-      const fileName = uploadedFile ? uploadedFile.name : `Aarav_Sharma_${selectedTask.subject.split(" ")[0]}_Solution.pdf`;
+      const fileName = uploadedFile ? uploadedFile.name : `${(profile?.name || "Student").replace(/\s+/g, "_")}_${selectedTask.subject.split(" ")[0]}_Solution.pdf`;
       await submitHomeworkSolution({
         homeworkId: selectedTask.id,
         fileName,
@@ -157,9 +157,9 @@ export default function StudentHomePage() {
       fileName: `${safeTitle}_Worksheet_Question_Paper.pdf`,
       content: `=== AGRAGATI SCHOOL OS • ASSIGNMENT WORKSHEET ===\n\nSubject: ${task.subject}\nTopic: ${task.title}\nAssigned by: ${task.teacherName}\nDue Date: ${task.dueDate}\nTotal Marks: ${task.maxScore}\n\nInstructions & Rubric:\n${task.rubricSummary}\n\n1. Solve all problem derivations clearly.\n2. Submit compiled PDF script before the cutoff deadline.\n\nDean of Academics • Agragati Academy`,
       studentMeta: {
-        name: profile?.name || "Aarav Sharma",
-        classSection: profile?.form || "Class 12-A",
-        rollNumber: "ADM-2024-001",
+        name: profile?.name || "Scholar",
+        classSection: profile?.form || "",
+        rollNumber: profile?.rollNumber || "",
         academicSession: "2024-2025",
         institutionName: "AGRAGATI MODERN ACADEMY (CBSE AFFILIATED)",
       },
@@ -174,9 +174,9 @@ export default function StudentHomePage() {
       fileName: `${safeTitle}_Circular.pdf`,
       content: `=== OFFICIAL CIRCULAR • AGRAGATI ACADEMY ===\nTitle: ${notice.title}\nCategory: ${notice.category}\nDate: ${notice.date}\nAuthor: ${notice.author}\n\nSummary:\n${notice.summary}\n\nNotice Content:\n${notice.body}\n\nDean of Academics & Student Welfare`,
       studentMeta: {
-        name: profile?.name || "Aarav Sharma",
-        classSection: profile?.form || "Class 12-A",
-        rollNumber: "ADM-2024-001",
+        name: profile?.name || "Scholar",
+        classSection: profile?.form || "",
+        rollNumber: profile?.rollNumber || "",
         academicSession: "2024-2025",
         institutionName: "AGRAGATI MODERN ACADEMY (CBSE AFFILIATED)",
       },
@@ -186,8 +186,8 @@ export default function StudentHomePage() {
   return (
     <AppShell
       role="STUDENT"
-      userName={profile?.name || "Aarav Sharma"}
-      userRoleTitle={`Student • ${profile?.form || "Class 12-A"} • ${profile?.house || "Tagore House"}`}
+      userName={profile?.name || "Scholar"}
+      userRoleTitle={profile?.form ? `Student • ${profile.form}${profile.house ? ` • ${profile.house}` : ""}` : "Student"}
       epochText="Academic Year 2024–2025 • Term 2 (CBSE Board)"
     >
       <div className="space-y-6">
@@ -196,19 +196,19 @@ export default function StudentHomePage() {
           {/* Left: Avatar + Greeting + Meta */}
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-100 to-amber-50 dark:from-amber-950/60 dark:to-amber-900/30 border-2 border-amber-200 dark:border-amber-800 flex items-center justify-center font-serif font-bold text-xl text-amber-900 dark:text-amber-200 shrink-0 shadow-xs">
-              {profile?.avatar || "AS"}
+              {profile?.avatar || "ST"}
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2.5">
                 <h1 className="font-serif text-2xl md:text-3xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
-                  Good morning, {profile?.name?.split(" ")[0] || "Aarav"}! ☀️
+                  Good morning, {profile?.name?.split(" ")[0] || "Scholar"}! ☀️
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full bg-[#FEF3C7] dark:bg-amber-950/50 text-[#92400E] dark:text-amber-300 border border-amber-200/70 dark:border-amber-800 font-sans text-[10px] font-bold uppercase tracking-wider">
-                  HEAD BOY NOMINEE
+                  STUDENT
                 </span>
               </div>
               <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-1">
-                {profile?.grade || "Class 12 (CBSE Science & AI)"} • {profile?.house || "Tagore House"} • Roll No: {profile?.rollNumber || "ADM-2024-001"}
+                {profile?.grade || ""} {profile?.house ? `• ${profile.house}` : ""} {profile?.rollNumber ? `• Roll No: ${profile.rollNumber}` : ""}
               </p>
             </div>
           </div>
@@ -538,7 +538,7 @@ export default function StudentHomePage() {
                 </div>
                 <div>
                   <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-stone-100">
-                    Tagore House
+                    {profile?.house || "Student House"}
                   </h3>
                 </div>
               </div>
@@ -550,7 +550,7 @@ export default function StudentHomePage() {
                     <UserCheck className="w-4 h-4 text-stone-400" />
                     <span>Housemaster</span>
                   </div>
-                  <span className="font-bold text-stone-900 dark:text-stone-100">Prof. Rajesh Verma</span>
+                  <span className="font-bold text-stone-900 dark:text-stone-100">{profile?.housemaster || "Assigned Faculty"}</span>
                 </div>
 
                 <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-900/50 border border-stone-200/60 dark:border-stone-800 flex items-center justify-between">
@@ -720,7 +720,7 @@ export default function StudentHomePage() {
                       <Upload className="w-8 h-8 text-[#8C6D27] mx-auto" />
                       <div>
                         <span className="font-bold text-xs text-stone-900 dark:text-stone-100 block font-mono">
-                          {uploadedFile ? uploadedFile.name : `Aarav_Sharma_${selectedTask.subject.split(" ")[0]}_Solution.pdf`}
+                          {uploadedFile ? uploadedFile.name : `${(profile?.name || "Student").replace(/\s+/g, "_")}_${selectedTask.subject.split(" ")[0]}_Solution.pdf`}
                         </span>
                         <span className="text-[11px] text-stone-500 dark:text-stone-400">
                           {uploadedFile ? `${(uploadedFile.size / 1024).toFixed(1)} KB • Click to change file` : "Click or drag & drop to choose your completed PDF script"}

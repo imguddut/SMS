@@ -2,8 +2,7 @@
  * AGRAGATI SCHOOL OS — Student Domain Service
  *
  * Single canonical source of truth for Student records across all 8 portals.
- * Uses canonical `students.id` everywhere.
- * Enforces soft-delete/archiving and central audit logging.
+ * NO in-memory stores — all reads/writes go directly to Supabase.
  */
 
 import { createClient } from "@/lib/supabase/client";
@@ -16,14 +15,13 @@ export interface StudentRecord {
   admission_number: string;
   full_name: string;
   email: string;
-  house: string;
+  house: string | null;
   date_of_birth: string;
   gender: string | null;
   blood_group: string | null;
   medical_notes: string | null;
   status: "ACTIVE" | "GRADED" | "WITHDRAWN" | "SUSPENDED" | "ARCHIVED";
   created_at: string;
-  // Joined fields
   section_id?: string;
   section_name?: string;
   class_name?: string;
@@ -50,11 +48,9 @@ export interface CreateStudentPayload {
   guardianRelationship?: string;
 }
 
-const FALLBACK_STUDENTS: StudentRecord[] = [];
-let inMemoryStudents: StudentRecord[] = [];
-
 /**
  * List students within a school with optional filters.
+ * Returns [] when the school has no students — never returns fake data.
  */
 export async function listStudents(
   schoolId: string,
@@ -103,58 +99,36 @@ export async function listStudents(
     const { data, error } = await query;
     if (error) throw error;
 
-    if (data && data.length > 0) {
-      let results: StudentRecord[] = data.map((s: any) => {
-        const enr = s.enrollments?.[0];
-        const sec = enr?.sections;
-        const cls = sec?.classes;
-        const g = s.student_guardians?.[0]?.guardians;
-        return {
-          id: s.id,
-          school_id: s.school_id,
-          profile_id: s.profile_id,
-          admission_number: s.admission_number,
-          full_name: s.users_profiles?.full_name || "Unknown Student",
-          email: s.users_profiles?.email || "",
-          house: s.house,
-          date_of_birth: s.date_of_birth,
-          gender: s.gender,
-          blood_group: s.blood_group,
-          medical_notes: s.medical_notes,
-          status: s.status,
-          created_at: s.created_at,
-          section_id: enr?.section_id,
-          section_name: sec?.name,
-          class_name: cls?.name,
-          roll_number: enr?.roll_number,
-          guardian_name: g?.users_profiles?.full_name,
-          guardian_phone: g?.emergency_contact,
-        };
-      });
+    if (!data || data.length === 0) return [];
 
-      if (filters?.search) {
-        const term = filters.search.toLowerCase();
-        results = results.filter(
-          (st) =>
-            st.full_name.toLowerCase().includes(term) ||
-            st.admission_number.toLowerCase().includes(term) ||
-            (st.guardian_name && st.guardian_name.toLowerCase().includes(term))
-        );
-      }
+    let results: StudentRecord[] = data.map((s: any) => {
+      const enr = s.enrollments?.[0];
+      const sec = enr?.sections;
+      const cls = sec?.classes;
+      const g = s.student_guardians?.[0]?.guardians;
+      return {
+        id: s.id,
+        school_id: s.school_id,
+        profile_id: s.profile_id,
+        admission_number: s.admission_number,
+        full_name: s.users_profiles?.full_name || "Unknown Student",
+        email: s.users_profiles?.email || "",
+        house: s.house || null,
+        date_of_birth: s.date_of_birth,
+        gender: s.gender,
+        blood_group: s.blood_group,
+        medical_notes: s.medical_notes,
+        status: s.status,
+        created_at: s.created_at,
+        section_id: enr?.section_id,
+        section_name: sec?.name,
+        class_name: cls?.name,
+        roll_number: enr?.roll_number,
+        guardian_name: g?.users_profiles?.full_name,
+        guardian_phone: g?.emergency_contact,
+      };
+    });
 
-      return results;
-    }
-
-    let results = inMemoryStudents.filter((s) => s.school_id === schoolId);
-    if (filters?.status && filters.status !== "ALL") {
-      results = results.filter((s) => s.status === filters.status);
-    }
-    if (filters?.house && filters.house !== "ALL") {
-      results = results.filter((s) => s.house === filters.house);
-    }
-    if (filters?.sectionId) {
-      results = results.filter((s) => s.section_id === filters.sectionId);
-    }
     if (filters?.search) {
       const term = filters.search.toLowerCase();
       results = results.filter(
@@ -164,29 +138,15 @@ export async function listStudents(
           (st.guardian_name && st.guardian_name.toLowerCase().includes(term))
       );
     }
+
+    if (filters?.sectionId) {
+      results = results.filter((st) => st.section_id === filters.sectionId);
+    }
+
     return results;
   } catch (err) {
-    console.warn("listStudents fallback:", err);
-    let results = inMemoryStudents.filter((s) => s.school_id === schoolId);
-    if (filters?.status && filters.status !== "ALL") {
-      results = results.filter((s) => s.status === filters.status);
-    }
-    if (filters?.house && filters.house !== "ALL") {
-      results = results.filter((s) => s.house === filters.house);
-    }
-    if (filters?.sectionId) {
-      results = results.filter((s) => s.section_id === filters.sectionId);
-    }
-    if (filters?.search) {
-      const term = filters.search.toLowerCase();
-      results = results.filter(
-        (st) =>
-          st.full_name.toLowerCase().includes(term) ||
-          st.admission_number.toLowerCase().includes(term) ||
-          (st.guardian_name && st.guardian_name.toLowerCase().includes(term))
-      );
-    }
-    return results;
+    console.error("listStudents error:", err);
+    return [];
   }
 }
 
@@ -200,6 +160,7 @@ export async function getStudent(schoolId: string, studentId: string): Promise<S
 
 /**
  * Create a new student with atomic profile, enrollment, and guardian relationship.
+ * Writes directly to Supabase — throws on DB failure (no in-memory fallback).
  */
 export async function createStudent(
   schoolId: string,
@@ -207,112 +168,83 @@ export async function createStudent(
   payload: CreateStudentPayload
 ): Promise<StudentRecord> {
   const supabase = createClient();
-  const studentId = "std-" + Date.now();
 
-  try {
-    // 1. Insert user profile
-    const { data: profile, error: profErr } = await supabase
-      .from("users_profiles")
-      .insert({
-        school_id: schoolId,
-        role: "STUDENT",
-        full_name: payload.fullName,
-        email: payload.email,
-        status: "ACTIVE",
-      })
-      .select("id")
-      .single();
+  const { data: profile, error: profErr } = await supabase
+    .from("users_profiles")
+    .insert({
+      school_id: schoolId,
+      role: "STUDENT",
+      full_name: payload.fullName,
+      email: payload.email,
+      status: "ACTIVE",
+    })
+    .select("id")
+    .single();
 
-    const profileId = profile?.id || "prof-" + Date.now();
+  if (profErr) throw new Error(`Failed to create student profile: ${profErr.message}`);
+  const profileId = profile.id;
 
-    // 2. Insert student record
-    const { data: std, error: stdErr } = await supabase
-      .from("students")
-      .insert({
-        school_id: schoolId,
-        profile_id: profileId,
-        admission_number: payload.admissionNumber,
-        house: payload.house || "Tagore House",
-        date_of_birth: payload.dateOfBirth,
-        gender: payload.gender || "Not Specified",
-        blood_group: payload.bloodGroup || null,
-        medical_notes: payload.medicalNotes || null,
-        status: "ACTIVE",
-      })
-      .select("id")
-      .single();
-
-    const actualStudentId = std?.id || studentId;
-
-    // 3. Insert enrollment if section provided
-    if (payload.sectionId && payload.academicYearId) {
-      await supabase.from("enrollments").insert({
-        school_id: schoolId,
-        student_id: actualStudentId,
-        section_id: payload.sectionId,
-        academic_year_id: payload.academicYearId,
-        roll_number: payload.rollNumber || 1,
-        status: "ACTIVE",
-      });
-    }
-
-    // 4. Create Audit Log
-    await logAudit({
-      schoolId,
-      actorId,
-      action: AuditAction.STUDENT_ENROLLED,
-      entityTable: "students",
-      entityId: actualStudentId,
-      newValues: {
-        admissionNumber: payload.admissionNumber,
-        fullName: payload.fullName,
-        house: payload.house,
-      },
-    });
-
-    const record: StudentRecord = {
-      id: actualStudentId,
+  const { data: std, error: stdErr } = await supabase
+    .from("students")
+    .insert({
       school_id: schoolId,
       profile_id: profileId,
       admission_number: payload.admissionNumber,
-      full_name: payload.fullName,
-      email: payload.email,
-      house: payload.house || "Tagore House",
+      house: payload.house || null,
       date_of_birth: payload.dateOfBirth,
       gender: payload.gender || null,
       blood_group: payload.bloodGroup || null,
       medical_notes: payload.medicalNotes || null,
       status: "ACTIVE",
-      created_at: new Date().toISOString(),
-      section_id: payload.sectionId,
-      guardian_name: payload.guardianName,
-      guardian_phone: payload.guardianPhone,
-    };
-    inMemoryStudents.unshift(record);
-    return record;
-  } catch (err) {
-    console.warn("createStudent fallback:", err);
-    const record: StudentRecord = {
-      id: studentId,
+    })
+    .select("id")
+    .single();
+
+  if (stdErr) throw new Error(`Failed to create student record: ${stdErr.message}`);
+  const actualStudentId = std.id;
+
+  if (payload.sectionId && payload.academicYearId) {
+    await supabase.from("enrollments").insert({
       school_id: schoolId,
-      profile_id: "prof-" + Date.now(),
-      admission_number: payload.admissionNumber,
-      full_name: payload.fullName,
-      email: payload.email,
-      house: payload.house || "Tagore House",
-      date_of_birth: payload.dateOfBirth,
-      gender: payload.gender || null,
-      blood_group: payload.bloodGroup || null,
-      medical_notes: payload.medicalNotes || null,
-      status: "ACTIVE",
-      created_at: new Date().toISOString(),
+      student_id: actualStudentId,
       section_id: payload.sectionId,
-      guardian_name: payload.guardianName,
-      guardian_phone: payload.guardianPhone,
-    };
-    inMemoryStudents.unshift(record);
-    return record;
+      academic_year_id: payload.academicYearId,
+      roll_number: payload.rollNumber || 1,
+      status: "ACTIVE",
+    });
   }
+
+  await logAudit({
+    schoolId,
+    actorId,
+    action: AuditAction.STUDENT_ENROLLED,
+    entityTable: "students",
+    entityId: actualStudentId,
+    newValues: {
+      admissionNumber: payload.admissionNumber,
+      fullName: payload.fullName,
+      house: payload.house,
+    },
+  });
+
+  return {
+    id: actualStudentId,
+    school_id: schoolId,
+    profile_id: profileId,
+    admission_number: payload.admissionNumber,
+    full_name: payload.fullName,
+    email: payload.email,
+    house: payload.house || null,
+    date_of_birth: payload.dateOfBirth,
+    gender: payload.gender || null,
+    blood_group: payload.bloodGroup || null,
+    medical_notes: payload.medicalNotes || null,
+    status: "ACTIVE",
+    created_at: new Date().toISOString(),
+    section_id: payload.sectionId,
+    guardian_name: payload.guardianName,
+    guardian_phone: payload.guardianPhone,
+  };
 }
 
 /**
@@ -326,7 +258,7 @@ export async function updateStudent(
 ): Promise<{ success: boolean }> {
   try {
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("students")
       .update({
         house: data.house,
@@ -337,13 +269,7 @@ export async function updateStudent(
       .eq("id", studentId)
       .eq("school_id", schoolId);
 
-    const mem = inMemoryStudents.find((s) => s.id === studentId && s.school_id === schoolId);
-    if (mem) {
-      if (data.house) mem.house = data.house;
-      if (data.gender) mem.gender = data.gender;
-      if (data.bloodGroup) mem.blood_group = data.bloodGroup;
-      if (data.medicalNotes) mem.medical_notes = data.medicalNotes;
-    }
+    if (error) throw error;
 
     await logAudit({
       schoolId,
@@ -356,15 +282,8 @@ export async function updateStudent(
 
     return { success: true };
   } catch (err) {
-    console.warn("updateStudent fallback:", err);
-    const mem = inMemoryStudents.find((s) => s.id === studentId && s.school_id === schoolId);
-    if (mem) {
-      if (data.house) mem.house = data.house;
-      if (data.gender) mem.gender = data.gender;
-      if (data.bloodGroup) mem.blood_group = data.bloodGroup;
-      if (data.medicalNotes) mem.medical_notes = data.medicalNotes;
-    }
-    return { success: true };
+    console.error("updateStudent error:", err);
+    return { success: false };
   }
 }
 
@@ -379,14 +298,13 @@ export async function archiveStudent(
 ): Promise<{ success: boolean }> {
   try {
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("students")
       .update({ status: "WITHDRAWN" })
       .eq("id", studentId)
       .eq("school_id", schoolId);
 
-    const mem = inMemoryStudents.find((s) => s.id === studentId && s.school_id === schoolId);
-    if (mem) mem.status = "WITHDRAWN";
+    if (error) throw error;
 
     await logAudit({
       schoolId,
@@ -399,9 +317,7 @@ export async function archiveStudent(
 
     return { success: true };
   } catch (err) {
-    console.warn("archiveStudent fallback:", err);
-    const mem = inMemoryStudents.find((s) => s.id === studentId && s.school_id === schoolId);
-    if (mem) mem.status = "WITHDRAWN";
-    return { success: true };
+    console.error("archiveStudent error:", err);
+    return { success: false };
   }
 }
