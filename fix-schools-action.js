@@ -1,4 +1,6 @@
-"use server";
+const fs = require('fs');
+
+const content = `"use server";
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -61,8 +63,8 @@ export async function createSchoolAction(payload: {
     .from("schools")
     .insert({
       legal_name: payload.legal_name,
-      slug: payload.slug.toLowerCase().replace(/\s+/g, "-"),
-      domain: payload.domain || `${payload.slug.toLowerCase()}.agragati.edu`,
+      slug: payload.slug.toLowerCase().replace(/\\s+/g, "-"),
+      domain: payload.domain || \`\${payload.slug.toLowerCase()}.agragati.edu\`,
       institution_type: payload.institution_type,
       curriculum_framework: payload.curriculum_framework,
       jurisdiction: payload.jurisdiction,
@@ -75,7 +77,7 @@ export async function createSchoolAction(payload: {
         mfa_enforced: true,
         biometric_sync: payload.biometric_sync ?? true,
         ai_insights_enabled: true,
-        cluster_node: `${payload.jurisdiction.toUpperCase().slice(0, 3)}-SECURE-01`,
+        cluster_node: \`\${payload.jurisdiction.toUpperCase().slice(0, 3)}-SECURE-01\`,
       },
     })
     .select()
@@ -114,3 +116,6 @@ export async function createSchoolAction(payload: {
 
   return { success: true, school, profile };
 }
+`;
+
+fs.writeFileSync('app/actions/schools.ts', content);
