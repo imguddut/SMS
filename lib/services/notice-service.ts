@@ -33,40 +33,7 @@ export interface Notice {
 // Fallback data
 // ---------------------------------------------------------------------------
 
-const FALLBACK_NOTICES: Notice[] = [
-  {
-    id: "notice-1",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    author_id: "b0000000-0000-0000-0000-000000000003",
-    title: "Annual Sports Day — Schedule & House Points",
-    content_markdown: "The Annual Inter-House Sports Championship will be held on Saturday, 15th March 2025. All students must report in house colours by 7:30 AM.",
-    target_audiences: ["ALL_SCHOOL"],
-    is_pinned: true,
-    image_url: null,
-    location_tag: "Main Ground",
-    publish_date: new Date(Date.now() - 2 * 86400000).toISOString(),
-    expiry_date: null,
-    created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
-    author_name: "Mme. Claire De La Tour",
-    author_title: "Head of School / Principal",
-  },
-  {
-    id: "notice-2",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    author_id: "b0000000-0000-0000-0000-000000000004",
-    title: "Term 3 Fee Payment Reminder",
-    content_markdown: "Kindly ensure Term 3 Composite Fees are settled by the due date to avoid late payment surcharges.",
-    target_audiences: ["PARENTS_ONLY"],
-    is_pinned: false,
-    image_url: null,
-    location_tag: null,
-    publish_date: new Date(Date.now() - 5 * 86400000).toISOString(),
-    expiry_date: null,
-    created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
-    author_name: "Henrietta Sterling",
-    author_title: "School Operations Administrator",
-  },
-];
+const FALLBACK_NOTICES: Notice[] = [];
 
 // ---------------------------------------------------------------------------
 // Service Functions

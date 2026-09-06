@@ -544,8 +544,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // 2. Fallback: Cookie-based demo session (multi-tenant offline mode)
+      // 2. Cookie-based session check
       const sessionCookie = getCookie("agragati_session");
+      if (!sessionCookie) {
+        setUserId(null);
+        setProfile(null);
+        setCurrentOrganization(null);
+        setCurrentSchool(null);
+        setOrganizations([]);
+        setSchools([]);
+        setActiveRole(null);
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return;
+      }
+
       const roleCookie = (getCookie("agragati_role") as UserRole | null) || "STUDENT";
       const normalizedRole = normalizeRole(roleCookie);
       const demoProfile = DEMO_PROFILES[normalizedRole] || DEMO_PROFILES.STUDENT;
@@ -584,22 +597,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           joined_at: new Date().toISOString(),
           school: DEMO_SCHOOL_A1,
         },
-        {
-          id: "sm-02",
-          school_id: DEMO_SCHOOL_A2.id,
-          profile_id: demoProfile.id,
-          role: "SCHOOL_ADMIN",
-          status: "ACTIVE",
-          is_primary: false,
-          joined_at: new Date().toISOString(),
-          school: DEMO_SCHOOL_A2,
-        },
       ]);
       setActiveRole(normalizedRole);
-      setIsAuthenticated(Boolean(sessionCookie) || true);
+      setIsAuthenticated(true);
       setIsLoading(false);
     } catch (err) {
-      console.warn("AuthProvider fallback:", err);
+      console.warn("AuthProvider auth error:", err);
+      setIsAuthenticated(false);
       setIsLoading(false);
     }
   }, []);

@@ -25,38 +25,7 @@ export interface TimetableEntry {
   section_name?: string;
 }
 
-const FALLBACK_TIMETABLE: TimetableEntry[] = [
-  {
-    id: "tt-01",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    section_id: "55555555-5555-5555-5555-555555555555",
-    subject_id: "66666666-6666-6666-6666-666666666666",
-    teacher_id: "c0000000-0000-0000-0000-000000000005",
-    day_of_week: 1,
-    period_number: 1,
-    start_time: "08:30:00",
-    end_time: "10:00:00",
-    room_location: "Physics Wing Rm 301",
-    subject_name: "Higher Level Physics",
-    teacher_name: "Dr. Alistair Finch",
-    section_name: "Grade 11-A",
-  },
-  {
-    id: "tt-02",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    section_id: "55555555-5555-5555-5555-555555555555",
-    subject_id: "sub-02",
-    teacher_id: "c0000000-0000-0000-0000-000000000005",
-    day_of_week: 1,
-    period_number: 2,
-    start_time: "10:15:00",
-    end_time: "11:45:00",
-    room_location: "Chemistry Wing Rm 304",
-    subject_name: "Advanced Mathematics",
-    teacher_name: "Dr. Alistair Finch",
-    section_name: "Grade 11-A",
-  },
-];
+const FALLBACK_TIMETABLE: TimetableEntry[] = [];
 
 export async function getTimetableForSection(schoolId: string, sectionId: string): Promise<TimetableEntry[]> {
   try {

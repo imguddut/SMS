@@ -79,98 +79,38 @@ export interface ProvisionSchoolPayload {
   adminEmail?: string;
 }
 
-// In-memory fallback for offline/demo reliability
-let memoryOrganizations: OrganizationSummary[] = [
-  {
-    id: "e0000000-0000-0000-0000-000000000001",
-    platform_id: "00000000-0000-0000-0000-000000000001",
-    name: "King's Educational Trust",
-    slug: "kings-trust",
-    legal_name: "The King's Educational Trust & Foundation",
-    organization_type: "TRUST",
-    registration_number: "KET-REG-2018-9842",
-    email: "trustee@kingscollege.edu",
-    phone: "+41 22 718 8000",
-    city: "Geneva",
-    state: "Geneva Canton",
-    country: "Switzerland",
-    status: "ACTIVE",
-    subscription_plan: "ENTERPRISE_FLEET",
-    subscription_status: "ACTIVE",
-    created_at: new Date().toISOString(),
-    school_count: 2,
-    student_count: 3420,
-    faculty_count: 248,
-    total_revenue: 48500000,
-  },
-  {
-    id: "e0000000-0000-0000-0000-000000000002",
-    platform_id: "00000000-0000-0000-0000-000000000001",
-    name: "ABC Education Society",
-    slug: "abc-society",
-    legal_name: "ABC Education Society Foundation",
-    organization_type: "SOCIETY",
-    registration_number: "ABC-SOC-2021-4410",
-    email: "board@abcsociety.edu",
-    phone: "+91 11 2658 9000",
-    city: "New Delhi",
-    state: "Delhi",
-    country: "India",
-    status: "ACTIVE",
-    subscription_plan: "STANDARD",
-    subscription_status: "ACTIVE",
-    created_at: new Date().toISOString(),
-    school_count: 1,
-    student_count: 1250,
-    faculty_count: 92,
-    total_revenue: 16200000,
-  },
+export const DEFAULT_10_PLUS_2_CLASSES: ProvisionClassInput[] = Array.from({ length: 12 }, (_, i) => {
+  const grade = i + 1;
+  const stage = grade <= 5 ? "Primary" : grade <= 8 ? "Middle" : grade <= 10 ? "Secondary" : "Senior Secondary";
+  return {
+    name: `Class ${grade} - ${stage}`,
+    gradeLevel: grade,
+    sections: ["Section A", "Section B"],
+  };
+});
+
+export const DEFAULT_10_PLUS_2_SUBJECTS = [
+  "English Core",
+  "Hindi / Regional Language",
+  "Mathematics",
+  "Science & EVS",
+  "Social Studies",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "Computer Science & AI",
 ];
 
-let memorySchools: SchoolTenant[] = [
-  {
-    id: "11111111-1111-1111-1111-111111111111",
-    organization_id: "e0000000-0000-0000-0000-000000000001",
-    legal_name: "The King's College & Academy",
-    name: "The King's College & Academy",
-    slug: "kingscollege",
-    school_code: "KC-01",
-    domain: "kingscollege.agragati.edu",
-    currency: "CHF",
-    base_currency: "CHF",
-    status: "ACTIVE",
-    city: "Geneva",
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "11111111-1111-1111-1111-111111111112",
-    organization_id: "e0000000-0000-0000-0000-000000000001",
-    legal_name: "King's Preparatory Grammar School",
-    name: "King's Preparatory Grammar School",
-    slug: "kingsprep",
-    school_code: "KC-PREP-02",
-    domain: "prep.kingscollege.edu",
-    currency: "CHF",
-    base_currency: "CHF",
-    status: "ACTIVE",
-    city: "Lausanne",
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "22222222-2222-2222-2222-222222222222",
-    organization_id: "e0000000-0000-0000-0000-000000000002",
-    legal_name: "ABC Public Senior School",
-    name: "ABC Public Senior School",
-    slug: "abc-senior-school",
-    school_code: "ABC-01",
-    domain: "abcschool.agragati.edu",
-    currency: "INR",
-    base_currency: "INR",
-    status: "ACTIVE",
-    city: "New Delhi",
-    created_at: new Date().toISOString(),
-  },
-];
+// Clean arrays (all dummy seed data cleared as requested)
+let memoryOrganizations: OrganizationSummary[] = [];
+let memorySchools: SchoolTenant[] = [];
+
+export function clearAllDummyData() {
+  memoryOrganizations.length = 0;
+  memorySchools.length = 0;
+}
+
+const deletedSchoolIds = new Set<string>();
 
 /**
  * List organizations.
@@ -306,6 +246,7 @@ export async function createOrganization(
  * List schools belonging to a specific organization.
  */
 export async function listOrganizationSchools(orgId: string): Promise<SchoolTenant[]> {
+  let dbSchools: SchoolTenant[] = [];
   try {
     const supabase = createClient();
     const { data, error } = await supabase
@@ -314,8 +255,8 @@ export async function listOrganizationSchools(orgId: string): Promise<SchoolTena
       .eq("organization_id", orgId)
       .order("legal_name", { ascending: true });
 
-    if (!error && data && data.length > 0) {
-      return data.map((s: any) => ({
+    if (!error && data) {
+      dbSchools = data.map((s: any) => ({
         id: s.id,
         organization_id: s.organization_id,
         legal_name: s.legal_name,
@@ -334,7 +275,19 @@ export async function listOrganizationSchools(orgId: string): Promise<SchoolTena
     console.warn("listOrganizationSchools fallback:", err);
   }
 
-  return memorySchools.filter((s) => s.organization_id === orgId);
+  // Track permanently deleted school IDs across session
+  const memForOrg = memorySchools.filter(
+    (s) => s.organization_id === orgId && !deletedSchoolIds.has(s.id)
+  );
+  const combinedMap = new Map<string, SchoolTenant>();
+  for (const s of memForOrg) combinedMap.set(s.id, s);
+  for (const s of dbSchools) {
+    if (!deletedSchoolIds.has(s.id)) {
+      combinedMap.set(s.id, s);
+    }
+  }
+
+  return Array.from(combinedMap.values());
 }
 
 /**
@@ -352,29 +305,29 @@ export async function provisionSchool(
 ): Promise<SchoolTenant> {
   // ── Browser path: call the server API route ───────────────────────────────
   if (typeof window !== "undefined") {
-    const res = await fetch("/api/schools/provision", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orgId, actorId, payload }),
-    });
+    try {
+      const res = await fetch("/api/schools/provision", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orgId, actorId, payload }),
+      });
 
-    const json = await res.json();
+      const json = await res.json();
 
-    if (!res.ok || !json.success) {
-      throw new Error(json.error || `Server returned ${res.status}`);
+      if (res.ok && json.success && json.school) {
+        const school = json.school as SchoolTenant;
+        if (!memorySchools.find((s) => s.id === school.id)) {
+          memorySchools.unshift(school);
+        }
+        const org = memoryOrganizations.find((o) => o.id === orgId);
+        if (org) {
+          org.school_count += 1;
+        }
+        return school;
+      }
+    } catch (err) {
+      console.warn("fetch /api/schools/provision warning, proceeding with client sync:", err);
     }
-
-    // Also mirror into the in-memory cache so the UI refreshes instantly
-    const school = json.school as SchoolTenant;
-    if (!memorySchools.find((s) => s.id === school.id)) {
-      memorySchools.push(school);
-    }
-    const org = memoryOrganizations.find((o) => o.id === orgId);
-    if (org) {
-      org.school_count += 1;
-    }
-
-    return school;
   }
 
   // ── Server / test path: direct in-memory (offline) ───────────────────────
@@ -405,7 +358,7 @@ export async function provisionSchool(
         slug: schoolRecord.slug,
         domain: schoolRecord.domain,
         school_code: schoolCode,
-        status: "PROVISIONING",
+        status: "ACTIVE",
         base_currency: schoolRecord.base_currency,
       })
       .select("id")
@@ -426,10 +379,7 @@ export async function provisionSchool(
       .single();
     const ayId = ayData?.id || "ay-" + Date.now();
 
-    const classesToProvision = payload.classes?.length ? payload.classes : [
-      { name: "Class 11 - Senior Secondary", gradeLevel: 11, sections: ["11-A", "11-B"] },
-      { name: "Class 12 - Senior Secondary", gradeLevel: 12, sections: ["12-A", "12-B"] },
-    ];
+    const classesToProvision = payload.classes?.length ? payload.classes : DEFAULT_10_PLUS_2_CLASSES;
     for (const cls of classesToProvision) {
       const { data: clsData } = await supabase.from("classes")
         .insert({ school_id: actualSchoolId, academic_year_id: ayId, name: cls.name, grade_level: cls.gradeLevel })
@@ -440,8 +390,7 @@ export async function provisionSchool(
       }
     }
 
-    const subjectsToProvision = payload.subjects?.length ? payload.subjects
-      : ["Mathematics", "Physics", "Chemistry", "Computer Science & AI", "English Core"];
+    const subjectsToProvision = payload.subjects?.length ? payload.subjects : DEFAULT_10_PLUS_2_SUBJECTS;
     for (const subjName of subjectsToProvision) {
       await supabase.from("subjects").insert({ school_id: actualSchoolId, name: subjName, code: subjName.slice(0, 3).toUpperCase() + "-101", department: "Academics" });
     }
@@ -507,16 +456,23 @@ export async function updateOrganizationSchoolStatus(
   status: "ACTIVE" | "INACTIVE" | "SUSPENDED",
   actorId?: string
 ): Promise<{ success: boolean; school?: SchoolTenant }> {
-  try {
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("schools")
-      .update({ status })
-      .eq("id", schoolId);
-
-    if (error) throw error;
-  } catch (err) {
-    console.warn("updateOrganizationSchoolStatus fallback:", err);
+  if (typeof window !== "undefined") {
+    try {
+      await fetch("/api/schools", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ schoolId, status, actorId }),
+      });
+    } catch (err) {
+      console.warn("updateOrganizationSchoolStatus API fetch warning:", err);
+    }
+  } else {
+    try {
+      const supabase = createClient();
+      await supabase.from("schools").update({ status }).eq("id", schoolId);
+    } catch (err) {
+      console.warn("updateOrganizationSchoolStatus fallback:", err);
+    }
   }
 
   // Update in-memory fallback
@@ -544,6 +500,29 @@ export async function deleteOrganizationSchool(
   schoolId: string,
   actorId?: string
 ): Promise<{ success: boolean; schoolId: string }> {
+  if (typeof window !== "undefined") {
+    try {
+      await fetch(`/api/schools?id=${encodeURIComponent(schoolId)}`, {
+        method: "DELETE",
+      });
+    } catch (err) {
+      console.warn("deleteOrganizationSchool API fetch warning:", err);
+    }
+  } else {
+    try {
+      const supabase = createClient();
+      await supabase.from("sections").delete().eq("school_id", schoolId);
+      await supabase.from("classes").delete().eq("school_id", schoolId);
+      await supabase.from("academic_years").delete().eq("school_id", schoolId);
+      await supabase.from("schools").delete().eq("id", schoolId);
+    } catch (err) {
+      console.warn("deleteOrganizationSchool fallback:", err);
+    }
+  }
+
+  // Track permanently deleted school IDs across session
+  deletedSchoolIds.add(schoolId);
+
   // Update in-memory fallback
   const schoolIndex = memorySchools.findIndex((s) => s.id === schoolId);
   let orgId = "";
@@ -557,17 +536,6 @@ export async function deleteOrganizationSchool(
     if (org && org.school_count > 0) {
       org.school_count -= 1;
     }
-  }
-
-  try {
-    const supabase = createClient();
-    // Cleanup dependent tables if any
-    await supabase.from("sections").delete().eq("school_id", schoolId);
-    await supabase.from("classes").delete().eq("school_id", schoolId);
-    await supabase.from("academic_years").delete().eq("school_id", schoolId);
-    await supabase.from("schools").delete().eq("id", schoolId);
-  } catch (err) {
-    console.warn("deleteOrganizationSchool fallback:", err);
   }
 
   await logAudit({

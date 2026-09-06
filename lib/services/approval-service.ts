@@ -35,42 +35,7 @@ export interface Approval {
 // Fallback data
 // ---------------------------------------------------------------------------
 
-const FALLBACK_APPROVALS: Approval[] = [
-  {
-    id: "appr-1",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    approval_type: "BURSARY_WAIVER",
-    reference_table: "invoices",
-    reference_id: null,
-    requested_by_id: "b0000000-0000-0000-0000-000000000006",
-    decided_by_id: null,
-    impact_amount: 25000,
-    status: "PENDING",
-    petitioner_notes: "Merit scholarship waiver request for Term 3 fees.",
-    decision_notes: null,
-    decided_at: null,
-    created_at: new Date(Date.now() - 3 * 86400000).toISOString(),
-    requested_by_name: "Arthur M. Vance",
-    requested_by_role: "ACCOUNTANT",
-  },
-  {
-    id: "appr-2",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    approval_type: "LEAVE_REQUEST",
-    reference_table: null,
-    reference_id: null,
-    requested_by_id: "b0000000-0000-0000-0000-000000000005",
-    decided_by_id: null,
-    impact_amount: 0,
-    status: "PENDING",
-    petitioner_notes: "Requesting 3 days leave for academic conference.",
-    decision_notes: null,
-    decided_at: null,
-    created_at: new Date(Date.now() - 1 * 86400000).toISOString(),
-    requested_by_name: "Dr. Alistair Finch",
-    requested_by_role: "TEACHER",
-  },
-];
+const FALLBACK_APPROVALS: Approval[] = [];
 
 // ---------------------------------------------------------------------------
 // Service Functions

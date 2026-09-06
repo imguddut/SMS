@@ -19,34 +19,7 @@ export interface CreateNotificationInput {
   linkUrl?: string;
 }
 
-const FALLBACK_NOTIFICATIONS: PlatformNotification[] = [
-  {
-    id: "notif-01",
-    recipient_id: "b0000000-0000-0000-0000-000000000006",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    type: "PAYMENT_RECEIVED",
-    title: "BHIM UPI Payment Settled (₹75,000)",
-    message: "Term 2 Composite Fees settled via UPI auto-match.",
-    entity_type: "payments",
-    entity_id: "pay-01",
-    is_read: false,
-    link_url: "/finance/invoices",
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "notif-02",
-    recipient_id: "b0000000-0000-0000-0000-000000000003",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    type: "APPROVAL_REQUESTED",
-    title: "CBSE Roll-Number List Ready for Seal",
-    message: "Class 12 Board Examination LOC awaits Principal approval.",
-    entity_type: "approvals",
-    entity_id: "war-01",
-    is_read: false,
-    link_url: "/school/approvals",
-    created_at: new Date().toISOString(),
-  },
-];
+const FALLBACK_NOTIFICATIONS: PlatformNotification[] = [];
 
 export async function dispatchNotification(input: CreateNotificationInput): Promise<{ id: string }> {
   try {

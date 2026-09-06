@@ -73,21 +73,7 @@ export interface StudentResult {
 // Fallback data
 // ---------------------------------------------------------------------------
 
-const FALLBACK_RESULTS: StudentResult[] = [
-  {
-    subjectName: "Higher Level Physics",
-    subjectCode: "PHY-HL-301",
-    assessments: [
-      { title: "Mid-Term Examination", type: "SUMMATIVE_EXAM", maxScore: 100, rawScore: 87, percentage: 87, weight: 30 },
-      { title: "Lab Practical", type: "PRACTICAL", maxScore: 50, rawScore: 44, percentage: 88, weight: 20 },
-      { title: "Internal Assessment", type: "INTERNAL", maxScore: 20, rawScore: 18, percentage: 90, weight: 20 },
-      { title: "Pre-Board Exam", type: "SUMMATIVE_EXAM", maxScore: 100, rawScore: 82, percentage: 82, weight: 30 },
-    ],
-    weightedAverage: 85.5,
-    gradeLetter: "A",
-    gpaPoints: 9.0,
-  },
-];
+const FALLBACK_RESULTS: StudentResult[] = [];
 
 // ---------------------------------------------------------------------------
 // Service Functions

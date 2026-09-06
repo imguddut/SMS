@@ -52,84 +52,12 @@ export interface PlatformAuditLog {
   details: string;
 }
 
-// Fallback seed data if DB is cold or offline
-let FALLBACK_SCHOOLS: SchoolWithDetails[] = [
-  {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-    legal_name: "Delhi Public School, R.K. Puram",
-    slug: "dps-rkpuram",
-    domain: "dpsrkp.net",
-    institution_type: "DAY_AND_BOARDING",
-    curriculum_framework: "CBSE_AFFILIATED",
-    jurisdiction: "New Delhi, India",
-    base_currency: "INR",
-    capacity_target: 3500,
-    status: "ACTIVE",
-    hsm_enclave_enabled: true,
-    logo_url: "/crests/kings.png",
-    settings: {
-      plan_tier: "Institutional Enterprise",
-      mfa_enforced: true,
-      biometric_sync: true,
-      ai_insights_enabled: true,
-      cluster_node: "DELHI-PRIMARY-01",
-    },
-    created_at: new Date(Date.now() - 90 * 86400000).toISOString(),
-    updated_at: new Date().toISOString(),
-    student_count: 3250,
-    faculty_count: 145,
-  },
-  {
-    id: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
-    legal_name: "National Public School, Indiranagar",
-    slug: "nps-indiranagar",
-    domain: "npsindiranagar.com",
-    institution_type: "DAY_SCHOOL",
-    curriculum_framework: "CBSE_ICSE_DUAL",
-    jurisdiction: "Bengaluru, Karnataka",
-    base_currency: "INR",
-    capacity_target: 2200,
-    status: "ACTIVE",
-    hsm_enclave_enabled: true,
-    logo_url: "/crests/rosey.png",
-    settings: {
-      plan_tier: "Institutional Enterprise",
-      mfa_enforced: true,
-      biometric_sync: true,
-      ai_insights_enabled: true,
-      cluster_node: "BLR-SOUTH-02",
-    },
-    created_at: new Date(Date.now() - 60 * 86400000).toISOString(),
-    updated_at: new Date().toISOString(),
-    student_count: 2100,
-    faculty_count: 98,
-  },
-  {
-    id: "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
-    legal_name: "The Cathedral & John Connon School",
-    slug: "cathedral-mumbai",
-    domain: "cathedral-school.com",
-    institution_type: "DAY_SCHOOL",
-    curriculum_framework: "ICSE_ISC_IB",
-    jurisdiction: "Mumbai, Maharashtra",
-    base_currency: "INR",
-    capacity_target: 1800,
-    status: "TRIAL",
-    hsm_enclave_enabled: false,
-    logo_url: "/crests/aiglon.png",
-    settings: {
-      plan_tier: "Pro Campus",
-      mfa_enforced: true,
-      biometric_sync: false,
-      ai_insights_enabled: true,
-      cluster_node: "MUM-WEST-01",
-    },
-    created_at: new Date(Date.now() - 15 * 86400000).toISOString(),
-    updated_at: new Date().toISOString(),
-    student_count: 1650,
-    faculty_count: 82,
-  },
-];
+// Clean fallback array (all dummy seed data cleared as requested)
+let FALLBACK_SCHOOLS: SchoolWithDetails[] = [];
+
+export function clearPlatformDummyData() {
+  FALLBACK_SCHOOLS.length = 0;
+}
 
 export async function fetchPlatformStats() {
   try {
@@ -173,6 +101,8 @@ export async function fetchPlatformStats() {
   }
 }
 
+const deletedPlatformSchoolIds = new Set<string>();
+
 export async function fetchAllSchools(filters?: { search?: string; status?: string; jurisdiction?: string }) {
   try {
     const supabase = createClient();
@@ -204,27 +134,16 @@ export async function fetchAllSchools(filters?: { search?: string; status?: stri
 
     const { data: schools, error } = await query;
 
+    let results: SchoolWithDetails[] = [];
     if (error || !schools || schools.length === 0) {
-      let result = [...FALLBACK_SCHOOLS];
-      if (filters?.search) {
-        const s = filters.search.toLowerCase();
-        result = result.filter(
-          (item) =>
-            item.legal_name.toLowerCase().includes(s) ||
-            item.slug.toLowerCase().includes(s) ||
-            item.domain?.toLowerCase().includes(s)
-        );
-      }
-      if (filters?.status && filters.status !== "ALL") {
-        result = result.filter((item) => item.status === filters.status);
-      }
-      if (filters?.jurisdiction && filters.jurisdiction !== "ALL") {
-        result = result.filter((item) => item.jurisdiction === filters.jurisdiction);
-      }
-      return result;
+      results = [...FALLBACK_SCHOOLS];
+    } else {
+      results = schools as SchoolWithDetails[];
     }
 
-    let results = schools as SchoolWithDetails[];
+    // Filter out deleted schools across session
+    results = results.filter((s) => !deletedPlatformSchoolIds.has(s.id));
+
     if (filters?.search) {
       const s = filters.search.toLowerCase();
       results = results.filter(
@@ -234,10 +153,16 @@ export async function fetchAllSchools(filters?: { search?: string; status?: stri
           item.domain?.toLowerCase().includes(s)
       );
     }
+    if (filters?.status && filters.status !== "ALL") {
+      results = results.filter((item) => item.status === filters.status);
+    }
+    if (filters?.jurisdiction && filters.jurisdiction !== "ALL") {
+      results = results.filter((item) => item.jurisdiction === filters.jurisdiction);
+    }
     return results;
   } catch (err) {
     console.error("fetchAllSchools catch:", err);
-    return FALLBACK_SCHOOLS;
+    return FALLBACK_SCHOOLS.filter((s) => !deletedPlatformSchoolIds.has(s.id));
   }
 }
 
@@ -335,6 +260,7 @@ export async function createSchoolWithAdmin(payload: {
   owner_email: string;
   owner_phone?: string;
   owner_title?: string;
+  initial_password?: string;
   plan_tier: string;
   hsm_enclave?: boolean;
   biometric_sync?: boolean;
@@ -402,7 +328,7 @@ export async function createSchoolWithAdmin(payload: {
         phone: payload.owner_phone || null,
         title: payload.owner_title || "Chancellor",
         status: "ACTIVE",
-        metadata: { demo_password: "Agragati@2025" },
+        metadata: { initial_password: payload.initial_password || "" },
         avatar_url: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -427,7 +353,7 @@ export async function createSchoolWithAdmin(payload: {
       phone: payload.owner_phone || null,
       title: payload.owner_title || "Chancellor & Executive",
       status: "ACTIVE",
-      metadata: { demo_password: "Agragati@2025" },
+      metadata: { initial_password: payload.initial_password || "" },
     })
     .select()
     .single();
@@ -436,14 +362,40 @@ export async function createSchoolWithAdmin(payload: {
     console.error("Error creating profile:", profErr);
   }
 
-  // 3. Create Default Academic Year
-  await supabase.from("academic_years").insert({
-    school_id: school.id,
-    name: "Academic Year 2024–2025",
-    start_date: "2024-09-01",
-    end_date: "2025-06-30",
-    is_current: true,
-  });
+  // 3. Create Default Academic Year & 10+2 Classes (Classes 1 to 12)
+  const { data: ayRow } = await supabase
+    .from("academic_years")
+    .insert({
+      school_id: school.id,
+      name: "Academic Year 2025–2026",
+      start_date: "2025-04-01",
+      end_date: "2026-03-31",
+      is_current: true,
+    })
+    .select("id")
+    .single();
+
+  const ayId = ayRow?.id;
+  for (let grade = 1; grade <= 12; grade++) {
+    const stage = grade <= 5 ? "Primary" : grade <= 8 ? "Middle" : grade <= 10 ? "Secondary" : "Senior Secondary";
+    const { data: clsRow } = await supabase
+      .from("classes")
+      .insert({
+        school_id: school.id,
+        academic_year_id: ayId,
+        name: `Class ${grade} - ${stage}`,
+        grade_level: grade,
+      })
+      .select("id")
+      .single();
+
+    if (clsRow?.id) {
+      await supabase.from("sections").insert([
+        { class_id: clsRow.id, name: "Section A", max_capacity: 40 },
+        { class_id: clsRow.id, name: "Section B", max_capacity: 40 },
+      ]);
+    }
+  }
 
   await logAudit({
     schoolId: school.id,
@@ -458,53 +410,67 @@ export async function createSchoolWithAdmin(payload: {
 }
 
 export async function updateSchoolStatus(id: string, status: SchoolStatus) {
-  try {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("schools")
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    await logAudit({
-      schoolId: id,
-      actorId: "b0000000-0000-0000-0000-000000000001",
-      action: "SCHOOL_STATUS_UPDATED",
-      entityTable: "schools",
-      entityId: id,
-      newValues: { status },
-    });
-
-    const school = FALLBACK_SCHOOLS.find((s) => s.id === id);
-    if (school) {
-      school.status = status;
+  if (typeof window !== "undefined") {
+    try {
+      await fetch("/api/schools", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ schoolId: id, status }),
+      });
+    } catch (err) {
+      console.warn("updateSchoolStatus API fetch warning:", err);
     }
-
-    return { success: true, data };
-  } catch (err: any) {
-    console.warn("updateSchoolStatus offline fallback:", err.message);
-    const school = FALLBACK_SCHOOLS.find((s) => s.id === id);
-    if (school) {
-      school.status = status;
+  } else {
+    try {
+      const supabase = createClient();
+      await supabase
+        .from("schools")
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq("id", id);
+    } catch (err: any) {
+      console.warn("updateSchoolStatus offline fallback:", err.message);
     }
-    return { success: true };
   }
+
+  const school = FALLBACK_SCHOOLS.find((s) => s.id === id);
+  if (school) {
+    school.status = status;
+  }
+
+  await logAudit({
+    schoolId: id,
+    actorId: "b0000000-0000-0000-0000-000000000001",
+    action: "SCHOOL_STATUS_UPDATED",
+    entityTable: "schools",
+    entityId: id,
+    newValues: { status },
+  });
+
+  return { success: true, school };
 }
 
 export async function deleteSchool(id: string) {
-  try {
-    const supabase = createClient();
-    await supabase.from("sections").delete().eq("school_id", id);
-    await supabase.from("classes").delete().eq("school_id", id);
-    await supabase.from("academic_years").delete().eq("school_id", id);
-    await supabase.from("schools").delete().eq("id", id);
-  } catch (err: any) {
-    console.warn("deleteSchool fallback:", err.message);
+  if (typeof window !== "undefined") {
+    try {
+      await fetch(`/api/schools?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+    } catch (err) {
+      console.warn("deleteSchool API fetch warning:", err);
+    }
+  } else {
+    try {
+      const supabase = createClient();
+      await supabase.from("sections").delete().eq("school_id", id);
+      await supabase.from("classes").delete().eq("school_id", id);
+      await supabase.from("academic_years").delete().eq("school_id", id);
+      await supabase.from("schools").delete().eq("id", id);
+    } catch (err: any) {
+      console.warn("deleteSchool fallback:", err.message);
+    }
   }
 
+  deletedPlatformSchoolIds.add(id);
   const idx = FALLBACK_SCHOOLS.findIndex((s) => s.id === id);
   if (idx !== -1) {
     FALLBACK_SCHOOLS.splice(idx, 1);
@@ -550,64 +516,29 @@ export async function updateSchoolSettings(id: string, settings: Record<string, 
 }
 
 export async function fetchPlatformBilling(): Promise<PlatformBillingItem[]> {
-  return [
-    {
-      id: "inv-001",
-      invoice_number: "GST-2025-001",
-      school_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-      school_name: "Delhi Public School, R.K. Puram",
-      plan_tier: "Institutional Enterprise Tier",
-      amount: 450000,
-      currency: "INR",
-      status: "PAID",
-      billing_cycle: "ANNUAL",
-      issue_date: "2025-01-01",
-      due_date: "2025-01-31",
-      payment_method: "Corporate NetBanking (HDFC Bank)",
-    },
-    {
-      id: "inv-002",
-      invoice_number: "GST-2025-002",
-      school_id: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
-      school_name: "National Public School, Indiranagar",
-      plan_tier: "Institutional Enterprise Tier",
-      amount: 450000,
-      currency: "INR",
-      status: "PAID",
-      billing_cycle: "ANNUAL",
-      issue_date: "2025-01-15",
-      due_date: "2025-02-15",
-      payment_method: "NEFT / RTGS (ICICI Bank)",
-    },
-    {
-      id: "inv-003",
-      invoice_number: "GST-2025-003",
-      school_id: "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33",
-      school_name: "The Cathedral & John Connon School",
-      plan_tier: "Pro Campus",
-      amount: 250000,
-      currency: "INR",
-      status: "PENDING",
-      billing_cycle: "ANNUAL",
-      issue_date: "2025-02-01",
-      due_date: "2025-03-01",
-      payment_method: "Razorpay Corporate B2B",
-    },
-    {
-      id: "inv-004",
-      invoice_number: "GST-2024-098",
-      school_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-      school_name: "Delhi Public School, R.K. Puram",
-      plan_tier: "Smart Biometric & Bus Tracking Module Addon",
-      amount: 120000,
-      currency: "INR",
-      status: "PAID",
-      billing_cycle: "ANNUAL",
-      issue_date: "2024-11-10",
-      due_date: "2024-12-10",
-      payment_method: "Corporate NetBanking (SBI)",
-    },
-  ];
+  try {
+    const supabase = createClient();
+    const { data: invoices } = await supabase.from("invoices").select("*");
+    if (invoices && invoices.length > 0) {
+      return invoices.map((inv: any) => ({
+        id: inv.id,
+        invoice_number: inv.invoice_number || inv.id,
+        school_id: inv.school_id,
+        school_name: "Campus",
+        plan_tier: "Standard Plan",
+        amount: inv.amount || 0,
+        currency: inv.currency || "INR",
+        status: inv.status || "PAID",
+        billing_cycle: "ANNUAL",
+        issue_date: inv.issue_date || new Date().toISOString(),
+        due_date: inv.due_date || new Date().toISOString(),
+        payment_method: inv.payment_method || "Online",
+      }));
+    }
+  } catch (err) {
+    console.warn("fetchPlatformBilling error:", err);
+  }
+  return [];
 }
 
 export async function fetchImpersonationDirectory(): Promise<ImpersonationUser[]> {
@@ -639,147 +570,35 @@ export async function fetchImpersonationDirectory(): Promise<ImpersonationUser[]
         school_id: u.school_id,
         school_name: u.schools?.legal_name || "Platform Root Enclave",
         status: u.status || "ACTIVE",
-        last_login: "Today, 14:32 IST",
+        last_login: "Today",
       }));
     }
   } catch (err) {
     console.warn("fetchImpersonationDirectory fallback:", err);
   }
 
-  return [
-    {
-      id: "imp-1",
-      full_name: "Vikramaditya Birla",
-      email: "owner@dpsrkp.net",
-      role: "OWNER",
-      title: "Chairman & Managing Trustee",
-      school_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-      school_name: "Delhi Public School, R.K. Puram",
-      status: "ACTIVE",
-      last_login: "Today, 11:20 IST",
-    },
-    {
-      id: "imp-2",
-      full_name: "Dr. Arvind Swaminathan",
-      email: "principal@dpsrkp.net",
-      role: "PRINCIPAL",
-      title: "Principal & Provost",
-      school_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-      school_name: "Delhi Public School, R.K. Puram",
-      status: "ACTIVE",
-      last_login: "Today, 08:45 IST",
-    },
-    {
-      id: "imp-3",
-      full_name: "Mrs. Sunita Deshmukh",
-      email: "admin@dpsrkp.net",
-      role: "SCHOOL_ADMIN",
-      title: "Vice Principal & Academic Dean",
-      school_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-      school_name: "Delhi Public School, R.K. Puram",
-      status: "ACTIVE",
-      last_login: "Yesterday, 17:10 IST",
-    },
-    {
-      id: "imp-4",
-      full_name: "Prof. Rajesh Verma",
-      email: "teacher@dpsrkp.net",
-      role: "TEACHER",
-      title: "Senior PGT Mathematics & HOD",
-      school_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-      school_name: "Delhi Public School, R.K. Puram",
-      status: "ACTIVE",
-      last_login: "Today, 13:05 IST",
-    },
-    {
-      id: "imp-5",
-      full_name: "Rameshwar Gupta",
-      email: "finance@dpsrkp.net",
-      role: "ACCOUNTANT",
-      title: "Chief Accounts Officer",
-      school_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-      school_name: "Delhi Public School, R.K. Puram",
-      status: "ACTIVE",
-      last_login: "Today, 10:15 IST",
-    },
-    {
-      id: "imp-6",
-      full_name: "Rajesh Sharma",
-      email: "parent@dpsrkp.net",
-      role: "PARENT",
-      title: "Parent • PTA Representative",
-      school_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-      school_name: "Delhi Public School, R.K. Puram",
-      status: "ACTIVE",
-      last_login: "2 days ago",
-    },
-    {
-      id: "imp-7",
-      full_name: "Aarav Sharma",
-      email: "student@dpsrkp.net",
-      role: "STUDENT",
-      title: "Head Boy Nominee • Class 12-A",
-      school_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-      school_name: "Delhi Public School, R.K. Puram",
-      status: "ACTIVE",
-      last_login: "Today, 15:40 IST",
-    },
-    {
-      id: "imp-8",
-      full_name: "Dr. Rohini Nambiar",
-      email: "owner.nps@npsindiranagar.com",
-      role: "OWNER",
-      title: "Managing Director & Trustee",
-      school_id: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
-      school_name: "National Public School, Indiranagar",
-      status: "ACTIVE",
-      last_login: "Today, 09:30 IST",
-    },
-  ];
+  return [];
 }
 
 export async function fetchPlatformAuditLogs(): Promise<PlatformAuditLog[]> {
-  return [
-    {
-      id: "log-01",
-      action: "APAAR / DigiLocker Key Attestation",
-      actor: "Anand Sen (Platform Security Lead)",
-      target: "Delhi-Primary-01 Hardware Node",
-      timestamp: "Today, 15:22:04 IST",
-      status: "SUCCESS",
-      ip_address: "103.24.188.12",
-      details: "DigiLocker & DPDP Act 2023 compliance cryptographic verification validated.",
-    },
-    {
-      id: "log-02",
-      action: "Tenant Provisioned",
-      actor: "System Provisioner Daemon",
-      target: "National Public School (npsindiranagar.com)",
-      timestamp: "Today, 14:01:19 IST",
-      status: "SUCCESS",
-      ip_address: "127.0.0.1",
-      details: "CBSE & ICSE dual curriculum database schema initialized.",
-    },
-    {
-      id: "log-03",
-      action: "Administrative Impersonation Session",
-      actor: "Anand Sen (Platform Security Lead)",
-      target: "Vikramaditya Birla (Owner)",
-      timestamp: "Today, 11:15:42 IST",
-      status: "WARNING",
-      ip_address: "103.24.188.12",
-      details: "Temporary elevated session initiated with audit log recording.",
-    },
-    {
-      id: "log-04",
-      action: "Automated Daily UPI / Bank Reconciliation",
-      actor: "Cron Ledger Reconciler",
-      target: "Delhi Public School, R.K. Puram",
-      timestamp: "Today, 04:00:00 IST",
-      status: "SUCCESS",
-      ip_address: "10.0.4.88",
-      details: "99.8% auto-match rate on UPI UTR and NEFT batch payments (₹ 8,42,500 total).",
-    },
-  ];
+  try {
+    const supabase = createClient();
+    const { data: logs } = await supabase.from("audit_logs").select("*").order("created_at", { ascending: false });
+    if (logs && logs.length > 0) {
+      return logs.map((l: any) => ({
+        id: l.id,
+        action: l.action || "SYSTEM_EVENT",
+        actor: l.actor_id || "System",
+        target: l.entity_table || "System Node",
+        timestamp: l.created_at || new Date().toISOString(),
+        status: "SUCCESS",
+        ip_address: "127.0.0.1",
+        details: JSON.stringify(l.new_values || {}),
+      }));
+    }
+  } catch (err) {
+    console.warn("fetchPlatformAuditLogs error:", err);
+  }
+  return [];
 }
 

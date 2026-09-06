@@ -121,39 +121,17 @@ export interface StudentLedger {
 // ---------------------------------------------------------------------------
 
 const FALLBACK_STATS: FinanceDashboardStats = {
-  totalBilled: 2450000,
-  totalCollected: 2187500,
-  totalOutstanding: 262500,
-  collectionRate: "89.3%",
-  overdueCount: 4,
-  overdueAmount: 175000,
-  thisMonthCollected: 425000,
+  totalBilled: 0,
+  totalCollected: 0,
+  totalOutstanding: 0,
+  collectionRate: "0%",
+  overdueCount: 0,
+  overdueAmount: 0,
+  thisMonthCollected: 0,
   currency: "INR",
 };
 
-const FALLBACK_INVOICES: Invoice[] = [
-  {
-    id: "inv-1",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    invoice_number: "INV-2025-001",
-    student_id: "c0000000-0000-0000-0000-000000000008",
-    guarantor_id: "c0000000-0000-0000-0000-000000000007",
-    academic_term_id: "33333333-3333-3333-3333-333333333333",
-    issue_date: new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0],
-    due_date: new Date(Date.now() + 15 * 86400000).toISOString().split("T")[0],
-    subtotal_amount: 75000,
-    discount_amount: 0,
-    tax_amount: 0,
-    total_amount: 75000,
-    balance_due: 75000,
-    status: "ISSUED",
-    notes: null,
-    created_at: new Date(Date.now() - 30 * 86400000).toISOString(),
-    student_name: "Genevieve Laurent",
-    student_admission_number: "KC-2025-0842",
-    guardian_name: "Marcus Laurent",
-  },
-];
+const FALLBACK_INVOICES: Invoice[] = [];
 
 // ---------------------------------------------------------------------------
 // Service Functions

@@ -48,7 +48,7 @@ export default function PlatformAdminNewSchoolPage() {
     owner_email: "trustee@sanskriti.edu.in",
     owner_phone: "+91 11 2688 8983",
     owner_title: "Trustee & Managing Director",
-    initial_password: "Agragati@2025",
+    initial_password: "",
 
     // Step 3: Sovereign Plan & Entitlements
     plan_tier: "Sovereign Fleet",
@@ -245,6 +245,7 @@ export default function PlatformAdminNewSchoolPage() {
                   onChange={(e) => handleChange("institution_type", e.target.value)}
                   className="w-full h-10 px-3 rounded-lg border border-border bg-surface text-on-surface font-sans text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
+                  <option value="10+2 Senior Secondary (Classes 1 to 12)">10+2 Senior Secondary (Classes 1 to 12)</option>
                   <option value="BOARDING_AND_DAY">Day &amp; Residential School</option>
                   <option value="INTERNATIONAL_BOARDING">CBSE / IB World School</option>
                   <option value="CLASSICAL_ACADEMY">Senior Secondary Public School</option>

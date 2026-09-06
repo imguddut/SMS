@@ -53,44 +53,7 @@ export interface HomeworkSubmission {
 // Fallback data
 // ---------------------------------------------------------------------------
 
-const FALLBACK_ASSIGNMENTS: HomeworkAssignment[] = [
-  {
-    id: "hw-1",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    section_id: "55555555-5555-5555-5555-555555555555",
-    subject_id: "66666666-6666-6666-6666-666666666666",
-    teacher_id: "c0000000-0000-0000-0000-000000000005",
-    title: "Electromagnetic Induction Lab Report",
-    brief_markdown: "Complete the lab report for Experiment 7: Faraday's Law of Electromagnetic Induction.",
-    due_datetime: new Date(Date.now() + 3 * 86400000).toISOString(),
-    max_points: 100,
-    attachment_urls: [],
-    created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
-    subject_name: "Higher Level Physics",
-    teacher_name: "Dr. Alistair Finch",
-    section_name: "Grade 11-A",
-    submission_count: 3,
-    total_students: 5,
-  },
-  {
-    id: "hw-2",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    section_id: "55555555-5555-5555-5555-555555555555",
-    subject_id: "66666666-6666-6666-6666-666666666666",
-    teacher_id: "c0000000-0000-0000-0000-000000000005",
-    title: "Quantum Mechanics Problem Set #4",
-    brief_markdown: "Solve problems 4.1 through 4.12 from the Griffiths textbook (3rd edition).",
-    due_datetime: new Date(Date.now() + 7 * 86400000).toISOString(),
-    max_points: 50,
-    attachment_urls: [],
-    created_at: new Date(Date.now() - 1 * 86400000).toISOString(),
-    subject_name: "Higher Level Physics",
-    teacher_name: "Dr. Alistair Finch",
-    section_name: "Grade 11-A",
-    submission_count: 0,
-    total_students: 5,
-  },
-];
+const FALLBACK_ASSIGNMENTS: HomeworkAssignment[] = [];
 
 // ---------------------------------------------------------------------------
 // Service Functions

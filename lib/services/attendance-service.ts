@@ -58,13 +58,7 @@ export interface StudentAttendanceDay {
 // Fallback data (removed incrementally once Supabase is verified)
 // ---------------------------------------------------------------------------
 
-const FALLBACK_STUDENTS = [
-  { id: "s1", name: "Genevieve Laurent", admissionNumber: "KC-2025-0842", house: "House Valois" },
-  { id: "s2", name: "Aarav Sharma", admissionNumber: "KC-2025-0101", house: "House Tudor" },
-  { id: "s3", name: "Priya Patel", admissionNumber: "KC-2025-0202", house: "House Bourbon" },
-  { id: "s4", name: "Kabir Singh", admissionNumber: "KC-2025-0303", house: "House Habsburg" },
-  { id: "s5", name: "Ananya Gupta", admissionNumber: "KC-2025-0404", house: "House Valois" },
-];
+const FALLBACK_STUDENTS: any[] = [];
 
 // ---------------------------------------------------------------------------
 // Service Functions
@@ -132,23 +126,9 @@ export async function getAttendanceBySection(
   } catch (err) {
     console.warn("getAttendanceBySection fallback:", err);
 
-    // Fallback: return mock roster
     return {
       record: null,
-      entries: FALLBACK_STUDENTS.map((s, i) => ({
-        id: `ae-${i}`,
-        attendance_record_id: "mock-record",
-        student_id: s.id,
-        status: i === 1 ? "ABSENT" : "PRESENT",
-        reason: null,
-        time_in: "08:00",
-        time_out: null,
-        verification_method: "BIOMETRIC_CARD_TAP",
-        created_at: new Date().toISOString(),
-        student_name: s.name,
-        student_admission_number: s.admissionNumber,
-        student_house: s.house,
-      })),
+      entries: [],
     };
   }
 }
@@ -193,22 +173,7 @@ export async function getAttendanceByStudent(
     }));
   } catch (err) {
     console.warn("getAttendanceByStudent fallback:", err);
-
-    // Generate 30 days of mock data
-    const days: StudentAttendanceDay[] = [];
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const statuses: Array<"PRESENT" | "ABSENT" | "LATE"> = ["PRESENT", "PRESENT", "PRESENT", "PRESENT", "ABSENT", "LATE"];
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      if (d.getDay() === 0 || d.getDay() === 6) continue; // Skip weekends
-      days.push({
-        date: d.toISOString().split("T")[0],
-        status: statuses[Math.floor(Math.random() * statuses.length)],
-        reason: null,
-        period_number: 0,
-      });
-    }
-    return days;
+    return [];
   }
 }
 
@@ -379,12 +344,12 @@ export async function getAttendanceSummary(
   } catch (err) {
     console.warn("getAttendanceSummary fallback:", err);
     return {
-      totalStudents: 28,
-      presentCount: 25,
-      absentCount: 2,
-      lateCount: 1,
+      totalStudents: 0,
+      presentCount: 0,
+      absentCount: 0,
+      lateCount: 0,
       excusedCount: 0,
-      attendanceRate: "92.9%",
+      attendanceRate: "0%",
     };
   }
 }

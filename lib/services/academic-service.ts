@@ -53,21 +53,9 @@ export interface TeacherAssignment {
   subject_name?: string;
 }
 
-const FALLBACK_CLASSES: SchoolClass[] = [
-  { id: "44444444-4444-4444-4444-444444444444", school_id: "11111111-1111-1111-1111-111111111111", name: "Grade 11 - International Baccalaureate", grade_level: 11, curriculum_code: "IB_DP" },
-  { id: "c2", school_id: "11111111-1111-1111-1111-111111111111", name: "Class 12 - Senior Secondary Science", grade_level: 12, curriculum_code: "CBSE_SCI" },
-  { id: "c3", school_id: "11111111-1111-1111-1111-111111111111", name: "Class 10 - Secondary Foundation", grade_level: 10, curriculum_code: "CBSE_GEN" },
-];
-
-const FALLBACK_SECTIONS: ClassSection[] = [
-  { id: "55555555-5555-5555-5555-555555555555", class_id: "44444444-4444-4444-4444-444444444444", name: "Grade 11-A", room_number: "Wing Rm 301", max_capacity: 28, form_tutor_id: "c0000000-0000-0000-0000-000000000005", class_name: "Grade 11 - IB", enrolled_count: 24 },
-  { id: "sec-02", class_id: "c2", name: "Class 12-A", room_number: "Physics Wing Rm 304", max_capacity: 40, form_tutor_id: "c0000000-0000-0000-0000-000000000005", class_name: "Class 12 Science", enrolled_count: 38 },
-];
-
-const FALLBACK_SUBJECTS: SchoolSubject[] = [
-  { id: "66666666-6666-6666-6666-666666666666", school_id: "11111111-1111-1111-1111-111111111111", name: "Higher Level Physics", code: "PHY-HL-301", department: "Science", credits: 1.0, is_elective: false },
-  { id: "sub-02", school_id: "11111111-1111-1111-1111-111111111111", name: "Senior Secondary Mathematics", code: "MATH-041", department: "Mathematics", credits: 1.0, is_elective: false },
-];
+const FALLBACK_CLASSES: SchoolClass[] = [];
+const FALLBACK_SECTIONS: ClassSection[] = [];
+const FALLBACK_SUBJECTS: SchoolSubject[] = [];
 
 export async function listClasses(schoolId: string): Promise<SchoolClass[]> {
   try {
@@ -79,10 +67,10 @@ export async function listClasses(schoolId: string): Promise<SchoolClass[]> {
       .order("grade_level", { ascending: false });
 
     if (error) throw error;
-    return (data && data.length > 0) ? data : FALLBACK_CLASSES;
+    return data || [];
   } catch (err) {
     console.warn("listClasses fallback:", err);
-    return FALLBACK_CLASSES;
+    return [];
   }
 }
 
@@ -115,10 +103,10 @@ export async function listSections(schoolId: string, classId?: string): Promise<
         class_name: s.classes?.name,
       }));
     }
-    return FALLBACK_SECTIONS;
+    return [];
   } catch (err) {
     console.warn("listSections fallback:", err);
-    return FALLBACK_SECTIONS;
+    return [];
   }
 }
 
@@ -132,10 +120,10 @@ export async function listSubjects(schoolId: string): Promise<SchoolSubject[]> {
       .order("name", { ascending: true });
 
     if (error) throw error;
-    return (data && data.length > 0) ? data : FALLBACK_SUBJECTS;
+    return data || [];
   } catch (err) {
     console.warn("listSubjects fallback:", err);
-    return FALLBACK_SUBJECTS;
+    return [];
   }
 }
 

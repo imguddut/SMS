@@ -50,51 +50,8 @@ export interface CreateStudentPayload {
   guardianRelationship?: string;
 }
 
-const FALLBACK_STUDENTS: StudentRecord[] = [
-  {
-    id: "c0000000-0000-0000-0000-000000000008",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    profile_id: "b0000000-0000-0000-0000-000000000008",
-    admission_number: "KC-2025-0842",
-    full_name: "Genevieve Laurent",
-    email: "student@kingscollege.edu",
-    house: "House Valois",
-    date_of_birth: "2007-04-12",
-    gender: "Female",
-    blood_group: "O+",
-    medical_notes: null,
-    status: "ACTIVE",
-    created_at: new Date().toISOString(),
-    section_id: "55555555-5555-5555-5555-555555555555",
-    section_name: "Grade 11-A",
-    class_name: "Grade 11 - International Baccalaureate",
-    roll_number: 1,
-    guardian_name: "Marcus Laurent",
-    guardian_phone: "+41 22 718 8000",
-  },
-  {
-    id: "s2",
-    school_id: "11111111-1111-1111-1111-111111111111",
-    profile_id: "b2",
-    admission_number: "ADM-2024-001",
-    full_name: "Aarav Sharma",
-    email: "aarav.sharma@kingscollege.edu",
-    house: "Tagore House",
-    date_of_birth: "2007-06-15",
-    gender: "Male",
-    blood_group: "B+",
-    medical_notes: null,
-    status: "ACTIVE",
-    created_at: new Date().toISOString(),
-    section_id: "55555555-5555-5555-5555-555555555555",
-    section_name: "Class 12-A",
-    class_name: "Class 12 - Senior Science",
-    roll_number: 2,
-    guardian_name: "Rajesh Sharma",
-    guardian_phone: "+91 98100 12348",
-  },
-];
-let inMemoryStudents: StudentRecord[] = [...FALLBACK_STUDENTS];
+const FALLBACK_STUDENTS: StudentRecord[] = [];
+let inMemoryStudents: StudentRecord[] = [];
 
 /**
  * List students within a school with optional filters.

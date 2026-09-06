@@ -14,8 +14,8 @@ import { ShieldCheck, ArrowRight, Lock, Mail } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = React.useState("owner@kingscollege.edu");
-  const [password, setPassword] = React.useState("Agragati@2025");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
   const [selectedRole, setSelectedRole] = React.useState<UserRole>("OWNER");
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState("");
@@ -26,22 +26,24 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // Set session cookies for seamless transition & role persistence
-      document.cookie = `agragati_session=active_session_${selectedRole}; path=/; max-age=86400; SameSite=Lax`;
-      document.cookie = `agragati_role=${selectedRole}; path=/; max-age=86400; SameSite=Lax`;
+      const supabase = createClient();
+      const { data, error: authErr } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-      // Try Supabase live auth if available
-      try {
-        const supabase = createClient();
-        await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-      } catch {
-        // Fallback to local session
+      if (authErr || !data?.user) {
+        throw new Error(authErr?.message || "Invalid login credentials. Please check your email and password.");
       }
 
-      const targetRoute = getRoleHomeRoute(selectedRole);
+      const userRole = (data.user.user_metadata?.role as UserRole) || selectedRole;
+
+      if (data.session?.access_token) {
+        document.cookie = `agragati_session=${data.session.access_token}; path=/; max-age=86400; SameSite=Lax`;
+      }
+      document.cookie = `agragati_role=${userRole}; path=/; max-age=86400; SameSite=Lax`;
+
+      const targetRoute = getRoleHomeRoute(userRole);
       router.push(targetRoute);
       router.refresh();
     } catch (err: unknown) {
@@ -50,15 +52,15 @@ export default function LoginPage() {
     }
   };
 
-  const roles: { role: UserRole; label: string; email: string; portal: string }[] = [
-    { role: "SUPER_ADMIN", label: "System Admin", email: "superadmin@agragati.edu.in", portal: "Admin Portal" },
-    { role: "OWNER", label: "School Owner / Trustee", email: "trustee@dpsdelhi.edu.in", portal: "Management Office" },
-    { role: "PRINCIPAL", label: "Principal", email: "principal@dpsdelhi.edu.in", portal: "School Office" },
-    { role: "SCHOOL_ADMIN", label: "School Admin", email: "admin@dpsdelhi.edu.in", portal: "Operations" },
-    { role: "TEACHER", label: "Teacher", email: "teacher@dpsdelhi.edu.in", portal: "Teacher Area" },
-    { role: "ACCOUNTANT", label: "Accounts Officer", email: "finance@dpsdelhi.edu.in", portal: "Fees & Accounts" },
-    { role: "PARENT", label: "Parent / Guardian", email: "parent@dpsdelhi.edu.in", portal: "Parent Portal" },
-    { role: "STUDENT", label: "Student", email: "student@dpsdelhi.edu.in", portal: "Student Desk" },
+  const roles: { role: UserRole; label: string; portal: string }[] = [
+    { role: "SUPER_ADMIN", label: "System Admin", portal: "Admin Portal" },
+    { role: "OWNER", label: "School Owner / Trustee", portal: "Management Office" },
+    { role: "PRINCIPAL", label: "Principal", portal: "School Office" },
+    { role: "SCHOOL_ADMIN", label: "School Admin", portal: "Operations" },
+    { role: "TEACHER", label: "Teacher", portal: "Teacher Area" },
+    { role: "ACCOUNTANT", label: "Accounts Officer", portal: "Fees & Accounts" },
+    { role: "PARENT", label: "Parent / Guardian", portal: "Parent Portal" },
+    { role: "STUDENT", label: "Student", portal: "Student Desk" },
   ];
 
   return (
@@ -128,8 +130,6 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => {
                       setSelectedRole(r.role);
-                      setEmail(r.email);
-                      setPassword("Agragati@2025");
                     }}
                     className={`p-2 rounded-md text-left text-xs transition-all border ${
                       selectedRole === r.role
