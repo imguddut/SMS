@@ -22,10 +22,9 @@ import {
   Loader2,
 } from "lucide-react";
 import {
-  fetchAllSchools,
   SchoolWithDetails,
   } from "@/lib/db/platform-admin";
-import { updateSchoolStatusAction, deleteSchoolAction } from "@/app/actions/schools";
+import { updateSchoolStatusAction, deleteSchoolAction, fetchAllSchoolsAction } from "@/app/actions/schools";
 import { SchoolStatus } from "@/types/database";
 
 export default function PlatformAdminSchoolsPage() {
@@ -70,7 +69,7 @@ export default function PlatformAdminSchoolsPage() {
   const loadData = React.useCallback(async () => {
     setLoading(true);
     try {
-      const data = await fetchAllSchools({
+      const data = await fetchAllSchoolsAction({
         search: search || undefined,
         status: statusFilter,
         jurisdiction: jurisdictionFilter,

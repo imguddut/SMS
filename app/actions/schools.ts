@@ -114,3 +114,73 @@ export async function createSchoolAction(payload: {
 
   return { success: true, school, profile };
 }
+
+export async function fetchAllSchoolsAction(filters?: { search?: string; status?: string; jurisdiction?: string }) {
+  const supabase = getServiceSupabase();
+  let query = supabase
+    .from("schools")
+    .select(`
+      *,
+      users_profiles (
+        id,
+        full_name,
+        email,
+        role,
+        title
+      ),
+      academic_years (
+        id,
+        name,
+        is_current
+      )
+    `)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false });
+
+  if (filters?.status && filters.status !== "ALL") {
+    query = query.eq("status", filters.status);
+  }
+  if (filters?.jurisdiction && filters.jurisdiction !== "ALL") {
+    query = query.eq("jurisdiction", filters.jurisdiction);
+  }
+
+  const { data: schools, error } = await query;
+  if (error || !schools) return [];
+  return schools;
+}
+
+export async function fetchPlatformStatsAction() {
+  const supabase = getServiceSupabase();
+  
+  // 1. Fetch real schools
+  const { data: schools } = await supabase.from("schools").select("*").is("deleted_at", null);
+  const schoolList = schools || [];
+  
+  // 2. Fetch real counts
+  const { count: studentCount } = await supabase.from("students").select("*", { count: "exact", head: true });
+  const { count: userCount } = await supabase.from("users_profiles").select("*", { count: "exact", head: true });
+  
+  // 3. Fetch real revenue from platform_invoices
+  const { data: invoices } = await supabase
+    .from("platform_invoices")
+    .select("amount, status");
+    
+  let arrInr = 0;
+  let invoicedInr = 0;
+  if (invoices && invoices.length > 0) {
+    invoicedInr = invoices.reduce((sum, inv) => sum + Number(inv.amount), 0);
+    const totalCollected = invoices
+      .filter((inv) => inv.status === "PAID")
+      .reduce((sum, inv) => sum + Number(inv.amount), 0);
+    arrInr = totalCollected;
+  }
+
+  return {
+    totalSchools: schoolList.length,
+    activeStudents: studentCount || 0,
+    activeUsers: userCount || 0,
+    arrInr,
+    invoicedInr,
+    schools: schoolList,
+  };
+}

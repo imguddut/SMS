@@ -72,7 +72,7 @@ export async function stopImpersonation() {
   
   if (sessionId) {
     const supabase = createClient(cookieStore);
-    await serviceClient.from("impersonation_sessions").update({ status: "REVOKED" }).eq("id", sessionId);
+    await supabase.from("impersonation_sessions").update({ status: "REVOKED" }).eq("id", sessionId);
     cookieStore.delete("agragati_impersonation_id");
   }
 

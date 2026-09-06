@@ -21,11 +21,8 @@ import {
   Settings,
   MapPin,
 } from "lucide-react";
-import {
-  fetchPlatformStats,
-  fetchAllSchools,
-  SchoolWithDetails,
-} from "@/lib/db/platform-admin";
+import { SchoolWithDetails } from "@/lib/db/platform-admin";
+import { fetchPlatformStatsAction, fetchAllSchoolsAction } from "@/app/actions/schools";
 import { useAuth } from "@/components/providers/auth-context";
 
 export default function PlatformAdminOverviewPage() {
@@ -41,8 +38,8 @@ export default function PlatformAdminOverviewPage() {
     setError(null);
     try {
       const [sData, schData] = await Promise.all([
-        fetchPlatformStats(),
-        fetchAllSchools(),
+        fetchPlatformStatsAction(),
+        fetchAllSchoolsAction(),
       ]);
       setStats(sData);
       setSchools(schData);
