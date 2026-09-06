@@ -16,6 +16,7 @@ export interface AppShellProps {
   epochText?: string;
   userName?: string;
   userRoleTitle?: string;
+  onSearch?: (query: string) => void;
   children: React.ReactNode;
 }
 
@@ -26,6 +27,7 @@ export function AppShell({
   epochText = "Academic Session",
   userName,
   userRoleTitle,
+  onSearch,
   children,
 }: AppShellProps) {
   const { profile, currentSchool } = useAuth();
@@ -64,6 +66,7 @@ export function AppShell({
             epochText={epochText}
             userName={effectiveUserName}
             userTitle={effectiveUserTitle}
+            onSearch={onSearch}
           />
         </div>
 
@@ -90,7 +93,7 @@ export function AppShell({
             </span>
           </div>
           <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-            {userName.slice(0, 2).toUpperCase()}
+            {effectiveUserName.slice(0, 2).toUpperCase()}
           </div>
         </div>
 

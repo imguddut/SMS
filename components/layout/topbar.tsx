@@ -30,6 +30,7 @@ export function Topbar({
   epochText = "Daily Operational Session • Academic Year 2025–2026",
   userName = "Genevieve Laurent",
   userTitle = "SCHOLAR • FORM VI (GRADE 12-IB)",
+  onSearch,
 }: TopbarProps) {
   const router = useRouter();
   const { resolvedTheme, toggleTheme } = useTheme();
@@ -49,6 +50,7 @@ export function Topbar({
   const [isOrgDropdownOpen, setIsOrgDropdownOpen] = React.useState(false);
   const [isSchoolDropdownOpen, setIsSchoolDropdownOpen] = React.useState(false);
   const [unreadCount, setUnreadCount] = React.useState(3);
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   const userMenuRef = React.useRef<HTMLDivElement>(null);
   const orgMenuRef = React.useRef<HTMLDivElement>(null);
@@ -74,6 +76,17 @@ export function Topbar({
     }
     getUnread();
   }, [role]);
+
+  React.useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        document.querySelector<HTMLInputElement>('header input[aria-label="Quick search"]')?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleShortcut);
+    return () => document.removeEventListener("keydown", handleShortcut);
+  }, []);
 
   // Click outside listener for all dropdowns
   React.useEffect(() => {
@@ -265,6 +278,13 @@ export function Topbar({
             <input
               type="text"
               placeholder="Search students, ledgers, records... (⌘K)"
+              aria-label="Quick search"
+              value={searchQuery}
+              onChange={(event) => {
+                const query = event.target.value;
+                setSearchQuery(query);
+                onSearch?.(query);
+              }}
               className="w-48 xl:w-72 h-9 pl-9 pr-4 bg-slate-100/80 dark:bg-[#0F1A34] border border-slate-200/60 dark:border-[#1E2E4A] rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:bg-white dark:focus:bg-[#152244] focus:ring-1 focus:ring-blue-500/40 transition-all font-sans"
             />
           </div>
@@ -293,7 +313,7 @@ export function Topbar({
             >
               <Bell className="w-4 h-4" />
               <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-[#070D1B] shadow-xs">
-                3
+                {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             </button>
           </div>

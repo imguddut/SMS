@@ -33,24 +33,40 @@ export default function PlatformAdminOverviewPage() {
   const [stats, setStats] = React.useState<any>(null);
   const [schools, setSchools] = React.useState<SchoolWithDetails[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  const loadOverview = React.useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [sData, schData] = await Promise.all([
+        fetchPlatformStats(),
+        fetchAllSchools(),
+      ]);
+      setStats(sData);
+      setSchools(schData);
+    } catch (e) {
+      console.error("Error loading overview data:", e);
+      setError("We could not load the platform overview. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   React.useEffect(() => {
-    async function load() {
-      try {
-        const [sData, schData] = await Promise.all([
-          fetchPlatformStats(),
-          fetchAllSchools(),
-        ]);
-        setStats(sData);
-        setSchools(schData);
-      } catch (e) {
-        console.error("Error loading overview data:", e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
+    loadOverview();
+  }, [loadOverview]);
+
+  const filteredSchools = React.useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return schools;
+    return schools.filter((school) =>
+      [school.legal_name, school.slug, school.domain, (school as any).city, (school as any).state]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(query))
+    );
+  }, [schools, searchQuery]);
 
   return (
     <AppShell
@@ -58,8 +74,17 @@ export default function PlatformAdminOverviewPage() {
       userName={profile?.full_name || "Super Admin"}
       userRoleTitle="Platform Lead & Super Admin"
       epochText="Central System Administration • Cloud Network Active"
+      onSearch={setSearchQuery}
     >
       <div className="space-y-6 max-w-7xl mx-auto pb-6">
+        {error && (
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
+            <span>{error}</span>
+            <button type="button" onClick={loadOverview} className="shrink-0 font-semibold underline underline-offset-2">
+              Retry
+            </button>
+          </div>
+        )}
         {/* Top Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -108,13 +133,13 @@ export default function PlatformAdminOverviewPage() {
             <div className="mt-4">
               <div className="flex items-baseline gap-1.5">
                 <span className="text-3xl font-bold text-blue-600">
-                  {stats?.activeSchools ?? 2}
+                  {loading ? "..." : (stats?.activeSchools ?? 0)}
                 </span>
-                <span className="text-2xl font-normal text-slate-400">/ 3</span>
+                <span className="text-2xl font-normal text-slate-400">/ {loading ? "..." : (stats?.totalSchools ?? 0)}</span>
                 <span className="text-xs text-slate-500 ml-1">total</span>
               </div>
               <p className="text-xs font-semibold text-emerald-600 mt-2">
-                +1 added this quarter
+                {loading ? "..." : `${stats?.trialSchools ?? 0} trial schools`}
               </p>
             </div>
           </div>
@@ -131,10 +156,10 @@ export default function PlatformAdminOverviewPage() {
             </div>
             <div className="mt-4">
               <div className="text-3xl font-bold text-slate-900">
-                7,000
+                {loading ? "..." : (stats?.totalStudents ?? 0).toLocaleString()}
               </div>
               <p className="text-xs text-slate-500 mt-2">
-                Across Delhi, Karnataka &amp; Maharashtra
+                Across {loading ? "..." : (stats?.activeJurisdictions ?? 0)} jurisdictions
               </p>
             </div>
           </div>
@@ -231,14 +256,14 @@ export default function PlatformAdminOverviewPage() {
                       r="38"
                       stroke="#3B82F6"
                       strokeWidth="16"
-                      strokeDasharray={stats?.arrInr > 0 ? "238 238" : "0 238"}
+                      strokeDasharray={`${stats?.invoicedInr > 0 ? Math.min(238, ((stats.arrInr || 0) / stats.invoicedInr) * 238) : 0} 238`}
                       strokeDashoffset="0"
                       fill="transparent"
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                     <span className="text-xl font-bold text-slate-900">
-                      {loading ? "..." : (stats?.arrInr > 0 ? "100%" : "0%")}
+                      {loading ? "..." : `${stats?.invoicedInr > 0 ? Math.round(((stats.arrInr || 0) / stats.invoicedInr) * 100) : 0}%`}
                     </span>
                     <span className="text-[10px] text-slate-400 font-semibold uppercase">
                       Collected
@@ -389,16 +414,16 @@ export default function PlatformAdminOverviewPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
-                {schools.length === 0 ? (
+                {filteredSchools.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-12 text-center text-slate-400">
                       <Building2 className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
-                      <p className="text-sm font-medium">No schools registered</p>
-                      <p className="text-xs text-slate-400 mt-0.5">Institutions added to the platform will appear here.</p>
+                      <p className="text-sm font-medium">{searchQuery ? "No schools match your search" : "No schools registered"}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{searchQuery ? "Try a different name, code, or location." : "Institutions added to the platform will appear here."}</p>
                     </td>
                   </tr>
                 ) : (
-                  schools.map((sch) => (
+                  filteredSchools.map((sch) => (
                     <tr key={sch.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">

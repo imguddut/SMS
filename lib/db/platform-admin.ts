@@ -59,7 +59,7 @@ export async function fetchPlatformStats() {
     const supabase = createClient();
     
     // 1. Fetch real schools
-    const { data: schools } = await supabase.from("schools").select("*");
+    const { data: schools } = await supabase.from("schools").select("*").is("deleted_at", null);
     const schoolList = schools || [];
     
     // 2. Fetch real counts
@@ -73,7 +73,9 @@ export async function fetchPlatformStats() {
       .select("amount, status");
       
     let arrInr = 0;
+    let invoicedInr = 0;
     if (invoices && invoices.length > 0) {
+      invoicedInr = invoices.reduce((sum, inv) => sum + Number(inv.amount), 0);
       const totalCollected = invoices
         .filter(inv => inv.status === 'PAID')
         .reduce((sum, inv) => sum + Number(inv.amount), 0);
@@ -94,6 +96,7 @@ export async function fetchPlatformStats() {
       totalUsers,
       monthlyRunRate,
       arrInr,
+      invoicedInr,
       aiInferenceVolume: "N/A",
       hsmHealth: "N/A",
       clusterStatus: "Operational",
@@ -108,6 +111,7 @@ export async function fetchPlatformStats() {
       totalUsers: 0,
       monthlyRunRate: 0,
       arrInr: 0,
+      invoicedInr: 0,
       aiInferenceVolume: "N/A",
       hsmHealth: "N/A",
       clusterStatus: "Unknown",
@@ -138,6 +142,7 @@ export async function fetchAllSchools(filters?: { search?: string; status?: stri
           is_current
         )
       `)
+      .is("deleted_at", null)
       .order("created_at", { ascending: false });
 
     if (filters?.status && filters.status !== "ALL") {
@@ -155,6 +160,22 @@ export async function fetchAllSchools(filters?: { search?: string; status?: stri
     } else {
       results = schools as SchoolWithDetails[];
     }
+
+    const { data: studentRows } = await supabase
+      .from("students")
+      .select("school_id")
+      .is("deleted_at", null);
+    const studentCounts = new Map<string, number>();
+    (studentRows || []).forEach((student) => {
+      if (student.school_id) {
+        studentCounts.set(student.school_id, (studentCounts.get(student.school_id) || 0) + 1);
+      }
+    });
+
+    results = results.map((school) => ({
+      ...school,
+      student_count: studentCounts.get(school.id) || 0,
+    }));
 
     // Filter out deleted schools across session
     results = results.filter((s) => !deletedPlatformSchoolIds.has(s.id));
