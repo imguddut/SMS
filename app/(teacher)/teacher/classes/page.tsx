@@ -35,7 +35,7 @@ import { TeacherQuoteBanner } from "@/components/ui/teacher-quote-banner";
 import { useAuth } from "@/components/providers/auth-context";
 
 export default function TeacherClassesPage() {
-  const { profile, profile, school } = useAuth();
+  const { profile, school } = useAuth();
   const [classes, setClasses] = React.useState<TeacherClassOverview[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [previewOpen, setPreviewOpen] = React.useState(false);

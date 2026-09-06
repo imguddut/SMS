@@ -39,7 +39,7 @@ import { TeacherQuoteBanner } from "@/components/ui/teacher-quote-banner";
 import { useAuth } from "@/components/providers/auth-context";
 
 export default function TeacherMyDayPage() {
-  const { profile, profile, school } = useAuth();
+  const { profile, school } = useAuth();
   const [schedule, setSchedule] = React.useState<{
     sessions: TeacherPeriodSession[];
     metrics: any;

@@ -37,7 +37,7 @@ import { TeacherQuoteBanner } from "@/components/ui/teacher-quote-banner";
 import { useAuth } from "@/components/providers/auth-context";
 
 export default function TeacherAttendancePage() {
-  const { profile, profile, school } = useAuth();
+  const { profile, school } = useAuth();
   const [roster, setRoster] = React.useState<StudentAttendanceItem[]>([]);
   const [selectedClass, setSelectedClass] = React.useState("Session Roll-Call");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
