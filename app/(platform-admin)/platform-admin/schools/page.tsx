@@ -24,9 +24,8 @@ import {
 import {
   fetchAllSchools,
   SchoolWithDetails,
-  updateSchoolStatus,
-  deleteSchool,
-} from "@/lib/db/platform-admin";
+  } from "@/lib/db/platform-admin";
+import { updateSchoolStatusAction, deleteSchoolAction } from "@/app/actions/schools";
 import { SchoolStatus } from "@/types/database";
 
 export default function PlatformAdminSchoolsPage() {
@@ -43,7 +42,7 @@ export default function PlatformAdminSchoolsPage() {
     const nextStatus: SchoolStatus = school.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
     setLoadingActionId(school.id);
     try {
-      await updateSchoolStatus(school.id, nextStatus);
+      await updateSchoolStatusAction(school.id, nextStatus);
       setSchools((prev) =>
         prev.map((s) => (s.id === school.id ? { ...s, status: nextStatus } : s))
       );
@@ -58,7 +57,7 @@ export default function PlatformAdminSchoolsPage() {
     if (!deleteModalSchool) return;
     setIsDeleting(true);
     try {
-      await deleteSchool(deleteModalSchool.id);
+      await deleteSchoolAction(deleteModalSchool.id);
       setSchools((prev) => prev.filter((s) => s.id !== deleteModalSchool.id));
       setDeleteModalSchool(null);
     } catch (e) {

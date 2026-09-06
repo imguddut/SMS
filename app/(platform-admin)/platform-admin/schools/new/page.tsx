@@ -24,7 +24,7 @@ import {
   KeyRound,
   FileCheck2,
 } from "lucide-react";
-import { createSchoolWithAdmin } from "@/lib/db/platform-admin";
+import { createSchoolAction } from "@/app/actions/schools";
 
 export default function PlatformAdminNewSchoolPage() {
   const router = useRouter();
@@ -74,7 +74,7 @@ export default function PlatformAdminNewSchoolPage() {
   const handleDeploy = async () => {
     setIsSubmitting(true);
     try {
-      const res = await createSchoolWithAdmin({
+      const res = await createSchoolAction({
         legal_name: formData.legal_name,
         slug: formData.slug,
         domain: formData.domain,
