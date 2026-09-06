@@ -30,7 +30,7 @@ export async function deleteSchoolAction(id: string) {
   // We are using soft-delete archiving
   const { error } = await supabase
     .from("schools")
-    .update({ deleted_at: new Date().toISOString(), status: 'ARCHIVED' })
+    .update({ deleted_at: new Date().toISOString(), status: 'SUSPENDED' })
     .eq("id", id);
       
   if (error) throw new Error(error.message);

@@ -39,7 +39,7 @@ export default function PlatformAdminSchoolsPage() {
   const [loadingActionId, setLoadingActionId] = React.useState<string | null>(null);
 
   const handleToggleStatus = async (school: SchoolWithDetails) => {
-    const nextStatus: SchoolStatus = school.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+    const nextStatus: SchoolStatus = school.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
     setLoadingActionId(school.id);
     try {
       await updateSchoolStatusAction(school.id, nextStatus);
@@ -148,7 +148,7 @@ export default function PlatformAdminSchoolsPage() {
             >
               <option value="ALL">All Statuses</option>
               <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
+              <option value="SUSPENDED">Inactive</option>
               <option value="TRIAL">Trial</option>
               <option value="SUSPENDED">Suspended</option>
             </select>
@@ -278,7 +278,7 @@ export default function PlatformAdminSchoolsPage() {
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                             school.status === "ACTIVE"
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : school.status === "INACTIVE"
+                              : school.status === "SUSPENDED"
                               ? "bg-rose-50 text-rose-700 border border-rose-200"
                               : school.status === "TRIAL"
                               ? "bg-amber-50 text-amber-700 border border-amber-200"
